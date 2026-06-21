@@ -791,24 +791,9 @@
   <header class="topbar">
     <div class="topbar-left">
       <span class="topbar-title">팀 업무 보드</span>
-      <div class="topbar-date-nav">
-        <button class="date-btn" id="prev-date-btn" title="이전 날짜" aria-label="이전 날짜">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
-        </button>
-        <button class="date-display" id="date-display" title="날짜 선택" aria-label="날짜 선택">2025-01-01</button>
-        <input type="date" id="date-picker-input" aria-label="날짜 직접 입력" />
-        <button class="date-btn" id="next-date-btn" title="다음 날짜" aria-label="다음 날짜">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button class="today-btn" id="today-btn">오늘</button>
-      </div>
     </div>
     <div class="topbar-right">
       <span class="conn-dot" id="conn-dot" title="실시간 연결 상태"></span>
-      <div class="date-dropdown-wrap">
-        <button class="history-btn" id="history-btn" aria-label="이전 기록 보기">이전 기록 ▾</button>
-        <div class="date-dropdown" id="date-dropdown" role="listbox" aria-label="날짜 목록"></div>
-      </div>
       <button class="theme-btn" id="theme-btn" aria-label="다크모드 전환" title="다크모드 전환">
         <span id="theme-icon">🌙</span>
       </button>
@@ -949,6 +934,11 @@
             <option value="보류">보류</option>
           </select>
         </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="entry-date">업무일 (기한)</label>
+        <input class="form-input" type="date" id="entry-date" required>
       </div>
 
       <div class="form-group">
@@ -1140,10 +1130,7 @@ function parseSupabaseError(error) {
   return `오류: ${msg.slice(0,80)}`;
 }
 
-// 날짜 한국어 표시 업데이트
-function updateDateDisplay() {
-  document.getElementById('date-display').textContent = formatDateKr(currentDate);
-}
+// 날짜 표시 로직 제거됨
 
 // 실시간 연결 상태 업데이트
 function setConnDot(state) {
@@ -1185,17 +1172,18 @@ function resizeImageFile(file, maxWidth = 1200, maxHeight = 1200, quality = 0.85
 // ================================================================
 // 5. Supabase CRUD — work_entries
 // ================================================================
-async function loadEntriesForDate(date) {
+async function loadBoardEntries() {
   try {
+    const lastWeek = addDays(getTodayStr(), -7);
     const { data, error } = await supabase
       .from('work_entries')
       .select('*')
-      .or(`work_date.eq.${date},and(work_date.lt.${date},status.in.(예정,진행중,보류)),and(work_date.lt.${date},status.eq.완료,updated_at.gte.${date})`)
+      .or(`status.in.(예정,진행중,보류),and(status.eq.완료,updated_at.gte.${lastWeek})`)
       .order('created_at', { ascending: true });
     if (error) throw error;
     return data || [];
   } catch (err) {
-    console.error('[TWB] loadEntriesForDate error:', err);
+    console.error('[TWB] loadBoardEntries error:', err);
     showToast(parseSupabaseError(err), 'error');
     return [];
   }
@@ -1347,27 +1335,9 @@ async function uploadImage(file) {
 }
 
 // ================================================================
-// 9. 이전 날짜 목록 로드
-// ================================================================
-async function loadHistoryDates() {
-  try {
-    const { data, error } = await supabase
-      .from('work_entries')
-      .select('work_date')
-      .order('work_date', { ascending: false })
-      .limit(60);
-    if (error) throw error;
-    return [...new Set((data || []).map(r => r.work_date))];
-  } catch (err) {
-    console.error('[TWB] loadHistoryDates error:', err);
-    return [];
-  }
-}
-
-// ================================================================
 // 10. Realtime 구독
 // ================================================================
-function subscribeRealtime(date) {
+function subscribeRealtime() {
   // 데모 모드이거나 Supabase 미초기화 시 실행 안 함
   if (isDemoMode || !supabase) return;
 
@@ -1377,11 +1347,11 @@ function subscribeRealtime(date) {
   setConnDot('');
 
   const entryChannel = supabase
-    .channel('work_entries_' + date)
+    .channel('work_entries_all')
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'work_entries' },
       async () => {
-        allEntries = await loadEntriesForDate(currentDate);
+        allEntries = await loadBoardEntries();
         if (getActiveTab() === 'pipeline') {
           pipelineEntries = await loadPipelineEntries();
         }
@@ -1457,8 +1427,12 @@ function renderBoardTab() {
     <div class="entry-card" data-id="${esc(e.id)}">
       <div class="entry-card-main">
         <div class="entry-card-row1">
-          <span class="entry-name">${esc(e.name)}</span>
-          ${e.work_date !== currentDate ? `<span class="badge" style="background:var(--surface-2);color:var(--text-soft);font-size:10px;">이월 (${esc(e.work_date).substring(5).replace('-','/')})</span>` : ''}
+          <span class="entry-name">
+            ${esc(e.name)}
+            <span style="font-size:11px; color:var(--text-faint); margin-left:4px; font-weight:normal;">
+              (${esc(e.work_date).substring(5,10).replace('-','/')})
+            </span>
+          </span>
           <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
           ${e.category ? `<span class="category-chip">${esc(e.category)}</span>` : ''}
           ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel] || e.channel)}</span>` : ''}
@@ -1529,7 +1503,12 @@ function renderProjectTab() {
             <div class="entry-card" data-id="${esc(e.id)}">
               <div class="entry-card-main">
                 <div class="entry-card-row1">
-                  <span class="entry-name">${esc(e.name)}</span>
+                  <span class="entry-name">
+                    ${esc(e.name)}
+                    <span style="font-size:11px; color:var(--text-faint); margin-left:4px; font-weight:normal;">
+                      (${esc(e.work_date).substring(5,10).replace('-','/')})
+                    </span>
+                  </span>
                   <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
                   ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : ''}
                   ${e.stage ? `<span class="badge badge-stage-${esc(e.stage).replace(/\\s+/g, '-')}">${esc(e.stage)}</span>` : ''}
