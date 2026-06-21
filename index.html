@@ -1,0 +1,2509 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>팀 업무 공유 보드</title>
+  <meta name="description" content="정치 캠페인 팀의 일일 업무를 공유하고 관리하는 협업 보드입니다." />
+
+  <!-- 다크모드 FOUC 방지: body 렌더 전에 테마 결정 -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('twb-theme');
+        if (saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else if (!saved) {
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (prefersDark) document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Pretendard Variable 폰트 -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+
+  <style>
+    /* ============================================================
+       CSS 변수 — 라이트 모드 (기본)
+    ============================================================ */
+    :root {
+      --bg: #F6F7F9;
+      --surface: #FFFFFF;
+      --surface-2: #F0F1F5;
+      --border: #E4E6EB;
+      --border-soft: #ECEEF2;
+      --text: #1A1D23;
+      --text-soft: #5C6070;
+      --text-faint: #9CA0AD;
+      --accent: #5B4FE5;
+      --accent-soft: #EEECFD;
+      --accent-dark: #4840C7;
+      --accent-hover: #F0EEFF;
+
+      /* 상태 색상 */
+      --status-예정: #6B7280;
+      --status-예정-bg: #F3F4F6;
+      --status-진행중: #0EA5E9;
+      --status-진행중-bg: #E0F2FE;
+      --status-완료: #10B981;
+      --status-완료-bg: #D1FAE5;
+      --status-보류: #F59E0B;
+      --status-보류-bg: #FEF3C7;
+
+      /* 채널 색상 */
+      --ch-youtube: #FF0000;
+      --ch-youtube-bg: #FEE2E2;
+      --ch-fb_page: #1877F2;
+      --ch-fb_page-bg: #DBEAFE;
+      --ch-fb_group: #7C3AED;
+      --ch-fb_group-bg: #EDE9FE;
+      --ch-instagram: #E1306C;
+      --ch-instagram-bg: #FCE7F3;
+      --ch-twitter: #1DA1F2;
+      --ch-twitter-bg: #DBEAFE;
+      --ch-threads: #242526;
+      --ch-threads-bg: #F3F4F6;
+
+      /* 파이프라인 단계 색상 */
+      --stage-기획: #8B5CF6;
+      --stage-기획-bg: #EDE9FE;
+      --stage-제작: #F59E0B;
+      --stage-제작-bg: #FEF3C7;
+      --stage-검수: #0EA5E9;
+      --stage-검수-bg: #E0F2FE;
+      --stage-게시: #10B981;
+      --stage-게시-bg: #D1FAE5;
+
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,.12);
+      --radius: 10px;
+      --radius-sm: 6px;
+      --radius-lg: 14px;
+      --transition: 150ms ease;
+    }
+
+    /* ============================================================
+       CSS 변수 — 다크 모드
+    ============================================================ */
+    :root[data-theme="dark"] {
+      --bg: #1A1B1E;
+      --surface: #232428;
+      --surface-2: #2C2E33;
+      --border: #34363B;
+      --border-soft: #2B2D31;
+      --text: #ECEDEE;
+      --text-soft: #9CA0A8;
+      --text-faint: #6B6E76;
+      --accent: #7C72F2;
+      --accent-soft: #2C2A45;
+      --accent-dark: #9089F5;
+      --accent-hover: #252340;
+
+      --status-예정: #9CA3AF;
+      --status-예정-bg: #374151;
+      --status-진행중: #38BDF8;
+      --status-진행중-bg: #0C3047;
+      --status-완료: #34D399;
+      --status-완료-bg: #064E3B;
+      --status-보류: #FCD34D;
+      --status-보류-bg: #451A03;
+
+      --ch-youtube: #FF6B6B;
+      --ch-youtube-bg: #3B1515;
+      --ch-fb_page: #60A5FA;
+      --ch-fb_page-bg: #1E3A5F;
+      --ch-fb_group: #A78BFA;
+      --ch-fb_group-bg: #2E1B5E;
+      --ch-instagram: #F472B6;
+      --ch-instagram-bg: #4A1030;
+      --ch-twitter: #60A5FA;
+      --ch-twitter-bg: #1E3A5F;
+      --ch-threads: #D1D5DB;
+      --ch-threads-bg: #374151;
+
+      --stage-기획: #A78BFA;
+      --stage-기획-bg: #2E1B5E;
+      --stage-제작: #FCD34D;
+      --stage-제작-bg: #451A03;
+      --stage-검수: #38BDF8;
+      --stage-검수-bg: #0C3047;
+      --stage-게시: #34D399;
+      --stage-게시-bg: #064E3B;
+
+      --shadow: 0 1px 3px rgba(0,0,0,.30), 0 1px 2px rgba(0,0,0,.20);
+      --shadow-md: 0 4px 12px rgba(0,0,0,.40);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,.50);
+    }
+
+    /* ============================================================
+       리셋 & 기본
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 14px; }
+    body {
+      font-family: 'Pretendard Variable', 'Pretendard', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background var(--transition), color var(--transition);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; font-size: inherit; border: none; background: none; }
+    input, textarea, select {
+      font-family: inherit;
+      font-size: inherit;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      outline: none;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    img { max-width: 100%; display: block; }
+
+    /* ============================================================
+       레이아웃
+    ============================================================ */
+    .app-wrap { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Topbar */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .topbar-title {
+      font-size: 15px; font-weight: 600; color: var(--text);
+      white-space: nowrap;
+    }
+    .topbar-date-nav { display: flex; align-items: center; gap: 6px; }
+    .date-btn {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-soft);
+      transition: background var(--transition), color var(--transition);
+    }
+    .date-btn:hover { background: var(--surface-2); color: var(--text); }
+    .date-display {
+      font-size: 13px; font-weight: 500; color: var(--text);
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      min-width: 100px; text-align: center;
+      cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .date-display:hover { border-color: var(--accent); }
+    #date-picker-input {
+      position: absolute; opacity: 0; pointer-events: none; width: 0; height: 0;
+    }
+    .today-btn {
+      font-size: 12px; font-weight: 500; color: var(--accent);
+      padding: 4px 8px; border-radius: var(--radius-sm);
+      transition: background var(--transition);
+    }
+    .today-btn:hover { background: var(--accent-hover); }
+
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+    .history-btn {
+      font-size: 12px; color: var(--text-soft); padding: 4px 8px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      transition: all var(--transition);
+    }
+    .history-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .theme-btn {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-soft); font-size: 16px;
+      transition: background var(--transition), color var(--transition);
+    }
+    .theme-btn:hover { background: var(--surface-2); color: var(--text); }
+
+    /* 탭 */
+    .tabs-wrap {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex; gap: 2px;
+      overflow-x: auto;
+    }
+    .tabs-wrap::-webkit-scrollbar { display: none; }
+    .tabs-wrap { scrollbar-width: none; }
+    .tab-btn {
+      padding: 10px 14px; font-size: 13px; font-weight: 500;
+      color: var(--text-soft); border-bottom: 2px solid transparent;
+      transition: color var(--transition), border-color var(--transition);
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    /* 메인 콘텐츠 */
+    .main-content { flex: 1; padding: 20px; max-width: 1200px; width: 100%; margin: 0 auto; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ============================================================
+       카드
+    ============================================================ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      transition: box-shadow var(--transition), border-color var(--transition), background var(--transition);
+    }
+    .card:hover { box-shadow: var(--shadow-md); }
+    .entry-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .entry-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      display: flex; align-items: flex-start; gap: 12px;
+      transition: box-shadow var(--transition), border-color var(--transition), background var(--transition);
+      position: relative;
+    }
+    .entry-card:hover { box-shadow: var(--shadow-md); border-color: var(--border-soft); }
+    .entry-card-main { flex: 1; min-width: 0; }
+    .entry-card-row1 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+    .entry-name { font-weight: 600; font-size: 13px; color: var(--text); }
+    .entry-task { font-size: 13px; color: var(--text-soft); line-height: 1.5; margin-bottom: 6px; }
+    .entry-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .entry-link {
+      font-size: 12px; color: var(--accent);
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .entry-link:hover { text-decoration: underline; }
+    .entry-img-thumb {
+      width: 48px; height: 48px; object-fit: cover;
+      border-radius: var(--radius-sm); border: 1px solid var(--border);
+      cursor: pointer; flex-shrink: 0;
+    }
+    .entry-actions {
+      display: flex; gap: 4px; opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .entry-card:hover .entry-actions { opacity: 1; }
+    .action-btn {
+      width: 26px; height: 26px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--text-faint);
+      transition: background var(--transition), color var(--transition);
+    }
+    .action-btn:hover { background: var(--surface-2); color: var(--text); }
+    .action-btn.danger:hover { background: #FEE2E2; color: #DC2626; }
+
+    /* ============================================================
+       배지/태그
+    ============================================================ */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 2px 7px; border-radius: 100px;
+      font-size: 11px; font-weight: 500;
+      white-space: nowrap;
+    }
+    .badge-status-예정 { color: var(--status-예정); background: var(--status-예정-bg); }
+    .badge-status-진행중 { color: var(--status-진행중); background: var(--status-진행중-bg); }
+    .badge-status-완료 { color: var(--status-완료); background: var(--status-완료-bg); }
+    .badge-status-보류 { color: var(--status-보류); background: var(--status-보류-bg); }
+
+    .badge-ch-youtube { color: var(--ch-youtube); background: var(--ch-youtube-bg); }
+    .badge-ch-fb_page { color: var(--ch-fb_page); background: var(--ch-fb_page-bg); }
+    .badge-ch-fb_group { color: var(--ch-fb_group); background: var(--ch-fb_group-bg); }
+    .badge-ch-instagram { color: var(--ch-instagram); background: var(--ch-instagram-bg); }
+    .badge-ch-twitter { color: var(--ch-twitter); background: var(--ch-twitter-bg); }
+    .badge-ch-threads { color: var(--ch-threads); background: var(--ch-threads-bg); }
+
+    .badge-stage-기획 { color: var(--stage-기획); background: var(--stage-기획-bg); }
+    .badge-stage-제작 { color: var(--stage-제작); background: var(--stage-제작-bg); }
+    .badge-stage-검수 { color: var(--stage-검수); background: var(--stage-검수-bg); }
+    .badge-stage-게시 { color: var(--stage-게시); background: var(--stage-게시-bg); }
+
+    .category-chip {
+      font-size: 11px; font-weight: 500; padding: 2px 7px;
+      border-radius: 100px; background: var(--surface-2); color: var(--text-soft);
+    }
+
+    /* ============================================================
+       섹션 헤더
+    ============================================================ */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .section-count {
+      font-size: 12px; color: var(--text-faint);
+      background: var(--surface-2); padding: 2px 7px; border-radius: 100px;
+      margin-left: 6px;
+    }
+
+    /* ============================================================
+       버튼
+    ============================================================ */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500;
+      transition: all var(--transition); cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-secondary {
+      background: var(--surface); color: var(--text-soft);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-ghost { color: var(--text-soft); }
+    .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+    .btn-danger { color: #DC2626; background: #FEE2E2; }
+    .btn-danger:hover { background: #FCA5A5; }
+    .btn-sm { padding: 4px 10px; font-size: 12px; }
+    .btn-icon {
+      width: 32px; height: 32px; padding: 0;
+      justify-content: center;
+    }
+
+    /* ============================================================
+       빈 상태
+    ============================================================ */
+    .empty-state {
+      text-align: center; padding: 48px 20px;
+      color: var(--text-faint); font-size: 13px;
+    }
+    .empty-state-icon { font-size: 32px; margin-bottom: 12px; }
+    .empty-state-title { font-size: 15px; font-weight: 600; color: var(--text-soft); margin-bottom: 6px; }
+
+    /* ============================================================
+       모달
+    ============================================================ */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--surface); border-radius: var(--radius-lg);
+      padding: 24px; width: 100%; max-width: 540px;
+      max-height: calc(100vh - 40px); overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(8px);
+      transition: transform 200ms ease, background var(--transition);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-size: 16px; font-weight: 700; }
+    .modal-close {
+      width: 28px; height: 28px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-faint); font-size: 18px;
+      transition: background var(--transition), color var(--transition);
+    }
+    .modal-close:hover { background: var(--surface-2); color: var(--text); }
+    .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+    /* 폼 */
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-soft); margin-bottom: 5px; }
+    .form-input {
+      width: 100%; padding: 8px 10px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text); font-size: 13px;
+      transition: all var(--transition);
+    }
+    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    textarea.form-input { resize: vertical; min-height: 72px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA0AD' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+
+    /* 자동완성 */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-list {
+      position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+      max-height: 180px; overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-list.open { display: block; }
+    .autocomplete-item {
+      padding: 7px 10px; font-size: 13px; cursor: pointer;
+      color: var(--text);
+      transition: background var(--transition);
+    }
+    .autocomplete-item:hover { background: var(--accent-hover); }
+
+    /* 이미지 업로드 */
+    .img-upload-area {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 16px; text-align: center; cursor: pointer;
+      transition: border-color var(--transition), background var(--transition);
+    }
+    .img-upload-area:hover { border-color: var(--accent); background: var(--accent-hover); }
+    .img-upload-area.has-img { border-style: solid; }
+    .img-preview { max-height: 120px; margin: 0 auto; border-radius: var(--radius-sm); }
+    .img-upload-hint { font-size: 12px; color: var(--text-faint); margin-top: 6px; }
+
+    /* ============================================================
+       이미지 뷰어 모달
+    ============================================================ */
+    #img-viewer-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,.85);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+    #img-viewer-overlay.open { opacity: 1; pointer-events: auto; }
+    #img-viewer-img { max-width: 90vw; max-height: 85vh; border-radius: var(--radius); }
+    #img-viewer-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.15); color: #fff; font-size: 20px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--transition);
+    }
+    #img-viewer-close:hover { background: rgba(255,255,255,.3); }
+
+    /* ============================================================
+       토스트
+    ============================================================ */
+    #toast-container {
+      position: fixed; bottom: 24px; right: 24px; z-index: 400;
+      display: flex; flex-direction: column-reverse; gap: 8px;
+    }
+    .toast {
+      background: var(--text); color: var(--surface);
+      padding: 10px 16px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500;
+      box-shadow: var(--shadow-md);
+      animation: toastIn 250ms ease, toastOut 250ms ease 2.75s forwards;
+      display: flex; align-items: center; gap: 8px;
+      max-width: 320px;
+    }
+    .toast.error { background: #DC2626; color: #fff; }
+    .toast.success { background: #059669; color: #fff; }
+    .toast.warning { background: #D97706; color: #fff; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to { opacity: 0; transform: translateX(20px); }
+    }
+
+    /* ============================================================
+       로딩 스피너
+    ============================================================ */
+    .spinner {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      animation: spin 600ms linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-center {
+      display: flex; align-items: center; justify-content: center;
+      padding: 48px; gap: 10px; color: var(--text-faint); font-size: 13px;
+    }
+
+    /* ============================================================
+       보드 탭 — 필터 바
+    ============================================================ */
+    .filter-bar {
+      display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .filter-chip {
+      padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 500;
+      border: 1px solid var(--border); color: var(--text-soft);
+      background: var(--surface);
+      transition: all var(--transition); cursor: pointer;
+    }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .search-input-wrap { flex: 1; min-width: 160px; max-width: 260px; position: relative; }
+    .search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--text-faint); font-size: 14px; pointer-events: none; }
+    .search-input { padding: 5px 8px 5px 28px; width: 100%; border-radius: 100px; font-size: 12px; }
+
+    /* ============================================================
+       프로젝트별 탭
+    ============================================================ */
+    .project-group { margin-bottom: 20px; }
+    .project-group-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      margin-bottom: 10px;
+      cursor: pointer; user-select: none;
+    }
+    .project-group-header:hover .project-group-name { color: var(--accent); }
+    .project-group-name { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+    .project-stats { display: flex; gap: 6px; }
+    .project-stat { font-size: 11px; padding: 2px 7px; border-radius: 100px; font-weight: 500; }
+    .collapse-icon { font-size: 12px; color: var(--text-faint); transition: transform var(--transition); }
+    .project-group.collapsed .collapse-icon { transform: rotate(-90deg); }
+    .project-group.collapsed .entry-list { display: none; }
+
+    /* ============================================================
+       SNS 수치 탭
+    ============================================================ */
+    .sns-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .sns-platform-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      transition: box-shadow var(--transition), background var(--transition);
+    }
+    .sns-platform-card:hover { box-shadow: var(--shadow-md); }
+    .sns-platform-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .sns-platform-icon { font-size: 20px; }
+    .sns-platform-name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .sns-platform-count { font-size: 22px; font-weight: 700; color: var(--text); }
+    .sns-platform-delta {
+      font-size: 12px; font-weight: 500;
+      display: inline-flex; align-items: center; gap: 2px;
+    }
+    .delta-up { color: var(--status-완료); }
+    .delta-down { color: #DC2626; }
+    .delta-zero { color: var(--text-faint); }
+    .sns-canvas-wrap { margin: 10px 0; }
+    .sns-input-row { display: flex; gap: 6px; margin-top: 10px; }
+    .sns-input {
+      flex: 1; padding: 6px 8px; font-size: 13px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); color: var(--text);
+      transition: border-color var(--transition), background var(--transition), box-shadow var(--transition);
+    }
+    .sns-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); outline: none; }
+    .sns-save-btn {
+      padding: 6px 12px; border-radius: var(--radius-sm);
+      background: var(--accent); color: #fff; font-size: 12px; font-weight: 600;
+      transition: background var(--transition);
+    }
+    .sns-save-btn:hover { background: var(--accent-dark); }
+
+    /* ============================================================
+       파이프라인 탭
+    ============================================================ */
+    .pipeline-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+    .pipeline-board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .pipeline-board { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .pipeline-board { grid-template-columns: 1fr; } }
+    .pipeline-col {
+      background: var(--surface-2); border-radius: var(--radius);
+      padding: 12px;
+      min-height: 200px;
+    }
+    .pipeline-col-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px;
+    }
+    .pipeline-col-title { font-size: 13px; font-weight: 700; }
+    .pipeline-col-count {
+      font-size: 11px; color: var(--text-faint);
+      background: var(--surface); padding: 2px 7px; border-radius: 100px;
+    }
+    .pipeline-cards { display: flex; flex-direction: column; gap: 8px; }
+    .pipeline-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 10px 12px;
+      transition: box-shadow var(--transition), background var(--transition);
+    }
+    .pipeline-card:hover { box-shadow: var(--shadow-md); }
+    .pipeline-card-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .pipeline-card-task { font-size: 12px; color: var(--text-soft); margin-bottom: 6px; line-height: 1.4; }
+    .pipeline-card-footer { display: flex; align-items: center; justify-content: space-between; }
+    .pipeline-move-btn {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: var(--radius-sm); color: var(--accent);
+      background: var(--accent-soft);
+      transition: all var(--transition);
+    }
+    .pipeline-move-btn:hover { background: var(--accent); color: #fff; }
+
+    /* ============================================================
+       보고서 탭
+    ============================================================ */
+    .report-controls {
+      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+    }
+    .report-doc {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+    .report-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .report-subtitle { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
+    .report-section { margin-bottom: 24px; }
+    .report-section-title {
+      font-size: 14px; font-weight: 700;
+      border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 12px;
+      color: var(--accent);
+    }
+    .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .report-table th, .report-table td {
+      padding: 8px 10px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .report-table th { font-weight: 600; color: var(--text-soft); background: var(--surface-2); }
+    .report-table tr:last-child td { border-bottom: none; }
+    .report-export-btns { display: flex; gap: 8px; }
+
+    /* ============================================================
+       환경변수 경고
+    ============================================================ */
+    .setup-warning {
+      position: fixed; inset: 0; z-index: 500;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .setup-warning-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 32px;
+      max-width: 480px; width: 100%; text-align: center;
+    }
+    .setup-warning-icon { font-size: 40px; margin-bottom: 16px; }
+    .setup-warning-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .setup-warning-desc { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
+
+    /* ============================================================
+       날짜 선택 드롭다운 (이전 기록)
+    ============================================================ */
+    .date-dropdown {
+      position: absolute; top: 100%; right: 0; z-index: 60;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow-md);
+      min-width: 180px; max-height: 280px; overflow-y: auto;
+      display: none; margin-top: 4px;
+    }
+    .date-dropdown.open { display: block; }
+    .date-dropdown-item {
+      padding: 8px 12px; font-size: 13px; cursor: pointer; color: var(--text);
+      transition: background var(--transition);
+    }
+    .date-dropdown-item:hover { background: var(--accent-hover); color: var(--accent); }
+    .date-dropdown-wrap { position: relative; }
+
+    /* ============================================================
+       Realtime 연결 상태 도트
+    ============================================================ */
+    .conn-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #9CA3AF; display: inline-block;
+      transition: background var(--transition);
+    }
+    .conn-dot.connected { background: #10B981; }
+    .conn-dot.error { background: #EF4444; }
+
+    /* ============================================================
+       반응형
+    ============================================================ */
+    @media (max-width: 640px) {
+      .topbar { padding: 0 12px; }
+      .main-content { padding: 12px; }
+      .topbar-title { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+      .sns-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================================
+       인쇄 (보고서 항상 라이트 고정)
+    ============================================================ */
+    @media print {
+      .report-doc {
+        background: #fff !important; color: #1A1D23 !important;
+        border: none !important; padding: 0 !important;
+      }
+      .topbar, .tabs-wrap, .report-controls, .setup-warning { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================================================================
+     환경변수 경고 (Supabase 미설정 시 표시)
+================================================================ -->
+<div id="setup-warning" class="setup-warning" style="display:none">
+  <div class="setup-warning-card">
+    <div class="setup-warning-icon">⚠️</div>
+    <div class="setup-warning-title">설정이 필요합니다</div>
+    <div class="setup-warning-desc">
+      <code>SUPABASE_URL</code>과 <code>SUPABASE_ANON_KEY</code>가 아직 입력되지 않았습니다.<br><br>
+      <strong>index.html</strong> 상단의 TODO 주석을 찾아 본인의 Supabase 프로젝트 값을 입력해주세요.<br><br>
+      자세한 방법은 <strong>README.md</strong>를 참고하세요.
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     앱 레이아웃
+================================================================ -->
+<div class="app-wrap" id="app-wrap" style="display:none">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title">팀 업무 보드</span>
+      <div class="topbar-date-nav">
+        <button class="date-btn" id="prev-date-btn" title="이전 날짜" aria-label="이전 날짜">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button class="date-display" id="date-display" title="날짜 선택" aria-label="날짜 선택">2025-01-01</button>
+        <input type="date" id="date-picker-input" aria-label="날짜 직접 입력" />
+        <button class="date-btn" id="next-date-btn" title="다음 날짜" aria-label="다음 날짜">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <button class="today-btn" id="today-btn">오늘</button>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="conn-dot" id="conn-dot" title="실시간 연결 상태"></span>
+      <div class="date-dropdown-wrap">
+        <button class="history-btn" id="history-btn" aria-label="이전 기록 보기">이전 기록 ▾</button>
+        <div class="date-dropdown" id="date-dropdown" role="listbox" aria-label="날짜 목록"></div>
+      </div>
+      <button class="theme-btn" id="theme-btn" aria-label="다크모드 전환" title="다크모드 전환">
+        <span id="theme-icon">🌙</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 탭 네비게이션 -->
+  <nav class="tabs-wrap" role="tablist" aria-label="메인 탭">
+    <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="board"    id="tab-board">📋 보드</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="project"  id="tab-project">📁 프로젝트별</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="sns"      id="tab-sns">📊 SNS 수치</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="pipeline" id="tab-pipeline">🔄 파이프라인</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="report"   id="tab-report">📝 보고서</button>
+  </nav>
+
+  <!-- 메인 콘텐츠 -->
+  <main class="main-content">
+
+    <!-- ────────── 보드 탭 ────────── -->
+    <section class="tab-panel active" id="panel-board" role="tabpanel" aria-labelledby="tab-board">
+      <div class="section-header">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="section-title">업무 목록</span>
+          <span class="section-count" id="board-count">0</span>
+        </div>
+        <button class="btn btn-primary" id="add-entry-btn" aria-label="업무 추가">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          업무 추가
+        </button>
+      </div>
+      <div class="filter-bar">
+        <div class="search-input-wrap">
+          <span class="search-icon">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          </span>
+          <input class="form-input search-input" type="search" id="board-search" placeholder="이름·업무 검색" aria-label="업무 검색" />
+        </div>
+        <button class="filter-chip active" data-filter="all">전체</button>
+        <button class="filter-chip" data-filter="예정">예정</button>
+        <button class="filter-chip" data-filter="진행중">진행중</button>
+        <button class="filter-chip" data-filter="완료">완료</button>
+        <button class="filter-chip" data-filter="보류">보류</button>
+      </div>
+      <div id="board-list" class="entry-list"></div>
+    </section>
+
+    <!-- ────────── 프로젝트별 탭 ────────── -->
+    <section class="tab-panel" id="panel-project" role="tabpanel" aria-labelledby="tab-project">
+      <div class="section-header">
+        <span class="section-title">프로젝트별 현황</span>
+      </div>
+      <div id="project-list"></div>
+    </section>
+
+    <!-- ────────── SNS 수치 탭 ────────── -->
+    <section class="tab-panel" id="panel-sns" role="tabpanel" aria-labelledby="tab-sns">
+      <div class="section-header">
+        <span class="section-title">SNS 채널 수치</span>
+        <span style="font-size:12px;color:var(--text-faint)">오늘 기준</span>
+      </div>
+      <div class="sns-grid" id="sns-grid"></div>
+    </section>
+
+    <!-- ────────── 파이프라인 탭 ────────── -->
+    <section class="tab-panel" id="panel-pipeline" role="tabpanel" aria-labelledby="tab-pipeline">
+      <div class="section-header">
+        <span class="section-title">콘텐츠 파이프라인</span>
+      </div>
+      <div class="pipeline-filters">
+        <span style="font-size:12px;color:var(--text-soft);font-weight:600">채널:</span>
+        <button class="filter-chip active" data-pipeline-filter="all">전체</button>
+        <button class="filter-chip" data-pipeline-filter="youtube">YouTube</button>
+        <button class="filter-chip" data-pipeline-filter="fb_page">FB 페이지</button>
+        <button class="filter-chip" data-pipeline-filter="fb_group">FB 그룹</button>
+        <button class="filter-chip" data-pipeline-filter="instagram">Instagram</button>
+        <button class="filter-chip" data-pipeline-filter="twitter">Twitter/X</button>
+        <button class="filter-chip" data-pipeline-filter="threads">Threads</button>
+      </div>
+      <div class="pipeline-board" id="pipeline-board"></div>
+    </section>
+
+    <!-- ────────── 보고서 탭 ────────── -->
+    <section class="tab-panel" id="panel-report" role="tabpanel" aria-labelledby="tab-report">
+      <div class="report-controls">
+        <div style="display:flex;gap:8px;align-items:center">
+          <label style="font-size:12px;font-weight:600;color:var(--text-soft)">기간:</label>
+          <input type="date" id="report-start" class="form-input" style="padding:5px 8px;font-size:12px;width:130px" aria-label="보고서 시작일" />
+          <span style="color:var(--text-faint);font-size:12px">~</span>
+          <input type="date" id="report-end" class="form-input" style="padding:5px 8px;font-size:12px;width:130px" aria-label="보고서 종료일" />
+          <button class="btn btn-secondary btn-sm" id="report-load-btn">조회</button>
+        </div>
+        <div class="report-export-btns">
+          <button class="btn btn-secondary btn-sm" id="report-jpg-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            JPG
+          </button>
+          <button class="btn btn-secondary btn-sm" id="report-pdf-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            PDF
+          </button>
+        </div>
+      </div>
+      <div id="report-doc" class="report-doc">
+        <div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <div class="empty-state-title">기간을 선택하고 조회하세요</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ================================================================
+     업무 추가/수정 모달
+================================================================ -->
+<div class="modal-overlay" id="entry-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="entry-modal-title">
+  <div class="modal" id="entry-modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="entry-modal-title">업무 추가</h2>
+      <button class="modal-close" id="entry-modal-close" aria-label="닫기">✕</button>
+    </div>
+
+    <form id="entry-form" novalidate>
+      <input type="hidden" id="entry-id" />
+      <div class="form-row">
+        <div class="form-group autocomplete-wrap">
+          <label class="form-label" for="entry-name">담당자 *</label>
+          <input class="form-input" type="text" id="entry-name" placeholder="이름 입력" autocomplete="off" required />
+          <div class="autocomplete-list" id="name-autocomplete" role="listbox" aria-label="담당자 목록"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-status">상태 *</label>
+          <select class="form-input form-select" id="entry-status" required>
+            <option value="예정">예정</option>
+            <option value="진행중">진행중</option>
+            <option value="완료">완료</option>
+            <option value="보류">보류</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="entry-task">업무 내용 *</label>
+        <textarea class="form-input" id="entry-task" placeholder="업무 내용을 입력하세요" required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="entry-category-input">프로젝트/카테고리</label>
+          <input class="form-input" type="text" id="entry-category-input" list="category-list" placeholder="선택 또는 직접 입력" autocomplete="off" />
+          <datalist id="category-list"></datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-channel">SNS 채널</label>
+          <select class="form-input form-select" id="entry-channel">
+            <option value="">없음</option>
+            <option value="youtube">YouTube</option>
+            <option value="fb_page">FB 페이지</option>
+            <option value="fb_group">FB 그룹</option>
+            <option value="instagram">Instagram</option>
+            <option value="twitter">Twitter/X</option>
+            <option value="threads">Threads</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" id="stage-group" style="display:none">
+        <label class="form-label" for="entry-stage">파이프라인 단계</label>
+        <select class="form-input form-select" id="entry-stage">
+          <option value="">없음</option>
+          <option value="기획">기획</option>
+          <option value="제작">제작</option>
+          <option value="검수">검수</option>
+          <option value="게시">게시</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="entry-link">관련 링크</label>
+        <input class="form-input" type="url" id="entry-link" placeholder="https://" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">이미지 첨부</label>
+        <div class="img-upload-area" id="img-upload-area" role="button" tabindex="0" aria-label="이미지 업로드 영역">
+          <div id="img-upload-placeholder">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin:0 auto 6px;color:var(--text-faint)"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <div class="img-upload-hint">클릭하거나 이미지를 여기에 끌어다 놓으세요<br>최대 5MB, JPG·PNG·WebP</div>
+          </div>
+          <img id="img-preview" class="img-preview" style="display:none" alt="미리보기" />
+        </div>
+        <input type="file" id="img-file-input" accept="image/jpeg,image/png,image/webp" style="display:none" aria-label="이미지 파일 선택" />
+        <button type="button" id="img-remove-btn" class="btn btn-ghost btn-sm" style="display:none;margin-top:6px">이미지 제거</button>
+      </div>
+    </form>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="entry-cancel-btn">취소</button>
+      <button class="btn btn-primary" id="entry-save-btn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     이미지 뷰어
+================================================================ -->
+<div id="img-viewer-overlay" role="dialog" aria-modal="true" aria-label="이미지 뷰어">
+  <button id="img-viewer-close" aria-label="닫기">✕</button>
+  <img id="img-viewer-img" alt="첨부 이미지 원본" />
+</div>
+
+<!-- ================================================================
+     토스트 컨테이너
+================================================================ -->
+<div id="toast-container" aria-live="polite" aria-label="알림"></div>
+
+<!-- ================================================================
+     외부 라이브러리 (CDN)
+================================================================ -->
+<!-- html2canvas -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<!-- ================================================================
+     메인 스크립트 (ESM)
+================================================================ -->
+<script type="module">
+// ================================================================
+// 0. Supabase 설정 — TODO: 여기에 본인 Supabase 프로젝트 값 입력
+// ================================================================
+const SUPABASE_URL     = 'https://znvzvsiafadwyyawkzcp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpudnp2c2lhZmFkd3l5YXdremNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5MjExMTQsImV4cCI6MjA5NzQ5NzExNH0.IATBGDdoSerDvsdzcUe4kRAdLL2-z-vwPvDOvZ0jGPA'; // anon/public key (공개되어도 안전)
+
+// ================================================================
+// 1. 초기화 검증 & 데모 모드
+// ================================================================
+const isConfigured = SUPABASE_URL !== 'YOUR_SUPABASE_URL' && SUPABASE_ANON_KEY !== 'YOUR_SUPABASE_ANON_KEY';
+const isDemoMode   = new URLSearchParams(window.location.search).get('demo') === 'true';
+
+if (!isConfigured && !isDemoMode) {
+  document.getElementById('setup-warning').style.display = 'flex';
+} else {
+  document.getElementById('app-wrap').style.display = 'flex';
+}
+
+if (!isConfigured && !isDemoMode) {
+  // 설정 전에는 더 이상 진행하지 않음
+  throw new Error('[TWB] Supabase 설정 필요 — README.md 참고');
+}
+
+// ================================================================
+// 2. Supabase 클라이언트 초기화 (데모 모드에서는 mock 사용)
+// ================================================================
+let supabase = null;
+
+if (!isDemoMode) {
+  const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+  supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    realtime: { params: { eventsPerSecond: 10 } }
+  });
+}
+
+// ================================================================
+// 3. 전역 상태
+// ================================================================
+let currentDate = getTodayStr();
+let allEntries  = [];      // 현재 날짜 업무
+let pipelineEntries = [];  // 파이프라인 데이터 (전체 기간)
+let allSnsData  = {};      // sns_metrics { platform_key: [{metric_date, count}] }
+let suggestions = { names: [], categories: [] };
+let boardFilter = 'all';
+let boardSearch = '';
+let pipelineFilter = 'all';
+let realtimeChannels = [];
+let pendingImgFile   = null;  // 업로드 대기 중인 이미지 파일
+let pendingImgUrl    = null;  // 기존 항목의 이미지 URL (수정 시)
+let isLoading        = false;
+
+// ================================================================
+// 4. 유틸리티
+// ================================================================
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function formatDateKr(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일 (${['일','월','화','수','목','금','토'][d.getDay()]})`;
+}
+
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// 토스트
+function showToast(msg, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast${type !== 'info' ? ' ' + type : ''}`;
+  const icons = { success:'✓', error:'✕', warning:'⚠', info:'ℹ' };
+  el.innerHTML = `<span>${icons[type] || 'ℹ'}</span><span>${esc(msg)}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), duration + 100);
+}
+
+// Supabase 오류 해석
+function parseSupabaseError(error) {
+  if (!error) return '알 수 없는 오류가 발생했습니다.';
+  const msg = error.message || '';
+  if (error.status === 401 || error.status === 403) return '권한 오류입니다 (RLS 정책을 확인하세요). 콘솔 로그를 확인해주세요.';
+  if (msg.includes('network') || msg.includes('fetch')) return '네트워크 오류입니다. 인터넷 연결을 확인해주세요.';
+  if (msg.includes('Project paused') || msg.includes('503')) return '서버가 일시정지 상태일 수 있습니다. 잠시 후 다시 시도해주세요 (Supabase 무료 플랜은 7일 미사용 시 자동 일시정지됩니다).';
+  return `오류: ${msg.slice(0,80)}`;
+}
+
+// 날짜 한국어 표시 업데이트
+function updateDateDisplay() {
+  document.getElementById('date-display').textContent = formatDateKr(currentDate);
+}
+
+// 실시간 연결 상태 업데이트
+function setConnDot(state) {
+  const dot = document.getElementById('conn-dot');
+  dot.className = 'conn-dot' + (state ? ' ' + state : '');
+  dot.title = { connected:'실시간 연결됨', error:'실시간 연결 오류', '':'연결 중...' }[state] || '연결 중...';
+}
+
+// 이미지 리사이즈 (canvas 기반)
+function resizeImageFile(file, maxWidth = 1200, maxHeight = 1200, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          if (!blob) return reject(new Error('이미지 변환 실패'));
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => reject(new Error('이미지를 불러올 수 없습니다.'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('파일을 읽을 수 없습니다.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+// ================================================================
+// 5. Supabase CRUD — work_entries
+// ================================================================
+async function loadEntriesForDate(date) {
+  try {
+    const { data, error } = await supabase
+      .from('work_entries')
+      .select('*')
+      .or(`work_date.eq.${date},and(work_date.lt.${date},status.in.(예정,진행중,보류)),and(work_date.lt.${date},status.eq.완료,updated_at.gte.${date})`)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('[TWB] loadEntriesForDate error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return [];
+  }
+}
+
+async function loadPipelineEntries() {
+  try {
+    const { data, error } = await supabase
+      .from('work_entries')
+      .select('*')
+      .order('work_date', { ascending: false })
+      .limit(2000);
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('[TWB] loadPipelineEntries error:', err);
+    return [];
+  }
+}
+
+async function addEntry(entry) {
+  try {
+    const { data, error } = await supabase
+      .from('work_entries')
+      .insert([entry])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('[TWB] addEntry error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return null;
+  }
+}
+
+async function updateEntry(id, updates) {
+  try {
+    const { data, error } = await supabase
+      .from('work_entries')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('[TWB] updateEntry error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return null;
+  }
+}
+
+async function deleteEntry(id) {
+  try {
+    const { error } = await supabase
+      .from('work_entries')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error('[TWB] deleteEntry error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return false;
+  }
+}
+
+// ================================================================
+// 6. Supabase CRUD — sns_metrics
+// ================================================================
+async function loadAllSnsData() {
+  try {
+    const { data, error } = await supabase
+      .from('sns_metrics')
+      .select('*')
+      .order('metric_date', { ascending: true });
+    if (error) throw error;
+    // platform_key 별로 그룹핑
+    const grouped = {};
+    (data || []).forEach(row => {
+      if (!grouped[row.platform_key]) grouped[row.platform_key] = [];
+      grouped[row.platform_key].push(row);
+    });
+    return grouped;
+  } catch (err) {
+    console.error('[TWB] loadAllSnsData error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return {};
+  }
+}
+
+async function upsertSnsEntry(platformKey, metricDate, count) {
+  try {
+    const { data, error } = await supabase
+      .from('sns_metrics')
+      .upsert(
+        { platform_key: platformKey, metric_date: metricDate, count, updated_at: new Date().toISOString() },
+        { onConflict: 'platform_key,metric_date' }
+      )
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('[TWB] upsertSnsEntry error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return null;
+  }
+}
+
+// ================================================================
+// 7. 자동완성 — DISTINCT 쿼리
+// ================================================================
+async function loadSuggestions() {
+  try {
+    const [{ data: nameData, error: nameErr }, { data: catData, error: catErr }] = await Promise.all([
+      supabase.from('work_entries').select('name').not('name', 'is', null),
+      supabase.from('work_entries').select('category').not('category', 'is', null)
+    ]);
+    if (nameErr) console.warn('[TWB] name suggestions:', nameErr.message);
+    if (catErr)  console.warn('[TWB] category suggestions:', catErr.message);
+
+    const names = [...new Set((nameData || []).map(r => r.name).filter(Boolean))].sort();
+    const categories = [...new Set((catData || []).map(r => r.category).filter(Boolean))].sort();
+    suggestions = { names, categories };
+  } catch (err) {
+    console.warn('[TWB] loadSuggestions error:', err.message);
+  }
+}
+
+// ================================================================
+// 8. 이미지 업로드 (Supabase Storage)
+// ================================================================
+async function uploadImage(file) {
+  try {
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from('work-images').upload(path, file, { upsert: false });
+    if (upErr) throw upErr;
+
+    const { data: urlData } = supabase.storage.from('work-images').getPublicUrl(path);
+    return urlData?.publicUrl || null;
+  } catch (err) {
+    console.error('[TWB] uploadImage error:', err);
+    showToast('이미지 업로드에 실패했습니다: ' + (err.message || '알 수 없는 오류'), 'error');
+    return null;
+  }
+}
+
+// ================================================================
+// 9. 이전 날짜 목록 로드
+// ================================================================
+async function loadHistoryDates() {
+  try {
+    const { data, error } = await supabase
+      .from('work_entries')
+      .select('work_date')
+      .order('work_date', { ascending: false })
+      .limit(60);
+    if (error) throw error;
+    return [...new Set((data || []).map(r => r.work_date))];
+  } catch (err) {
+    console.error('[TWB] loadHistoryDates error:', err);
+    return [];
+  }
+}
+
+// ================================================================
+// 10. Realtime 구독
+// ================================================================
+function subscribeRealtime(date) {
+  // 데모 모드이거나 Supabase 미초기화 시 실행 안 함
+  if (isDemoMode || !supabase) return;
+
+  // 기존 구독 해제
+  realtimeChannels.forEach(ch => supabase.removeChannel(ch));
+  realtimeChannels = [];
+  setConnDot('');
+
+  const entryChannel = supabase
+    .channel('work_entries_' + date)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'work_entries' },
+      async () => {
+        allEntries = await loadEntriesForDate(currentDate);
+        if (getActiveTab() === 'pipeline') {
+          pipelineEntries = await loadPipelineEntries();
+        }
+        renderCurrentTab();
+      })
+    .subscribe(status => {
+      if (status === 'SUBSCRIBED') setConnDot('connected');
+      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') setConnDot('error');
+    });
+
+  const snsChannel = supabase
+    .channel('sns_metrics_global')
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'sns_metrics' },
+      async () => {
+        allSnsData = await loadAllSnsData();
+        if (getActiveTab() === 'sns') renderSnsTab();
+        if (getActiveTab() === 'report') renderReportContent();
+      })
+    .subscribe();
+
+  realtimeChannels = [entryChannel, snsChannel];
+}
+
+// ================================================================
+// 11. 탭 관리
+// ================================================================
+function getActiveTab() {
+  const btn = document.querySelector('.tab-btn.active');
+  return btn ? btn.dataset.tab : 'board';
+}
+
+function renderCurrentTab() {
+  const tab = getActiveTab();
+  if (tab === 'board')    renderBoardTab();
+  if (tab === 'project')  renderProjectTab();
+  if (tab === 'pipeline') renderPipelineTab();
+  if (tab === 'report')   { /* 보고서는 조회 버튼으로 수동 갱신 */ }
+}
+
+// ================================================================
+// 12. 보드 탭 렌더링
+// ================================================================
+const CH_LABELS = {
+  youtube: 'YouTube', fb_page: 'FB 페이지', fb_group: 'FB 그룹',
+  instagram: 'Instagram', twitter: 'Twitter/X', threads: 'Threads'
+};
+
+function renderBoardTab() {
+  const list = document.getElementById('board-list');
+  const search = boardSearch.toLowerCase();
+  let entries = [...allEntries];
+
+  if (boardFilter !== 'all') entries = entries.filter(e => e.status === boardFilter);
+  if (search) entries = entries.filter(e =>
+    (e.name || '').toLowerCase().includes(search) ||
+    (e.task || '').toLowerCase().includes(search)
+  );
+
+  document.getElementById('board-count').textContent = entries.length;
+
+  if (entries.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">${search || boardFilter !== 'all' ? '조건에 맞는 업무가 없어요' : '오늘 등록된 업무가 없어요'}</div>
+        <div>${search || boardFilter !== 'all' ? '다른 필터를 시도해보세요.' : '상단 "업무 추가" 버튼으로 첫 업무를 등록해보세요.'}</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = entries.map(e => `
+    <div class="entry-card" data-id="${esc(e.id)}">
+      <div class="entry-card-main">
+        <div class="entry-card-row1">
+          <span class="entry-name">${esc(e.name)}</span>
+          ${e.work_date !== currentDate ? `<span class="badge" style="background:var(--surface-2);color:var(--text-soft);font-size:10px;">이월 (${esc(e.work_date).substring(5).replace('-','/')})</span>` : ''}
+          <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
+          ${e.category ? `<span class="category-chip">${esc(e.category)}</span>` : ''}
+          ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel] || e.channel)}</span>` : ''}
+          ${e.stage ? `<span class="badge badge-stage-${esc(e.stage)}">${esc(e.stage)}</span>` : ''}
+        </div>
+        <div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>
+        <div class="entry-meta">
+          ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            링크
+          </a>` : ''}
+        </div>
+      </div>
+      ${e.image_url ? `<img class="entry-img-thumb" src="${esc(e.image_url)}" alt="첨부 이미지" loading="lazy" data-imgurl="${esc(e.image_url)}" />` : ''}
+      <div class="entry-actions">
+        <button class="action-btn edit-btn" data-id="${esc(e.id)}" title="수정" aria-label="수정">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="action-btn danger delete-btn" data-id="${esc(e.id)}" title="삭제" aria-label="삭제">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ================================================================
+// 13. 프로젝트별 탭 렌더링
+// ================================================================
+function renderProjectTab() {
+  const container = document.getElementById('project-list');
+  const groups = {};
+  allEntries.forEach(e => {
+    const key = e.category || '(카테고리 없음)';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(e);
+  });
+
+  if (Object.keys(groups).length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📁</div><div class="empty-state-title">오늘 등록된 업무가 없어요</div></div>`;
+    return;
+  }
+
+  const statusCounts = (entries) => {
+    const c = { 예정:0, 진행중:0, 완료:0, 보류:0 };
+    entries.forEach(e => { if (c[e.status] !== undefined) c[e.status]++; });
+    return c;
+  };
+
+  container.innerHTML = Object.entries(groups)
+    .sort(([a],[b]) => a.localeCompare(b, 'ko'))
+    .map(([cat, entries]) => {
+      const sc = statusCounts(entries);
+      return `
+      <div class="project-group" data-cat="${esc(cat)}">
+        <div class="project-group-header">
+          <span class="project-group-name">${esc(cat)}</span>
+          <div class="project-stats">
+            ${sc.예정   ? `<span class="project-stat" style="color:var(--status-예정);background:var(--status-예정-bg)">예정 ${sc.예정}</span>` : ''}
+            ${sc.진행중  ? `<span class="project-stat" style="color:var(--status-진행중);background:var(--status-진행중-bg)">진행중 ${sc.진행중}</span>` : ''}
+            ${sc.완료   ? `<span class="project-stat" style="color:var(--status-완료);background:var(--status-완료-bg)">완료 ${sc.완료}</span>` : ''}
+            ${sc.보류   ? `<span class="project-stat" style="color:var(--status-보류);background:var(--status-보류-bg)">보류 ${sc.보류}</span>` : ''}
+          </div>
+          <span class="collapse-icon">▾</span>
+        </div>
+        <div class="entry-list">
+          ${entries.map(e => `
+            <div class="entry-card" data-id="${esc(e.id)}">
+              <div class="entry-card-main">
+                <div class="entry-card-row1">
+                  <span class="entry-name">${esc(e.name)}</span>
+                  <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
+                  ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : ''}
+                  ${e.stage ? `<span class="badge badge-stage-${esc(e.stage)}">${esc(e.stage)}</span>` : ''}
+                </div>
+                <div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>
+                ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener">링크 ↗</a>` : ''}
+              </div>
+              ${e.image_url ? `<img class="entry-img-thumb" src="${esc(e.image_url)}" alt="첨부 이미지" loading="lazy" data-imgurl="${esc(e.image_url)}" />` : ''}
+              <div class="entry-actions">
+                <button class="action-btn edit-btn" data-id="${esc(e.id)}" aria-label="수정">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button class="action-btn danger delete-btn" data-id="${esc(e.id)}" aria-label="삭제">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    }).join('');
+}
+
+// ================================================================
+// 14. SNS 수치 탭 렌더링
+// ================================================================
+const SNS_PLATFORMS = [
+  { key:'youtube',   label:'YouTube',   icon:'📺' },
+  { key:'fb_page',   label:'FB 페이지', icon:'📘' },
+  { key:'fb_group',  label:'FB 그룹',   icon:'👥' },
+  { key:'instagram', label:'Instagram', icon:'📷' },
+  { key:'twitter',   label:'Twitter/X', icon:'🐦' },
+  { key:'threads',   label:'Threads',   icon:'🧵' },
+];
+
+function getThemeColor(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
+function drawLineChart(canvas, values, color) {
+  if (!canvas) return;
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || 240;
+  const H = 52;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  if (!values || values.length < 2) return;
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const pad = { t:6, r:6, b:6, l:6 };
+  const iW = W - pad.l - pad.r;
+  const iH = H - pad.t - pad.b;
+
+  const xs = values.map((_, i) => pad.l + (i / (values.length - 1)) * iW);
+  const ys = values.map(v => pad.t + iH - ((v - min) / range) * iH);
+
+  // 그라데이션 영역
+  const grad = ctx.createLinearGradient(0, pad.t, 0, H);
+  grad.addColorStop(0, color + '33');
+  grad.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  xs.forEach((x, i) => { if (i > 0) ctx.lineTo(x, ys[i]); });
+  ctx.lineTo(xs[xs.length-1], H - pad.b);
+  ctx.lineTo(xs[0], H - pad.b);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // 선
+  ctx.beginPath();
+  ctx.moveTo(xs[0], ys[0]);
+  xs.forEach((x, i) => { if (i > 0) ctx.lineTo(x, ys[i]); });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // 점
+  const textColor = getThemeColor('--text');
+  xs.forEach((x, i) => {
+    ctx.beginPath();
+    ctx.arc(x, ys[i], 3, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.strokeStyle = getThemeColor('--surface');
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // 마지막 값 표시
+  const last = values[values.length - 1];
+  ctx.font = `bold 10px Pretendard Variable, sans-serif`;
+  ctx.fillStyle = textColor;
+  ctx.textAlign = 'right';
+  ctx.fillText(last.toLocaleString(), xs[xs.length-1], ys[ys.length-1] - 7);
+}
+
+function renderSnsTab() {
+  const grid = document.getElementById('sns-grid');
+  const today = getTodayStr();
+
+  const CH_COLORS = {
+    youtube:'#FF0000', fb_page:'#1877F2', fb_group:'#7C3AED',
+    instagram:'#E1306C', twitter:'#1DA1F2', threads:'#242526'
+  };
+
+  grid.innerHTML = SNS_PLATFORMS.map(p => {
+    const rows = allSnsData[p.key] || [];
+    const sorted = [...rows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
+    const values = sorted.map(r => r.count);
+    const todayRow = rows.find(r => r.metric_date === today);
+    const todayCount = todayRow ? todayRow.count : null;
+    const prevRow = sorted.length >= 2 ? sorted[sorted.length - 2] : null;
+    const prevCount = prevRow ? prevRow.count : null;
+
+    let deltaHtml = '';
+    if (todayCount !== null && prevCount !== null) {
+      const diff = todayCount - prevCount;
+      if (diff > 0) deltaHtml = `<span class="sns-platform-delta delta-up">▲ ${diff.toLocaleString()}</span>`;
+      else if (diff < 0) deltaHtml = `<span class="sns-platform-delta delta-down">▼ ${Math.abs(diff).toLocaleString()}</span>`;
+      else deltaHtml = `<span class="sns-platform-delta delta-zero">변동없음</span>`;
+    }
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const chartColor = isDark
+      ? (p.key === 'threads' ? '#9CA3AF' : CH_COLORS[p.key])
+      : CH_COLORS[p.key];
+
+    return `
+      <div class="sns-platform-card" data-platform="${esc(p.key)}">
+        <div class="sns-platform-header">
+          <span class="sns-platform-icon">${p.icon}</span>
+          <span class="sns-platform-name">${esc(p.label)}</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
+          <span class="sns-platform-count">${todayCount !== null ? todayCount.toLocaleString() : '—'}</span>
+          ${deltaHtml}
+        </div>
+        <div class="sns-canvas-wrap">
+          <canvas class="sns-chart-canvas" data-platform="${esc(p.key)}" data-color="${esc(chartColor)}"
+            style="width:100%;display:block" aria-label="${esc(p.label)} 추이 그래프"></canvas>
+        </div>
+        <div class="sns-input-row">
+          <input class="sns-input" type="number" min="0" placeholder="오늘 수치 입력"
+            id="sns-input-${esc(p.key)}" aria-label="${esc(p.label)} 오늘 수치 입력"
+            value="${todayCount !== null ? todayCount : ''}" />
+          <button class="sns-save-btn" data-platform="${esc(p.key)}" aria-label="${esc(p.label)} 저장">저장</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  // 차트 그리기 (DOM에 붙은 후)
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.sns-chart-canvas').forEach(canvas => {
+      const platformKey = canvas.dataset.platform;
+      const color = canvas.dataset.color;
+      const rows = allSnsData[platformKey] || [];
+      const sorted = [...rows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
+      const values = sorted.slice(-14).map(r => r.count); // 최근 14일
+      drawLineChart(canvas, values, color);
+    });
+  });
+}
+
+// ================================================================
+// 15. 파이프라인 탭 렌더링
+// ================================================================
+const STAGES = ['기획','제작','검수','게시'];
+
+function renderPipelineTab() {
+  const board = document.getElementById('pipeline-board');
+  let entries = pipelineEntries.filter(e => e.channel);
+  if (pipelineFilter !== 'all') entries = entries.filter(e => e.channel === pipelineFilter);
+
+  const grouped = {};
+  STAGES.forEach(s => { grouped[s] = []; });
+  entries.forEach(e => {
+    const stage = e.stage || '기획';
+    if (grouped[stage]) grouped[stage].push(e);
+  });
+
+  board.innerHTML = STAGES.map(stage => {
+    const cards = grouped[stage];
+    const stageIndex = STAGES.indexOf(stage);
+    const nextStage = STAGES[stageIndex + 1] || null;
+
+    return `
+      <div class="pipeline-col" data-stage="${esc(stage)}">
+        <div class="pipeline-col-header">
+          <span class="badge badge-stage-${esc(stage)}">${esc(stage)}</span>
+          <span class="pipeline-col-count">${cards.length}</span>
+        </div>
+        <div class="pipeline-cards">
+          ${cards.length === 0
+            ? `<div style="font-size:12px;color:var(--text-faint);text-align:center;padding:16px 0">없음</div>`
+            : cards.map(e => {
+                const dateText = e.status === '완료' 
+                  ? `${esc(e.updated_at).substring(5,10).replace('-','/')} 게시` 
+                  : esc(e.work_date).substring(5,10).replace('-','/');
+                return `
+                <div class="pipeline-card" data-id="${esc(e.id)}">
+                  <div class="pipeline-card-name">
+                    ${esc(e.name)}
+                    <span style="font-size:10px; color:var(--text-faint); margin-left:4px; font-weight:normal;">
+                      (${dateText})
+                    </span>
+                  </div>
+                  <div class="pipeline-card-task">${esc(e.task).slice(0,60)}${e.task.length>60?'…':''}</div>
+                  <div class="pipeline-card-footer">
+                    ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}" style="font-size:10px">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '<span></span>'}
+                    ${nextStage
+                      ? `<button class="pipeline-move-btn" data-id="${esc(e.id)}" data-next-stage="${esc(nextStage)}" aria-label="${esc(stage)}에서 ${esc(nextStage)}으로 이동">→ ${esc(nextStage)}</button>`
+                      : `<span style="font-size:11px;color:var(--status-완료);font-weight:600">✓ 완료</span>`}
+                  </div>
+                </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ================================================================
+// 16. 보고서 탭 렌더링
+// ================================================================
+async function loadEntriesForRange(startDate, endDate) {
+  try {
+    const { data, error } = await supabase
+      .from('work_entries')
+      .select('*')
+      .gte('work_date', startDate)
+      .lte('work_date', endDate)
+      .order('work_date', { ascending: true })
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  } catch (err) {
+    console.error('[TWB] loadEntriesForRange error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return [];
+  }
+}
+
+let reportEntries = [];
+
+async function renderReportContent() {
+  const startDate = document.getElementById('report-start').value;
+  const endDate   = document.getElementById('report-end').value;
+  const doc = document.getElementById('report-doc');
+
+  if (!startDate || !endDate) {
+    doc.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-title">기간을 선택하고 조회하세요</div></div>`;
+    return;
+  }
+  if (startDate > endDate) {
+    showToast('시작일이 종료일보다 늦을 수 없습니다.', 'error');
+    return;
+  }
+
+  doc.innerHTML = `<div class="loading-center"><span class="spinner"></span> 보고서 불러오는 중...</div>`;
+  reportEntries = await loadEntriesForRange(startDate, endDate);
+
+  if (reportEntries.length === 0) {
+    doc.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">해당 기간에 데이터가 없어요</div></div>`;
+    return;
+  }
+
+  // 담당자별 그룹
+  const byName = {};
+  reportEntries.forEach(e => {
+    if (!byName[e.name]) byName[e.name] = [];
+    byName[e.name].push(e);
+  });
+
+  // 프로젝트별 그룹
+  const byCategory = {};
+  reportEntries.forEach(e => {
+    const k = e.category || '(미분류)';
+    if (!byCategory[k]) byCategory[k] = [];
+    byCategory[k].push(e);
+  });
+
+  const statusCount = (entries) => {
+    const c = { 예정:0, 진행중:0, 완료:0, 보류:0 };
+    entries.forEach(e => { if(c[e.status]!==undefined) c[e.status]++; });
+    return c;
+  };
+
+  const completionRate = (entries) => {
+    const done = entries.filter(e => e.status === '완료').length;
+    return Math.round(done / entries.length * 100);
+  };
+
+  doc.innerHTML = `
+    <div class="report-title">업무 현황 보고서</div>
+    <div class="report-subtitle">${startDate} ~ ${endDate} · 총 ${reportEntries.length}건</div>
+
+    <div class="report-section">
+      <div class="report-section-title">담당자별 현황</div>
+      <table class="report-table">
+        <thead><tr>
+          <th>담당자</th><th>예정</th><th>진행중</th><th>완료</th><th>보류</th><th>완료율</th>
+        </tr></thead>
+        <tbody>
+          ${Object.entries(byName).sort(([a],[b]) => a.localeCompare(b,'ko')).map(([name, entries]) => {
+            const sc = statusCount(entries);
+            return `<tr>
+              <td><strong>${esc(name)}</strong></td>
+              <td>${sc.예정  || '-'}</td>
+              <td>${sc.진행중 || '-'}</td>
+              <td>${sc.완료  || '-'}</td>
+              <td>${sc.보류  || '-'}</td>
+              <td><strong>${completionRate(entries)}%</strong></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">프로젝트별 현황</div>
+      <table class="report-table">
+        <thead><tr>
+          <th>프로젝트</th><th>예정</th><th>진행중</th><th>완료</th><th>보류</th><th>합계</th>
+        </tr></thead>
+        <tbody>
+          ${Object.entries(byCategory).sort(([a],[b]) => a.localeCompare(b,'ko')).map(([cat, entries]) => {
+            const sc = statusCount(entries);
+            return `<tr>
+              <td><strong>${esc(cat)}</strong></td>
+              <td>${sc.예정  || '-'}</td>
+              <td>${sc.진행중 || '-'}</td>
+              <td>${sc.완료  || '-'}</td>
+              <td>${sc.보류  || '-'}</td>
+              <td><strong>${entries.length}</strong></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="report-section">
+      <div class="report-section-title">업무 전체 목록</div>
+      <table class="report-table">
+        <thead><tr>
+          <th>날짜</th><th>담당자</th><th>업무</th><th>프로젝트</th><th>상태</th><th>채널</th>
+        </tr></thead>
+        <tbody>
+          ${reportEntries.map(e => `
+            <tr>
+              <td style="white-space:nowrap;color:var(--text-soft)">${esc(e.work_date)}</td>
+              <td><strong>${esc(e.name)}</strong></td>
+              <td>${esc(e.task).slice(0,60)}${e.task&&e.task.length>60?'…':''}</td>
+              <td>${esc(e.category || '-')}</td>
+              <td><span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span></td>
+              <td>${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '-'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ================================================================
+// 17. 업무 추가/수정 모달
+// ================================================================
+function openEntryModal(entry = null) {
+  const modal = document.getElementById('entry-modal-overlay');
+  const title = document.getElementById('entry-modal-title');
+  const form  = document.getElementById('entry-form');
+  form.reset();
+  pendingImgFile = null;
+  pendingImgUrl  = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('img-upload-placeholder').style.display = '';
+  document.getElementById('img-remove-btn').style.display = 'none';
+  document.getElementById('img-upload-area').classList.remove('has-img');
+
+  const catInput = document.getElementById('entry-category-input');
+  const catList = document.getElementById('category-list');
+
+  // 카테고리 옵션 채우기
+  const baseCategories = ['SNS 홍보', '영상 제작', '언론 홍보', '행정'];
+  const cats = Array.from(new Set([...baseCategories, ...suggestions.categories]));
+  let optionsHtml = '';
+  cats.forEach(c => { optionsHtml += `<option value="${esc(c)}"></option>`; });
+  catList.innerHTML = optionsHtml;
+
+  catInput.value = '';
+
+  if (entry) {
+    title.textContent = '업무 수정';
+    document.getElementById('entry-id').value       = entry.id;
+    document.getElementById('entry-name').value     = entry.name || '';
+    document.getElementById('entry-status').value   = entry.status || '예정';
+    document.getElementById('entry-task').value     = entry.task || '';
+
+    catInput.value = entry.category || '';
+    document.getElementById('entry-channel').value  = entry.channel || '';
+    document.getElementById('entry-stage').value    = entry.stage || '';
+    document.getElementById('entry-link').value     = entry.link || '';
+    if (entry.image_url) {
+      pendingImgUrl = entry.image_url;
+      const preview = document.getElementById('img-preview');
+      preview.src = entry.image_url;
+      preview.style.display = 'block';
+      document.getElementById('img-upload-placeholder').style.display = 'none';
+      document.getElementById('img-remove-btn').style.display = '';
+      document.getElementById('img-upload-area').classList.add('has-img');
+    }
+    toggleStageField();
+  } else {
+    title.textContent = '업무 추가';
+    document.getElementById('entry-id').value = '';
+    toggleStageField();
+  }
+
+  modal.classList.add('open');
+  document.getElementById('entry-name').focus();
+}
+
+function closeEntryModal() {
+  document.getElementById('entry-modal-overlay').classList.remove('open');
+}
+
+function toggleStageField() {
+  const channel = document.getElementById('entry-channel').value;
+  document.getElementById('stage-group').style.display = channel ? '' : 'none';
+}
+
+async function saveEntry() {
+  const id       = document.getElementById('entry-id').value;
+  const name     = document.getElementById('entry-name').value.trim();
+  const status   = document.getElementById('entry-status').value;
+  const task     = document.getElementById('entry-task').value.trim();
+  let category = document.getElementById('entry-category-input').value.trim();
+  const channel  = document.getElementById('entry-channel').value;
+  const stage    = document.getElementById('entry-stage').value;
+  const link     = document.getElementById('entry-link').value.trim();
+
+  if (!name) { showToast('담당자 이름을 입력해주세요.', 'error'); document.getElementById('entry-name').focus(); return; }
+  if (!task) { showToast('업무 내용을 입력해주세요.', 'error'); document.getElementById('entry-task').focus(); return; }
+
+  // URL 유효성
+  if (link && !link.startsWith('http')) {
+    showToast('링크는 http:// 또는 https://로 시작해야 합니다.', 'warning');
+    return;
+  }
+
+  const saveBtn = document.getElementById('entry-save-btn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = '저장 중...';
+
+  try {
+    let imageUrl = pendingImgUrl; // 기존 URL 유지
+
+    // 새 이미지가 있으면 업로드
+    if (pendingImgFile) {
+      const resized = await resizeImageFile(pendingImgFile);
+      imageUrl = await uploadImage(resized);
+      if (!imageUrl && pendingImgFile) {
+        // 업로드 실패 시 중단
+        return;
+      }
+    }
+
+    const payload = {
+      work_date: currentDate,
+      name, status, task,
+      category: category || null,
+      channel: channel || null,
+      stage: (channel && stage) ? stage : null,
+      link: link || null,
+      image_url: imageUrl || null,
+    };
+
+    let result;
+    if (id) {
+      result = await updateEntry(id, payload);
+      if (result) showToast('업무가 수정되었습니다.', 'success');
+    } else {
+      result = await addEntry(payload);
+      if (result) showToast('업무가 추가되었습니다.', 'success');
+    }
+
+    if (result) {
+      closeEntryModal();
+      allEntries = await loadEntriesForDate(currentDate);
+      await loadSuggestions();
+      renderCurrentTab();
+    }
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = '저장';
+  }
+}
+
+// ================================================================
+// 18. 이미지 처리
+// ================================================================
+function handleImageFile(file) {
+  if (!file) return;
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+    showToast('JPG, PNG, WebP 형식의 이미지만 업로드할 수 있습니다.', 'error');
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('이미지 크기는 5MB 이하여야 합니다.', 'error');
+    return;
+  }
+
+  pendingImgFile = file;
+  pendingImgUrl  = null;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const preview = document.getElementById('img-preview');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    document.getElementById('img-upload-placeholder').style.display = 'none';
+    document.getElementById('img-remove-btn').style.display = '';
+    document.getElementById('img-upload-area').classList.add('has-img');
+  };
+  reader.readAsDataURL(file);
+}
+
+// ================================================================
+// 19. 다크모드
+// ================================================================
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon').textContent = theme === 'dark' ? '☀️' : '🌙';
+  try { localStorage.setItem('twb-theme', theme); } catch(e) {}
+  // 다크모드 전환 후 차트 다시 그리기
+  if (getActiveTab() === 'sns') {
+    setTimeout(() => renderSnsTab(), 50);
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// 초기 아이콘 업데이트
+function updateThemeIcon() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const icon = document.getElementById('theme-icon');
+  if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+}
+
+// ================================================================
+// 20. 날짜 이동
+// ================================================================
+async function navigateToDate(dateStr, force = false) {
+  if (dateStr === currentDate && !force) {
+    // 같은 날짜여도 강제 리로드 요청이면 진행
+    allEntries = await loadEntriesForDate(currentDate);
+    renderCurrentTab();
+    return;
+  }
+  if (dateStr !== currentDate) {
+    currentDate = dateStr;
+    updateDateDisplay();
+    // Realtime 구독 갱신 (날짜가 바뀐 경우에만)
+    subscribeRealtime(currentDate);
+  }
+
+  // 데이터 로드
+  allEntries = await loadEntriesForDate(currentDate);
+  renderCurrentTab();
+}
+
+// ================================================================
+// 21. 이벤트 위임 & 초기화
+// ================================================================
+
+// 탭 전환
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected','true');
+    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+
+    const tab = btn.dataset.tab;
+    if (tab === 'pipeline') {
+      document.getElementById('pipeline-board').innerHTML = '<div class="loading-center"><span class="spinner"></span> 전체 파이프라인 불러오는 중...</div>';
+      pipelineEntries = await loadPipelineEntries();
+    }
+    if (tab === 'board')    renderBoardTab();
+    if (tab === 'project')  renderProjectTab();
+    if (tab === 'sns')      renderSnsTab();
+    if (tab === 'pipeline') renderPipelineTab();
+    // 보고서는 조회 버튼으로만 갱신
+  });
+});
+
+// 날짜 이동
+document.getElementById('prev-date-btn').addEventListener('click', () => navigateToDate(addDays(currentDate, -1)));
+document.getElementById('next-date-btn').addEventListener('click', () => navigateToDate(addDays(currentDate, 1)));
+// 오늘 버튼: 이미 오늘 날짜여도 강제 리로드
+document.getElementById('today-btn').addEventListener('click', () => navigateToDate(getTodayStr(), true));
+document.getElementById('date-display').addEventListener('click', () => {
+  const picker = document.getElementById('date-picker-input');
+  picker.value = currentDate;
+  picker.showPicker ? picker.showPicker() : picker.click();
+});
+document.getElementById('date-picker-input').addEventListener('change', e => {
+  if (e.target.value) navigateToDate(e.target.value);
+});
+
+// 이전 기록 드롭다운
+document.getElementById('history-btn').addEventListener('click', async (e) => {
+  e.stopPropagation();
+  const dropdown = document.getElementById('date-dropdown');
+  if (dropdown.classList.contains('open')) {
+    dropdown.classList.remove('open');
+    return;
+  }
+  dropdown.innerHTML = '<div class="date-dropdown-item" style="color:var(--text-faint)">불러오는 중...</div>';
+  dropdown.classList.add('open');
+  const dates = await loadHistoryDates();
+  if (dates.length === 0) {
+    dropdown.innerHTML = '<div class="date-dropdown-item" style="color:var(--text-faint)">이전 기록이 없어요</div>';
+  } else {
+    dropdown.innerHTML = dates.map(d =>
+      `<div class="date-dropdown-item" data-date="${esc(d)}" role="option">${esc(formatDateKr(d))}</div>`
+    ).join('');
+  }
+});
+
+document.getElementById('date-dropdown').addEventListener('click', e => {
+  const item = e.target.closest('.date-dropdown-item');
+  if (item && item.dataset.date) {
+    navigateToDate(item.dataset.date);
+    document.getElementById('date-dropdown').classList.remove('open');
+  }
+});
+
+// 바깥 클릭 시 드롭다운 닫기
+document.addEventListener('click', e => {
+  if (!e.target.closest('.date-dropdown-wrap')) {
+    document.getElementById('date-dropdown').classList.remove('open');
+  }
+  if (!e.target.closest('.autocomplete-wrap')) {
+    document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
+  }
+});
+
+// 다크모드 토글
+document.getElementById('theme-btn').addEventListener('click', toggleTheme);
+
+// 업무 추가 버튼
+document.getElementById('add-entry-btn').addEventListener('click', () => openEntryModal());
+
+// 모달 닫기
+document.getElementById('entry-modal-close').addEventListener('click', closeEntryModal);
+document.getElementById('entry-cancel-btn').addEventListener('click', closeEntryModal);
+document.getElementById('entry-modal-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('entry-modal-overlay')) closeEntryModal();
+});
+
+// 저장 버튼
+document.getElementById('entry-save-btn').addEventListener('click', saveEntry);
+document.getElementById('entry-form').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); saveEntry(); }
+});
+
+// 채널 변경 시 파이프라인 단계 표시
+document.getElementById('entry-channel').addEventListener('change', toggleStageField);
+
+// 카테고리 직접 입력 토글 (datalist 방식으로 변경되어 삭제됨)
+
+// 이미지 업로드
+const uploadArea = document.getElementById('img-upload-area');
+const fileInput  = document.getElementById('img-file-input');
+uploadArea.addEventListener('click', () => fileInput.click());
+uploadArea.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+fileInput.addEventListener('change', e => handleImageFile(e.target.files[0]));
+uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = 'var(--accent)'; });
+uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+uploadArea.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadArea.style.borderColor = '';
+  handleImageFile(e.dataTransfer.files[0]);
+});
+
+document.getElementById('img-remove-btn').addEventListener('click', () => {
+  pendingImgFile = null;
+  pendingImgUrl  = null;
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('img-upload-placeholder').style.display = '';
+  document.getElementById('img-remove-btn').style.display = 'none';
+  document.getElementById('img-upload-area').classList.remove('has-img');
+  fileInput.value = '';
+});
+
+// 이벤트 위임 — 보드/프로젝트별 수정·삭제·이미지
+document.addEventListener('click', async e => {
+  // 수정 버튼
+  const editBtn = e.target.closest('.edit-btn');
+  if (editBtn) {
+    const id = editBtn.dataset.id;
+    const entry = allEntries.find(e => e.id === id);
+    if (entry) openEntryModal(entry);
+    return;
+  }
+
+  // 삭제 버튼
+  const deleteBtn = e.target.closest('.delete-btn');
+  if (deleteBtn) {
+    const id = deleteBtn.dataset.id;
+    const entry = allEntries.find(e => e.id === id);
+    if (!entry) return;
+    if (!confirm(`"${entry.task.slice(0,30)}" 업무를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`)) return;
+    const ok = await deleteEntry(id);
+    if (ok) {
+      showToast('업무가 삭제되었습니다.', 'success');
+      allEntries = await loadEntriesForDate(currentDate);
+      renderCurrentTab();
+    }
+    return;
+  }
+
+  // 이미지 썸네일 클릭 → 뷰어
+  const imgThumb = e.target.closest('.entry-img-thumb');
+  if (imgThumb && imgThumb.dataset.imgurl) {
+    document.getElementById('img-viewer-img').src = imgThumb.dataset.imgurl;
+    document.getElementById('img-viewer-overlay').classList.add('open');
+    return;
+  }
+
+  // 파이프라인 이동 버튼
+  const moveBtn = e.target.closest('.pipeline-move-btn');
+  if (moveBtn) {
+    const id = moveBtn.dataset.id;
+    const nextStage = moveBtn.dataset.nextStage;
+    const entry = pipelineEntries.find(en => en.id === id) || allEntries.find(en => en.id === id);
+    if (!entry) return;
+    const result = await updateEntry(id, { stage: nextStage });
+    if (result) {
+      showToast(`"${entry.name}" 항목을 "${nextStage}"으로 이동했습니다.`, 'success');
+      pipelineEntries = await loadPipelineEntries();
+      allEntries = await loadEntriesForDate(currentDate);
+      renderPipelineTab();
+    }
+    return;
+  }
+
+  // 프로젝트 그룹 접기/펼치기
+  const groupHeader = e.target.closest('.project-group-header');
+  if (groupHeader) {
+    groupHeader.parentElement.classList.toggle('collapsed');
+    return;
+  }
+});
+
+// 이미지 뷰어 닫기
+document.getElementById('img-viewer-close').addEventListener('click', () => {
+  document.getElementById('img-viewer-overlay').classList.remove('open');
+});
+document.getElementById('img-viewer-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('img-viewer-overlay')) {
+    document.getElementById('img-viewer-overlay').classList.remove('open');
+  }
+});
+
+// ESC 키로 모달/뷰어 닫기
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeEntryModal();
+    document.getElementById('img-viewer-overlay').classList.remove('open');
+    document.getElementById('date-dropdown').classList.remove('open');
+    document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
+  }
+});
+
+// 자동완성 — 담당자
+document.getElementById('entry-name').addEventListener('input', function() {
+  const val = this.value.toLowerCase();
+  const list = document.getElementById('name-autocomplete');
+  const filtered = suggestions.names.filter(n => n.toLowerCase().includes(val) && n !== this.value);
+  if (filtered.length === 0 || !val) { list.classList.remove('open'); return; }
+  list.innerHTML = filtered.slice(0,8).map(n => `<div class="autocomplete-item" role="option" tabindex="-1">${esc(n)}</div>`).join('');
+  list.classList.add('open');
+});
+document.getElementById('name-autocomplete').addEventListener('click', e => {
+  const item = e.target.closest('.autocomplete-item');
+  if (item) {
+    document.getElementById('entry-name').value = item.textContent;
+    document.getElementById('name-autocomplete').classList.remove('open');
+  }
+});
+
+
+
+// 보드 검색
+document.getElementById('board-search').addEventListener('input', function() {
+  boardSearch = this.value;
+  renderBoardTab();
+});
+
+// 보드 필터 칩
+document.querySelector('.filter-bar').addEventListener('click', e => {
+  const chip = e.target.closest('.filter-chip[data-filter]');
+  if (!chip) return;
+  document.querySelectorAll('.filter-chip[data-filter]').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  boardFilter = chip.dataset.filter;
+  renderBoardTab();
+});
+
+// 파이프라인 채널 필터
+document.querySelector('.pipeline-filters').addEventListener('click', e => {
+  const chip = e.target.closest('.filter-chip[data-pipeline-filter]');
+  if (!chip) return;
+  document.querySelectorAll('.filter-chip[data-pipeline-filter]').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  pipelineFilter = chip.dataset.pipelineFilter;
+  renderPipelineTab();
+});
+
+// SNS 저장 버튼 (이벤트 위임)
+document.getElementById('sns-grid').addEventListener('click', async e => {
+  const btn = e.target.closest('.sns-save-btn');
+  if (!btn) return;
+  const platformKey = btn.dataset.platform;
+  const input = document.getElementById('sns-input-' + platformKey);
+  if (!input) return;
+  const val = parseInt(input.value, 10);
+  if (isNaN(val) || val < 0) {
+    showToast('유효한 숫자를 입력해주세요 (0 이상)', 'error');
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = '...';
+  const result = await upsertSnsEntry(platformKey, getTodayStr(), val);
+  btn.disabled = false;
+  btn.textContent = '저장';
+  if (result) {
+    allSnsData = await loadAllSnsData();
+    renderSnsTab();
+    showToast('SNS 수치가 저장되었습니다.', 'success');
+  }
+});
+
+// 보고서 조회
+document.getElementById('report-load-btn').addEventListener('click', renderReportContent);
+
+// 보고서 JPG 내보내기
+document.getElementById('report-jpg-btn').addEventListener('click', async () => {
+  const doc = document.getElementById('report-doc');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+  // 라이트 모드로 임시 전환
+  if (isDark) document.documentElement.setAttribute('data-theme', 'light');
+
+  try {
+    const canvas = await html2canvas(doc, {
+      scale: 2, backgroundColor: '#ffffff',
+      useCORS: true, allowTaint: false,
+      logging: false,
+    });
+    const link = document.createElement('a');
+    link.download = `업무보고서_${getTodayStr()}.jpg`;
+    link.href = canvas.toDataURL('image/jpeg', 0.92);
+    link.click();
+    showToast('JPG 파일이 저장되었습니다.', 'success');
+  } catch (err) {
+    console.error('[TWB] JPG export error:', err);
+    showToast('JPG 저장 중 오류가 발생했습니다.', 'error');
+  } finally {
+    // 다크 모드 복원
+    if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
+  }
+});
+
+// 보고서 PDF 내보내기
+document.getElementById('report-pdf-btn').addEventListener('click', async () => {
+  const doc = document.getElementById('report-doc');
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) document.documentElement.setAttribute('data-theme', 'light');
+
+  try {
+    const canvas = await html2canvas(doc, {
+      scale: 2, backgroundColor: '#ffffff',
+      useCORS: true, allowTaint: false,
+      logging: false,
+    });
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: canvas.width > canvas.height ? 'l' : 'p', unit: 'px', format: [canvas.width / 2, canvas.height / 2] });
+    pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 2, canvas.height / 2);
+    pdf.save(`업무보고서_${getTodayStr()}.pdf`);
+    showToast('PDF 파일이 저장되었습니다.', 'success');
+  } catch (err) {
+    console.error('[TWB] PDF export error:', err);
+    showToast('PDF 저장 중 오류가 발생했습니다.', 'error');
+  } finally {
+    if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
+  }
+});
+
+// 보고서 기간 기본값 (이번 달 1일 ~ 오늘)
+(function setReportDefaultDates() {
+  const today = getTodayStr();
+  const firstOfMonth = today.slice(0,7) + '-01';
+  document.getElementById('report-start').value = firstOfMonth;
+  document.getElementById('report-end').value   = today;
+})();
+
+// ================================================================
+// 22. 앱 초기화
+// ================================================================
+// ================================================================
+// 데모 모드 샘플 데이터
+// ================================================================
+const DEMO_ENTRIES = [
+  { id:'demo-1', work_date: getTodayStr(), name:'김민준', task:'SNS 홍보 게시물 초안 작성 (인스타그램 3종)', status:'완료', category:'SNS 홍보', channel:'instagram', stage:'게시', link:null, image_url:null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id:'demo-2', work_date: getTodayStr(), name:'이서연', task:'유튜브 쇼츠 편집 — 후보자 인터뷰 1분 요약본', status:'진행중', category:'영상 제작', channel:'youtube', stage:'제작', link:'https://example.com', image_url:null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id:'demo-3', work_date: getTodayStr(), name:'박도윤', task:'보도자료 작성 및 배포 (경제 공약 관련)', status:'예정', category:'언론 홍보', channel:null, stage:null, link:null, image_url:null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id:'demo-4', work_date: getTodayStr(), name:'최지우', task:'페이스북 페이지 광고 설정 및 타겟 조정', status:'진행중', category:'SNS 홍보', channel:'fb_page', stage:'검수', link:null, image_url:null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id:'demo-5', work_date: getTodayStr(), name:'김민준', task:'Threads 게시물 작성 — 지역 현안 3개 키워드', status:'보류', category:'SNS 홍보', channel:'threads', stage:'기획', link:null, image_url:null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id:'demo-6', work_date: getTodayStr(), name:'이서연', task:'주간 업무 보고서 초안 작성', status:'예정', category:'행정', channel:null, stage:null, link:null, image_url:null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
+
+const DEMO_SNS = {
+  youtube:   [{ platform_key:'youtube',   metric_date: addDays(getTodayStr(),-6), count:12800 }, { platform_key:'youtube',   metric_date: addDays(getTodayStr(),-5), count:12950 }, { platform_key:'youtube',   metric_date: addDays(getTodayStr(),-4), count:13100 }, { platform_key:'youtube',   metric_date: addDays(getTodayStr(),-3), count:13400 }, { platform_key:'youtube',   metric_date: addDays(getTodayStr(),-2), count:13500 }, { platform_key:'youtube',   metric_date: addDays(getTodayStr(),-1), count:13620 }, { platform_key:'youtube',   metric_date: getTodayStr(), count:13850 }],
+  fb_page:   [{ platform_key:'fb_page',   metric_date: addDays(getTodayStr(),-6), count:42000 }, { platform_key:'fb_page',   metric_date: addDays(getTodayStr(),-5), count:42200 }, { platform_key:'fb_page',   metric_date: addDays(getTodayStr(),-4), count:42150 }, { platform_key:'fb_page',   metric_date: addDays(getTodayStr(),-3), count:42400 }, { platform_key:'fb_page',   metric_date: addDays(getTodayStr(),-2), count:42600 }, { platform_key:'fb_page',   metric_date: addDays(getTodayStr(),-1), count:42800 }, { platform_key:'fb_page',   metric_date: getTodayStr(), count:43100 }],
+  fb_group:  [{ platform_key:'fb_group',  metric_date: addDays(getTodayStr(),-6), count:8500 },  { platform_key:'fb_group',  metric_date: addDays(getTodayStr(),-5), count:8620 },  { platform_key:'fb_group',  metric_date: addDays(getTodayStr(),-4), count:8700 },  { platform_key:'fb_group',  metric_date: addDays(getTodayStr(),-3), count:8750 },  { platform_key:'fb_group',  metric_date: addDays(getTodayStr(),-2), count:8800 },  { platform_key:'fb_group',  metric_date: addDays(getTodayStr(),-1), count:8850 },  { platform_key:'fb_group',  metric_date: getTodayStr(), count:8920 }],
+  instagram: [{ platform_key:'instagram', metric_date: addDays(getTodayStr(),-6), count:28000 }, { platform_key:'instagram', metric_date: addDays(getTodayStr(),-5), count:28300 }, { platform_key:'instagram', metric_date: addDays(getTodayStr(),-4), count:28600 }, { platform_key:'instagram', metric_date: addDays(getTodayStr(),-3), count:29000 }, { platform_key:'instagram', metric_date: addDays(getTodayStr(),-2), count:29200 }, { platform_key:'instagram', metric_date: addDays(getTodayStr(),-1), count:29450 }, { platform_key:'instagram', metric_date: getTodayStr(), count:29800 }],
+  twitter:   [{ platform_key:'twitter',   metric_date: addDays(getTodayStr(),-6), count:15200 }, { platform_key:'twitter',   metric_date: addDays(getTodayStr(),-5), count:15350 }, { platform_key:'twitter',   metric_date: addDays(getTodayStr(),-4), count:15400 }, { platform_key:'twitter',   metric_date: addDays(getTodayStr(),-3), count:15500 }, { platform_key:'twitter',   metric_date: addDays(getTodayStr(),-2), count:15580 }, { platform_key:'twitter',   metric_date: addDays(getTodayStr(),-1), count:15650 }, { platform_key:'twitter',   metric_date: getTodayStr(), count:15720 }],
+  threads:   [{ platform_key:'threads',   metric_date: addDays(getTodayStr(),-6), count:3200 },  { platform_key:'threads',   metric_date: addDays(getTodayStr(),-5), count:3350 },  { platform_key:'threads',   metric_date: addDays(getTodayStr(),-4), count:3500 },  { platform_key:'threads',   metric_date: addDays(getTodayStr(),-3), count:3650 },  { platform_key:'threads',   metric_date: addDays(getTodayStr(),-2), count:3800 },  { platform_key:'threads',   metric_date: addDays(getTodayStr(),-1), count:3950 },  { platform_key:'threads',   metric_date: getTodayStr(), count:4100 }],
+};
+
+// ================================================================
+// initApp
+// ================================================================
+async function initApp() {
+  updateDateDisplay();
+  updateThemeIcon();
+
+  if (isDemoMode) {
+    // 데모 모드: 샘플 데이터로 즉시 렌더링
+    allEntries = DEMO_ENTRIES;
+    allSnsData = DEMO_SNS;
+    suggestions = {
+      names: ['김민준', '이서연', '박도윤', '최지우'],
+      categories: ['SNS 홍보', '영상 제작', '언론 홍보', '행정'],
+    };
+    renderBoardTab();
+    setConnDot(''); // 데모 모드에서는 연결 없음
+    // 데모 토스트
+    setTimeout(() => showToast('🎭 데모 모드로 실행 중 (샘플 데이터)', 'warning', 5000), 800);
+    return;
+  }
+
+  // 실제 모드: Supabase에서 데이터 로드
+  const [entries, snsData] = await Promise.all([
+    loadEntriesForDate(currentDate),
+    loadAllSnsData(),
+    loadSuggestions(),
+  ]);
+  allEntries = entries;
+  allSnsData = snsData;
+
+  // 초기 렌더
+  renderBoardTab();
+
+  // Realtime 구독 시작
+  subscribeRealtime(currentDate);
+}
+
+initApp().catch(err => {
+  console.error('[TWB] 앱 초기화 실패:', err);
+  showToast('앱 초기화 중 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+});
+
+</script>
+</body>
+</html>
