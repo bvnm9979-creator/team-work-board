@@ -2284,7 +2284,15 @@ document.addEventListener('click', async e => {
     const nextStage = moveBtn.dataset.nextStage;
     const entry = pipelineEntries.find(en => en.id === id) || allEntries.find(en => en.id === id);
     if (!entry) return;
-    const result = await updateEntry(id, { stage: nextStage });
+    let statusUpdate = entry.status;
+    if (nextStage === '게시') {
+      statusUpdate = '완료';
+    } else if (nextStage === '예정') {
+      statusUpdate = '예정';
+    } else {
+      statusUpdate = '진행중';
+    }
+    const result = await updateEntry(id, { stage: nextStage, status: statusUpdate });
     if (result) {
       showToast(`"${entry.name}" 항목을 "${nextStage}"으로 이동했습니다.`, 'success');
       pipelineEntries = await loadPipelineEntries();
