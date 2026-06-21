@@ -845,7 +845,7 @@
     }
     .report-table th { font-weight: 600; color: var(--text-soft); background: var(--surface-2); }
     .report-table tr:last-child td { border-bottom: none; }
-    .report-sns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .report-sns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
     .report-sns-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--surface); }
     .report-sns-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
     .report-sns-icon { font-size: 16px; }
@@ -1917,7 +1917,7 @@ function drawLineChart(canvas, values, color, dates) {
   if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.offsetWidth || 240;
-  const H = 110;
+  const H = parseInt(canvas.getAttribute('height')) || 110;
   canvas.width  = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width  = W + 'px';
@@ -2252,7 +2252,7 @@ async function renderReportContent() {
         <div class="report-sns-count">${last.count.toLocaleString()}명</div>
         ${deltaHtml}
         <canvas class="report-sns-canvas" data-platform="${esc(p.key)}" data-color="${esc(color)}"
-          style="width:100%;display:block" height="70"></canvas>
+          style="width:100%;display:block" height="120"></canvas>
       </div>`;
   }).join('');
 
@@ -2267,28 +2267,6 @@ async function renderReportContent() {
       <div class="report-section-title">SNS 채널 현황</div>
       <div class="report-sns-grid">${snsReportCards}</div>
     </div>` : ''}
-
-    <div class="report-section">
-      <div class="report-section-title">담당자별 현황</div>
-      <table class="report-table">
-        <thead><tr>
-          <th>담당자</th><th>예정</th><th>진행중</th><th>완료</th><th>보류</th><th>완료율</th>
-        </tr></thead>
-        <tbody>
-          ${Object.entries(byName).sort(([a],[b]) => a.localeCompare(b,'ko')).map(([name, entries]) => {
-            const sc = statusCount(entries);
-            return `<tr>
-              <td><strong>${esc(name)}</strong></td>
-              <td>${sc.예정  || '-'}</td>
-              <td>${sc.진행중 || '-'}</td>
-              <td>${sc.완료  || '-'}</td>
-              <td>${sc.보류  || '-'}</td>
-              <td><strong>${completionRate(entries)}%</strong></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
 
     <div class="report-section">
       <div class="report-section-title">프로젝트별 현황</div>
