@@ -845,6 +845,16 @@
     }
     .report-table th { font-weight: 600; color: var(--text-soft); background: var(--surface-2); }
     .report-table tr:last-child td { border-bottom: none; }
+    .report-sns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+    .report-sns-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--surface); }
+    .report-sns-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+    .report-sns-icon { font-size: 16px; }
+    .report-sns-name { font-size: 12px; font-weight: 700; color: var(--text-soft); }
+    .report-sns-count { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+    .report-sns-delta { font-size: 11px; font-weight: 600; margin-bottom: 6px; }
+    .report-sns-delta.delta-up { color: #1F9D55; }
+    .report-sns-delta.delta-down { color: #C0392B; }
+    .report-sns-delta.delta-zero { color: var(--text-faint); }
     .report-export-btns { display: flex; gap: 8px; }
 
     /* ============================================================
@@ -2208,9 +2218,52 @@ async function renderReportContent() {
     return Math.round(done / entries.length * 100);
   };
 
+  // SNS 섹션 데이터 준비
+  const CH_COLORS_REPORT = {
+    youtube:'#FF0000', fb_page:'#1877F2', fb_group:'#7C3AED',
+    instagram:'#E1306C', twitter:'#1DA1F2', threads:'#242526'
+  };
+  const snsReportCards = SNS_PLATFORMS.map(p => {
+    const rows = (allSnsData[p.key] || [])
+      .filter(r => r.metric_date >= startDate && r.metric_date <= endDate)
+      .sort((a,b) => a.metric_date.localeCompare(b.metric_date));
+    if (rows.length === 0) return '';
+    const first = rows[0];
+    const last  = rows[rows.length - 1];
+    const diff  = last.count - first.count;
+    const rate  = first.count !== 0 ? (diff / first.count * 100) : null;
+    const rateStr = rate !== null ? ` (${rate >= 0 ? '+' : ''}${rate.toFixed(1)}%)` : '';
+    let deltaHtml = '';
+    if (rows.length >= 2) {
+      if (diff > 0) deltaHtml = `<div class="report-sns-delta delta-up">▲ ${diff.toLocaleString()}${rateStr}</div>`;
+      else if (diff < 0) deltaHtml = `<div class="report-sns-delta delta-down">▼ ${Math.abs(diff).toLocaleString()}${rateStr}</div>`;
+      else deltaHtml = `<div class="report-sns-delta delta-zero">변동없음</div>`;
+    }
+    const color = CH_COLORS_REPORT[p.key] || '#5B4FE5';
+    return `
+      <div class="report-sns-card">
+        <div class="report-sns-head">
+          <span class="report-sns-icon">${p.icon}</span>
+          <span class="report-sns-name">${esc(p.label)}</span>
+        </div>
+        <div class="report-sns-count">${last.count.toLocaleString()}</div>
+        ${deltaHtml}
+        <canvas class="report-sns-canvas" data-platform="${esc(p.key)}" data-color="${esc(color)}"
+          style="width:100%;display:block" height="70"></canvas>
+      </div>`;
+  }).join('');
+
+  const hasSnsData = snsReportCards.trim().length > 0;
+
   doc.innerHTML = `
     <div class="report-title">업무 현황 보고서</div>
     <div class="report-subtitle">${startDate} ~ ${endDate} · 총 ${reportEntries.length}건</div>
+
+    ${hasSnsData ? `
+    <div class="report-section">
+      <div class="report-section-title">SNS 채널 현황</div>
+      <div class="report-sns-grid">${snsReportCards}</div>
+    </div>` : ''}
 
     <div class="report-section">
       <div class="report-section-title">담당자별 현황</div>
@@ -2275,6 +2328,21 @@ async function renderReportContent() {
         </tbody>
       </table>
     </div>`;
+
+  // 보고서 SNS 차트 그리기
+  if (hasSnsData) {
+    requestAnimationFrame(() => {
+      doc.querySelectorAll('.report-sns-canvas').forEach(canvas => {
+        const platformKey = canvas.dataset.platform;
+        const color = canvas.dataset.color;
+        const rows = (allSnsData[platformKey] || [])
+          .filter(r => r.metric_date >= startDate && r.metric_date <= endDate)
+          .sort((a,b) => a.metric_date.localeCompare(b.metric_date));
+        if (rows.length < 2) return;
+        drawLineChart(canvas, rows.map(r => r.count), color, rows.map(r => r.metric_date));
+      });
+    });
+  }
 }
 
 // ================================================================
