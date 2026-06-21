@@ -1014,6 +1014,7 @@
     <section class="tab-panel" id="panel-pipeline" role="tabpanel" aria-labelledby="tab-pipeline">
       <div class="section-header">
         <span class="section-title">콘텐츠 파이프라인</span>
+        <button class="btn btn-primary" id="pipeline-add-btn">+ 업무 추가</button>
       </div>
       <div class="pipeline-filters">
         <span style="font-size:12px;color:var(--text-soft);font-weight:600">채널:</span>
@@ -2535,6 +2536,15 @@ document.getElementById('theme-btn').addEventListener('click', toggleTheme);
 
 // 업무 추가 버튼
 document.getElementById('add-entry-btn').addEventListener('click', () => openEntryModal());
+document.getElementById('pipeline-add-btn').addEventListener('click', () => {
+  openEntryModal();
+  // SNS 채널 선택란이 보이도록 채널 필드 표시 트리거
+  const channelSelect = document.getElementById('entry-channel');
+  if (channelSelect && pipelineFilter !== 'all') {
+    channelSelect.value = pipelineFilter;
+    channelSelect.dispatchEvent(new Event('change'));
+  }
+});
 
 // 모달 닫기
 document.getElementById('entry-modal-close').addEventListener('click', closeEntryModal);
