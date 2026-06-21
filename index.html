@@ -751,8 +751,64 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius-sm); padding: 10px 12px;
       transition: box-shadow var(--transition), background var(--transition);
+      cursor: pointer;
     }
-    .pipeline-card:hover { box-shadow: var(--shadow-md); }
+    .pipeline-card:hover { box-shadow: var(--shadow-md); border-color: var(--accent); }
+
+    /* 파이프라인 상세 팝업 */
+    .pipe-detail-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s;
+    }
+    .pipe-detail-overlay.open { opacity: 1; pointer-events: auto; }
+    .pipe-detail-box {
+      background: var(--surface); border-radius: 14px;
+      width: min(480px, 92vw);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.22);
+      transform: translateY(16px); transition: transform 0.18s;
+      overflow: hidden;
+    }
+    .pipe-detail-overlay.open .pipe-detail-box { transform: translateY(0); }
+    .pipe-detail-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+    .pipe-detail-badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .pipe-detail-close {
+      width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; color: var(--text-soft); cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+    }
+    .pipe-detail-close:hover { background: var(--surface-2); color: var(--text); }
+    .pipe-detail-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .pipe-detail-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .pipe-detail-date { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
+    .pipe-detail-task {
+      font-size: 13px; color: var(--text-soft); line-height: 1.7;
+      background: var(--surface-2); border-radius: 8px; padding: 12px 14px;
+      white-space: pre-wrap;
+    }
+    .pipe-detail-img {
+      width: 100%; max-height: 220px; object-fit: cover;
+      border-radius: 8px; cursor: zoom-in;
+    }
+    .pipe-detail-link {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; color: var(--accent); font-weight: 500;
+      text-decoration: none;
+    }
+    .pipe-detail-link:hover { text-decoration: underline; }
+    .pipe-detail-footer {
+      padding: 12px 20px 16px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; justify-content: flex-end;
+    }
     .pipeline-card-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .pipeline-card-task { font-size: 12px; color: var(--text-soft); margin-bottom: 6px; line-height: 1.4; }
     .pipeline-card-footer { display: flex; align-items: center; justify-content: space-between; }
@@ -1105,6 +1161,31 @@
 <!-- ================================================================
      이미지 뷰어
 ================================================================ -->
+<!-- 파이프라인 상세 팝업 -->
+<div class="pipe-detail-overlay" id="pipe-detail-overlay" role="dialog" aria-modal="true">
+  <div class="pipe-detail-box">
+    <div class="pipe-detail-header">
+      <div class="pipe-detail-badges" id="pipe-detail-badges"></div>
+      <button class="pipe-detail-close" id="pipe-detail-close">✕</button>
+    </div>
+    <div class="pipe-detail-body">
+      <div>
+        <div class="pipe-detail-name" id="pipe-detail-name"></div>
+        <div class="pipe-detail-date" id="pipe-detail-date"></div>
+      </div>
+      <div class="pipe-detail-task" id="pipe-detail-task"></div>
+      <img class="pipe-detail-img" id="pipe-detail-img" alt="첨부 이미지" style="display:none" />
+      <a class="pipe-detail-link" id="pipe-detail-link" target="_blank" rel="noopener" style="display:none">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        관련 링크 열기
+      </a>
+    </div>
+    <div class="pipe-detail-footer">
+      <button class="btn btn-ghost" id="pipe-detail-edit-btn">✏️ 수정</button>
+    </div>
+  </div>
+</div>
+
 <!-- 도움말 모달 -->
 <div class="help-modal-overlay" id="help-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
   <div class="help-modal">
@@ -2371,6 +2452,49 @@ document.addEventListener('click', e => {
   }
 });
 
+// 파이프라인 상세 팝업
+function openPipeDetail(entry) {
+  const overlay = document.getElementById('pipe-detail-overlay');
+  // 배지
+  const badges = document.getElementById('pipe-detail-badges');
+  badges.innerHTML = `
+    <span class="badge badge-stage-${esc(entry.stage||'기획').replace(/\s+/g,'-')}">${esc(entry.stage||'기획')}</span>
+    <span class="badge badge-status-${esc(entry.status)}">${esc(entry.status)}</span>
+    ${entry.channel ? `<span class="badge badge-ch-${esc(entry.channel)}">${esc(CH_LABELS[entry.channel]||entry.channel)}</span>` : ''}
+  `;
+  // 이름·날짜
+  document.getElementById('pipe-detail-name').textContent = entry.name || '';
+  document.getElementById('pipe-detail-date').textContent = entry.work_date ? `업무일: ${entry.work_date.substring(5,10).replace('-','/')}` : '';
+  // 업무 내용
+  document.getElementById('pipe-detail-task').textContent = entry.task || '';
+  // 이미지
+  const img = document.getElementById('pipe-detail-img');
+  if (entry.image_url) { img.src = entry.image_url; img.style.display = ''; }
+  else { img.src = ''; img.style.display = 'none'; }
+  // 링크
+  const link = document.getElementById('pipe-detail-link');
+  if (entry.link) { link.href = entry.link; link.style.display = ''; }
+  else { link.style.display = 'none'; }
+  // 수정 버튼
+  document.getElementById('pipe-detail-edit-btn').onclick = () => {
+    overlay.classList.remove('open');
+    openEntryModal(entry);
+  };
+  overlay.classList.add('open');
+}
+(function() {
+  const overlay = document.getElementById('pipe-detail-overlay');
+  document.getElementById('pipe-detail-close').addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  // 이미지 클릭 → 이미지 뷰어
+  document.getElementById('pipe-detail-img').addEventListener('click', function() {
+    if (this.src) {
+      document.getElementById('img-viewer-img').src = this.src;
+      document.getElementById('img-viewer-overlay').classList.add('open');
+    }
+  });
+})();
+
 // 도움말 모달
 (function() {
   const overlay = document.getElementById('help-modal-overlay');
@@ -2467,6 +2591,15 @@ document.addEventListener('click', async e => {
   if (imgThumb && imgThumb.dataset.imgurl) {
     document.getElementById('img-viewer-img').src = imgThumb.dataset.imgurl;
     document.getElementById('img-viewer-overlay').classList.add('open');
+    return;
+  }
+
+  // 파이프라인 카드 클릭 → 상세 팝업
+  const pipeCard = e.target.closest('.pipeline-card');
+  if (pipeCard && !e.target.closest('.pipeline-move-btn')) {
+    const id = pipeCard.dataset.id;
+    const entry = pipelineEntries.find(en => en.id === id) || allEntries.find(en => en.id === id);
+    if (entry) openPipeDetail(entry);
     return;
   }
 
