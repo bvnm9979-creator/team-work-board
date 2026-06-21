@@ -1918,6 +1918,7 @@ function openEntryModal(entry = null) {
     document.getElementById('entry-id').value       = entry.id;
     document.getElementById('entry-name').value     = entry.name || '';
     document.getElementById('entry-status').value   = entry.status || '예정';
+    document.getElementById('entry-date').value     = entry.work_date || currentDate;
     document.getElementById('entry-task').value     = entry.task || '';
 
     catInput.value = entry.category || '';
@@ -1937,6 +1938,7 @@ function openEntryModal(entry = null) {
   } else {
     title.textContent = '업무 추가';
     document.getElementById('entry-id').value = '';
+    document.getElementById('entry-date').value = currentDate;
     toggleStageField();
   }
 
@@ -1989,8 +1991,11 @@ async function saveEntry() {
       }
     }
 
+    const entryDateEl = document.getElementById('entry-date');
+    const workDate = (entryDateEl && entryDateEl.value) ? entryDateEl.value : currentDate;
+
     const payload = {
-      work_date: currentDate,
+      work_date: workDate,
       name, status, task,
       category: category || null,
       channel: channel || null,
@@ -2010,7 +2015,7 @@ async function saveEntry() {
 
     if (result) {
       closeEntryModal();
-      allEntries = await loadEntriesForDate(currentDate);
+      allEntries = await loadBoardEntries();
       await loadSuggestions();
       renderCurrentTab();
     }
@@ -2074,26 +2079,8 @@ function updateThemeIcon() {
 }
 
 // ================================================================
-// 20. 날짜 이동
+// 20. (날짜 이동 제거됨 — 전체 보드 방식으로 변경)
 // ================================================================
-async function navigateToDate(dateStr, force = false) {
-  if (dateStr === currentDate && !force) {
-    // 같은 날짜여도 강제 리로드 요청이면 진행
-    allEntries = await loadEntriesForDate(currentDate);
-    renderCurrentTab();
-    return;
-  }
-  if (dateStr !== currentDate) {
-    currentDate = dateStr;
-    updateDateDisplay();
-    // Realtime 구독 갱신 (날짜가 바뀐 경우에만)
-    subscribeRealtime(currentDate);
-  }
-
-  // 데이터 로드
-  allEntries = await loadEntriesForDate(currentDate);
-  renderCurrentTab();
-}
 
 // ================================================================
 // 21. 이벤트 위임 & 초기화
@@ -2121,53 +2108,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// 날짜 이동
-document.getElementById('prev-date-btn').addEventListener('click', () => navigateToDate(addDays(currentDate, -1)));
-document.getElementById('next-date-btn').addEventListener('click', () => navigateToDate(addDays(currentDate, 1)));
-// 오늘 버튼: 이미 오늘 날짜여도 강제 리로드
-document.getElementById('today-btn').addEventListener('click', () => navigateToDate(getTodayStr(), true));
-document.getElementById('date-display').addEventListener('click', () => {
-  const picker = document.getElementById('date-picker-input');
-  picker.value = currentDate;
-  picker.showPicker ? picker.showPicker() : picker.click();
-});
-document.getElementById('date-picker-input').addEventListener('change', e => {
-  if (e.target.value) navigateToDate(e.target.value);
-});
+// (날짜 이동 이벤트 제거됨)
 
-// 이전 기록 드롭다운
-document.getElementById('history-btn').addEventListener('click', async (e) => {
-  e.stopPropagation();
-  const dropdown = document.getElementById('date-dropdown');
-  if (dropdown.classList.contains('open')) {
-    dropdown.classList.remove('open');
-    return;
-  }
-  dropdown.innerHTML = '<div class="date-dropdown-item" style="color:var(--text-faint)">불러오는 중...</div>';
-  dropdown.classList.add('open');
-  const dates = await loadHistoryDates();
-  if (dates.length === 0) {
-    dropdown.innerHTML = '<div class="date-dropdown-item" style="color:var(--text-faint)">이전 기록이 없어요</div>';
-  } else {
-    dropdown.innerHTML = dates.map(d =>
-      `<div class="date-dropdown-item" data-date="${esc(d)}" role="option">${esc(formatDateKr(d))}</div>`
-    ).join('');
-  }
-});
-
-document.getElementById('date-dropdown').addEventListener('click', e => {
-  const item = e.target.closest('.date-dropdown-item');
-  if (item && item.dataset.date) {
-    navigateToDate(item.dataset.date);
-    document.getElementById('date-dropdown').classList.remove('open');
-  }
-});
-
-// 바깥 클릭 시 드롭다운 닫기
+// 바깥 클릭 시 자동완성 닫기
 document.addEventListener('click', e => {
-  if (!e.target.closest('.date-dropdown-wrap')) {
-    document.getElementById('date-dropdown').classList.remove('open');
-  }
   if (!e.target.closest('.autocomplete-wrap')) {
     document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
   }
@@ -2242,7 +2186,7 @@ document.addEventListener('click', async e => {
     const ok = await deleteEntry(id);
     if (ok) {
       showToast('업무가 삭제되었습니다.', 'success');
-      allEntries = await loadEntriesForDate(currentDate);
+      allEntries = await loadBoardEntries();
       renderCurrentTab();
     }
     return;
@@ -2275,7 +2219,7 @@ document.addEventListener('click', async e => {
     if (result) {
       showToast(`"${entry.name}" 항목을 "${nextStage}"으로 이동했습니다.`, 'success');
       pipelineEntries = await loadPipelineEntries();
-      allEntries = await loadEntriesForDate(currentDate);
+      allEntries = await loadBoardEntries();
       renderPipelineTab();
     }
     return;
@@ -2304,7 +2248,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeEntryModal();
     document.getElementById('img-viewer-overlay').classList.remove('open');
-    document.getElementById('date-dropdown').classList.remove('open');
     document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
   }
 });
@@ -2471,7 +2414,6 @@ const DEMO_SNS = {
 // initApp
 // ================================================================
 async function initApp() {
-  updateDateDisplay();
   updateThemeIcon();
 
   if (isDemoMode) {
@@ -2491,7 +2433,7 @@ async function initApp() {
 
   // 실제 모드: Supabase에서 데이터 로드
   const [entries, snsData] = await Promise.all([
-    loadEntriesForDate(currentDate),
+    loadBoardEntries(),
     loadAllSnsData(),
     loadSuggestions(),
   ]);
