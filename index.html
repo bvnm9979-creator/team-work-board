@@ -70,10 +70,12 @@
       /* 파이프라인 단계 색상 */
       --stage-기획: #8B5CF6;
       --stage-기획-bg: #EDE9FE;
-      --stage-제작: #F59E0B;
-      --stage-제작-bg: #FEF3C7;
-      --stage-검수: #0EA5E9;
-      --stage-검수-bg: #E0F2FE;
+      --stage-진행-중: #F59E0B;
+      --stage-진행-중-bg: #FEF3C7;
+      --stage-제작완료: #0EA5E9;
+      --stage-제작완료-bg: #E0F2FE;
+      --stage-검수: #EC4899;
+      --stage-검수-bg: #FCE7F3;
       --stage-게시: #10B981;
       --stage-게시-bg: #D1FAE5;
 
@@ -127,10 +129,12 @@
 
       --stage-기획: #A78BFA;
       --stage-기획-bg: #2E1B5E;
-      --stage-제작: #FCD34D;
-      --stage-제작-bg: #451A03;
-      --stage-검수: #38BDF8;
-      --stage-검수-bg: #0C3047;
+      --stage-진행-중: #FCD34D;
+      --stage-진행-중-bg: #451A03;
+      --stage-제작완료: #38BDF8;
+      --stage-제작완료-bg: #0C3047;
+      --stage-검수: #F472B6;
+      --stage-검수-bg: #831843;
       --stage-게시: #34D399;
       --stage-게시-bg: #064E3B;
 
@@ -333,7 +337,8 @@
     .badge-ch-threads { color: var(--ch-threads); background: var(--ch-threads-bg); }
 
     .badge-stage-기획 { color: var(--stage-기획); background: var(--stage-기획-bg); }
-    .badge-stage-제작 { color: var(--stage-제작); background: var(--stage-제작-bg); }
+    .badge-stage-진행-중 { color: var(--stage-진행-중); background: var(--stage-진행-중-bg); }
+    .badge-stage-제작완료 { color: var(--stage-제작완료); background: var(--stage-제작완료-bg); }
     .badge-stage-검수 { color: var(--stage-검수); background: var(--stage-검수-bg); }
     .badge-stage-게시 { color: var(--stage-게시); background: var(--stage-게시-bg); }
 
@@ -620,7 +625,7 @@
     .pipeline-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
     .pipeline-board {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 12px;
       align-items: start;
     }
@@ -971,7 +976,8 @@
         <select class="form-input form-select" id="entry-stage">
           <option value="">없음</option>
           <option value="기획">기획</option>
-          <option value="제작">제작</option>
+          <option value="진행 중">진행 중</option>
+          <option value="제작완료">제작완료</option>
           <option value="검수">검수</option>
           <option value="게시">게시</option>
         </select>
@@ -1450,7 +1456,7 @@ function renderBoardTab() {
           <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
           ${e.category ? `<span class="category-chip">${esc(e.category)}</span>` : ''}
           ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel] || e.channel)}</span>` : ''}
-          ${e.stage ? `<span class="badge badge-stage-${esc(e.stage)}">${esc(e.stage)}</span>` : ''}
+          ${e.stage ? `<span class="badge badge-stage-${esc(e.stage).replace(/\\s+/g, '-')}">${esc(e.stage)}</span>` : ''}
         </div>
         <div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>
         <div class="entry-meta">
@@ -1520,7 +1526,7 @@ function renderProjectTab() {
                   <span class="entry-name">${esc(e.name)}</span>
                   <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
                   ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : ''}
-                  ${e.stage ? `<span class="badge badge-stage-${esc(e.stage)}">${esc(e.stage)}</span>` : ''}
+                  ${e.stage ? `<span class="badge badge-stage-${esc(e.stage).replace(/\\s+/g, '-')}">${esc(e.stage)}</span>` : ''}
                 </div>
                 <div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>
                 ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener">링크 ↗</a>` : ''}
@@ -1695,7 +1701,7 @@ function renderSnsTab() {
 // ================================================================
 // 15. 파이프라인 탭 렌더링
 // ================================================================
-const STAGES = ['기획','제작','검수','게시'];
+const STAGES = ['기획','진행 중','제작완료','검수','게시'];
 
 function renderPipelineTab() {
   const board = document.getElementById('pipeline-board');
@@ -1717,7 +1723,7 @@ function renderPipelineTab() {
     return `
       <div class="pipeline-col" data-stage="${esc(stage)}">
         <div class="pipeline-col-header">
-          <span class="badge badge-stage-${esc(stage)}">${esc(stage)}</span>
+          <span class="badge badge-stage-${esc(stage).replace(/\\s+/g, '-')}">${esc(stage)}</span>
           <span class="pipeline-col-count">${cards.length}</span>
         </div>
         <div class="pipeline-cards">
@@ -1742,7 +1748,8 @@ function renderPipelineTab() {
                       ? `<button class="pipeline-move-btn" data-id="${esc(e.id)}" data-next-stage="${esc(nextStage)}" aria-label="${esc(stage)}에서 ${esc(nextStage)}으로 이동">→ ${esc(nextStage)}</button>`
                       : `<span style="font-size:11px;color:var(--status-완료);font-weight:600">✓ 완료</span>`}
                   </div>
-                </div>`).join('')}
+                </div>`;
+              }).join('')}
         </div>
       </div>`;
   }).join('');
