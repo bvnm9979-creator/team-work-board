@@ -241,6 +241,102 @@
       transition: background var(--transition), color var(--transition);
     }
     .theme-btn:hover { background: var(--surface-2); color: var(--text); }
+    .help-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700;
+      color: var(--accent); background: var(--accent-soft);
+      border: 1.5px solid var(--accent);
+      transition: background var(--transition), color var(--transition);
+      cursor: pointer;
+    }
+    .help-btn:hover { background: var(--accent); color: #fff; }
+
+    /* 도움말 모달 */
+    .help-modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .help-modal-overlay.open { opacity: 1; pointer-events: auto; }
+    .help-modal {
+      background: var(--surface); border-radius: 14px;
+      width: min(720px, 95vw); max-height: 85vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      transform: translateY(20px);
+      transition: transform 0.2s;
+    }
+    .help-modal-overlay.open .help-modal { transform: translateY(0); }
+    .help-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .help-modal-title { font-size: 17px; font-weight: 700; color: var(--text); }
+    .help-modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--text-soft);
+      transition: background var(--transition), color var(--transition);
+      cursor: pointer;
+    }
+    .help-modal-close:hover { background: var(--surface-2); color: var(--text); }
+    .help-modal-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border);
+      padding: 0 24px; flex-shrink: 0; overflow-x: auto;
+    }
+    .help-tab-btn {
+      padding: 10px 14px; font-size: 13px; font-weight: 500;
+      color: var(--text-soft); border-bottom: 2px solid transparent;
+      white-space: nowrap; cursor: pointer;
+      transition: color var(--transition), border-color var(--transition);
+    }
+    .help-tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .help-modal-body {
+      overflow-y: auto; padding: 24px;
+      flex: 1;
+    }
+    .help-section { display: none; }
+    .help-section.active { display: block; }
+    .help-section h3 {
+      font-size: 15px; font-weight: 700; color: var(--text);
+      margin: 0 0 12px;
+    }
+    .help-section h4 {
+      font-size: 13px; font-weight: 600; color: var(--text);
+      margin: 16px 0 8px;
+    }
+    .help-section p, .help-section li {
+      font-size: 13px; color: var(--text-soft); line-height: 1.7; margin: 0 0 8px;
+    }
+    .help-section ol, .help-section ul {
+      padding-left: 18px; margin: 0 0 12px;
+    }
+    .help-section table {
+      width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px;
+    }
+    .help-section th {
+      background: var(--surface-2); color: var(--text); font-weight: 600;
+      padding: 8px 10px; text-align: left; border: 1px solid var(--border);
+    }
+    .help-section td {
+      padding: 8px 10px; color: var(--text-soft);
+      border: 1px solid var(--border); vertical-align: top; line-height: 1.6;
+    }
+    .help-tag {
+      display: inline-block; padding: 2px 8px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+      background: var(--accent-soft); color: var(--accent); margin-right: 4px;
+    }
+    .help-notice {
+      background: var(--surface-2); border-left: 3px solid var(--accent);
+      padding: 10px 14px; border-radius: 0 8px 8px 0;
+      font-size: 13px; color: var(--text-soft); margin-bottom: 12px; line-height: 1.6;
+    }
 
     /* 탭 */
     .tabs-wrap {
@@ -794,6 +890,7 @@
     </div>
     <div class="topbar-right">
       <span class="conn-dot" id="conn-dot" title="실시간 연결 상태"></span>
+      <button class="help-btn" id="help-btn" aria-label="사용 설명서" title="사용 설명서">?</button>
       <button class="theme-btn" id="theme-btn" aria-label="다크모드 전환" title="다크모드 전환">
         <span id="theme-icon">🌙</span>
       </button>
@@ -1008,6 +1105,160 @@
 <!-- ================================================================
      이미지 뷰어
 ================================================================ -->
+<!-- 도움말 모달 -->
+<div class="help-modal-overlay" id="help-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="help-modal-title">
+  <div class="help-modal">
+    <div class="help-modal-header">
+      <span class="help-modal-title" id="help-modal-title">📖 사용 설명서</span>
+      <button class="help-modal-close" id="help-modal-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="help-modal-tabs">
+      <button class="help-tab-btn active" data-help="overview">화면 구성</button>
+      <button class="help-tab-btn" data-help="board">📋 보드</button>
+      <button class="help-tab-btn" data-help="project">📁 프로젝트별</button>
+      <button class="help-tab-btn" data-help="sns">📊 SNS 수치</button>
+      <button class="help-tab-btn" data-help="pipeline">🔄 파이프라인</button>
+      <button class="help-tab-btn" data-help="report">📝 보고서</button>
+      <button class="help-tab-btn" data-help="faq">자주 묻는 질문</button>
+    </div>
+    <div class="help-modal-body">
+
+      <!-- 화면 구성 -->
+      <div class="help-section active" id="help-overview">
+        <h3>화면 구성</h3>
+        <table>
+          <tr><th>탭</th><th>역할</th></tr>
+          <tr><td>📋 보드</td><td>전체 업무 목록 확인·추가·수정·삭제</td></tr>
+          <tr><td>📁 프로젝트별</td><td>카테고리별로 묶어서 현황 확인</td></tr>
+          <tr><td>📊 SNS 수치</td><td>채널 팔로워/구독자 수치 입력·추이 그래프</td></tr>
+          <tr><td>🔄 파이프라인</td><td>콘텐츠 제작 단계별 칸반 보드</td></tr>
+          <tr><td>📝 보고서</td><td>기간별 업무 요약 보고서 출력</td></tr>
+        </table>
+        <div class="help-notice">
+          상단 오른쪽 <strong>🌙 버튼</strong>: 다크모드/라이트모드 전환<br>
+          상단 오른쪽 <strong>● 점</strong>: 실시간 연결 상태 (초록=정상, 빨강=오류)
+        </div>
+      </div>
+
+      <!-- 보드 -->
+      <div class="help-section" id="help-board">
+        <h3>📋 보드 탭</h3>
+
+        <h4>업무 추가하기</h4>
+        <ol>
+          <li>오른쪽 상단 <strong>+ 업무 추가</strong> 버튼 클릭</li>
+          <li>아래 항목 입력 후 <strong>저장</strong> 버튼 클릭</li>
+        </ol>
+        <table>
+          <tr><th>항목</th><th>설명</th></tr>
+          <tr><td><strong>담당자</strong> <span class="help-tag">필수</span></td><td>이름 입력. 기존 이름은 자동완성으로 뜸</td></tr>
+          <tr><td><strong>상태</strong> <span class="help-tag">필수</span></td><td>예정 / 진행중 / 완료 / 보류 선택</td></tr>
+          <tr><td><strong>업무일</strong></td><td>날짜 선택. 기본값은 오늘</td></tr>
+          <tr><td><strong>업무 내용</strong> <span class="help-tag">필수</span></td><td>구체적인 업무 내용 입력</td></tr>
+          <tr><td><strong>프로젝트/카테고리</strong></td><td>SNS 홍보, 영상 제작, 언론 홍보, 행정 등. 직접 입력도 가능</td></tr>
+          <tr><td><strong>SNS 채널</strong></td><td>YouTube / FB 페이지 / FB 그룹 / Instagram / Twitter/X / Threads</td></tr>
+          <tr><td><strong>파이프라인 단계</strong></td><td>SNS 채널 선택 시에만 표시. 예정→기획→진행 중→제작완료→검수→게시</td></tr>
+          <tr><td><strong>관련 링크</strong></td><td>참고 URL 입력 (https://로 시작)</td></tr>
+          <tr><td><strong>이미지 첨부</strong></td><td>클릭하거나 파일 끌어다 놓기. 최대 1200×1200px로 자동 압축</td></tr>
+        </table>
+
+        <h4>업무 수정·삭제</h4>
+        <p>각 업무 카드 오른쪽 버튼:</p>
+        <ul>
+          <li><strong>✏️ (연필)</strong>: 수정 — 기존 내용이 채워진 상태로 모달 열림</li>
+          <li><strong>🗑️ (휴지통)</strong>: 삭제 — 확인 후 영구 삭제 (되돌릴 수 없음)</li>
+        </ul>
+
+        <h4>검색·필터</h4>
+        <ul>
+          <li><strong>검색창</strong>: 담당자 이름 또는 업무 내용으로 검색</li>
+          <li><strong>필터 버튼</strong>: 전체 / 예정 / 진행중 / 완료 / 보류 선택</li>
+        </ul>
+        <div class="help-notice">
+          <strong>완료</strong> 상태 업무는 완료 처리 후 <strong>7일간만</strong> 보드에 표시됩니다.<br>
+          오래된 완료 업무는 보고서 탭에서 기간 검색으로 조회하세요.
+        </div>
+      </div>
+
+      <!-- 프로젝트별 -->
+      <div class="help-section" id="help-project">
+        <h3>📁 프로젝트별 탭</h3>
+        <p>업무를 <strong>카테고리(프로젝트)</strong> 기준으로 묶어서 보여줍니다.</p>
+        <ul>
+          <li>각 카테고리 안에서 예정/진행중/완료/보류 개수를 한눈에 확인</li>
+          <li>카테고리 헤더를 클릭하면 접고 펼칠 수 있음</li>
+        </ul>
+        <div class="help-notice">업무 추가 시 <strong>프로젝트/카테고리</strong> 항목을 입력해야 이 탭에서 분류됩니다.</div>
+      </div>
+
+      <!-- SNS 수치 -->
+      <div class="help-section" id="help-sns">
+        <h3>📊 SNS 수치 탭</h3>
+        <p>팀의 SNS 채널별 팔로워·구독자 수를 매일 기록하는 곳입니다.</p>
+        <h4>수치 입력 방법</h4>
+        <ol>
+          <li>원하는 채널 카드 하단 입력창에 숫자 입력</li>
+          <li><strong>저장</strong> 버튼 클릭</li>
+          <li>전날 대비 증감(▲▼)이 자동으로 표시됨</li>
+          <li>최근 14일치 추이 그래프가 자동으로 그려짐</li>
+        </ol>
+        <p>지원 채널: YouTube / FB 페이지 / FB 그룹 / Instagram / Twitter/X / Threads</p>
+      </div>
+
+      <!-- 파이프라인 -->
+      <div class="help-section" id="help-pipeline">
+        <h3>🔄 파이프라인 탭</h3>
+        <p>콘텐츠 제작 단계를 <strong>칸반 보드</strong> 형식으로 시각화합니다.</p>
+        <p><strong>단계 순서:</strong> 예정 → 기획 → 진행 중 → 제작완료 → 검수 → 게시</p>
+        <ul>
+          <li>업무 카드의 <strong>◀ ▶ 화살표</strong>로 단계 이동</li>
+          <li>상단 채널 필터로 특정 SNS 채널만 보기 가능</li>
+        </ul>
+        <div class="help-notice">파이프라인에 표시되려면 업무 추가 시 <strong>SNS 채널</strong>을 반드시 선택해야 합니다.</div>
+      </div>
+
+      <!-- 보고서 -->
+      <div class="help-section" id="help-report">
+        <h3>📝 보고서 탭</h3>
+        <h4>사용 방법</h4>
+        <ol>
+          <li>기간 시작일·종료일 선택 (기본값: 이번 달 1일 ~ 오늘)</li>
+          <li><strong>조회</strong> 버튼 클릭</li>
+          <li>보고서 내용 확인</li>
+        </ol>
+        <h4>내보내기</h4>
+        <ul>
+          <li><strong>JPG 다운로드</strong>: 이미지 파일로 저장</li>
+          <li><strong>PDF 다운로드</strong>: PDF 파일로 저장</li>
+        </ul>
+        <p>보고서 포함 내용: 담당자별 업무 요약 / 프로젝트별 업무 요약 / 전체 업무 목록 표</p>
+        <div class="help-notice">JPG/PDF가 저장되지 않으면 브라우저 팝업 차단을 허용해주세요.</div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="help-section" id="help-faq">
+        <h3>자주 묻는 질문</h3>
+
+        <h4>Q. 사이트가 갑자기 느리거나 데이터가 안 불러와져요.</h4>
+        <p>Supabase 무료 플랜은 7일간 접속이 없으면 서버가 자동으로 잠듭니다. 처음 접속 시 30초~1분 기다리면 깨어납니다.</p>
+
+        <h4>Q. 완료 처리한 업무가 보드에서 사라졌어요.</h4>
+        <p>완료 상태 업무는 완료 처리 후 7일이 지나면 보드에서 자동으로 숨겨집니다. <strong>보고서 탭</strong>에서 기간 검색으로 조회하세요.</p>
+
+        <h4>Q. 파이프라인 탭에 업무가 안 보여요.</h4>
+        <p>업무 추가 시 <strong>SNS 채널</strong>을 선택한 업무만 파이프라인에 표시됩니다. 수정 버튼으로 채널을 추가해주세요.</p>
+
+        <h4>Q. 이미지를 첨부했는데 안 보여요.</h4>
+        <p>이미지는 Supabase Storage에 업로드됩니다. <code>work-images</code> 버킷이 Public으로 설정되어 있어야 합니다.</p>
+
+        <h4>Q. 한 사람이 수정하면 다른 사람 화면에도 바로 반영되나요?</h4>
+        <p>네. 실시간 동기화 기능이 있어 팀원 여러 명이 동시에 접속해도 즉시 반영됩니다. 새로고침 불필요.</p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div id="img-viewer-overlay" role="dialog" aria-modal="true" aria-label="이미지 뷰어">
   <button id="img-viewer-close" aria-label="닫기">✕</button>
   <img id="img-viewer-img" alt="첨부 이미지 원본" />
@@ -2116,6 +2367,22 @@ document.addEventListener('click', e => {
     document.querySelectorAll('.autocomplete-list').forEach(l => l.classList.remove('open'));
   }
 });
+
+// 도움말 모달
+(function() {
+  const overlay = document.getElementById('help-modal-overlay');
+  document.getElementById('help-btn').addEventListener('click', () => overlay.classList.add('open'));
+  document.getElementById('help-modal-close').addEventListener('click', () => overlay.classList.remove('open'));
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+  document.querySelectorAll('.help-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.help-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.help-section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('help-' + btn.dataset.help).classList.add('active');
+    });
+  });
+})();
 
 // 다크모드 토글
 document.getElementById('theme-btn').addEventListener('click', toggleTheme);
