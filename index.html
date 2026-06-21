@@ -1994,18 +1994,21 @@ function drawLineChart(canvas, values, color, dates) {
     ctx.stroke();
   });
 
-  // x축 날짜 라벨
+  // x축 날짜 라벨 (픽셀 간격 기반 동적 배치 — 겹침 방지)
   if (hasDates) {
-    const labelCount = Math.min(5, values.length);
-    const indices = Array.from({length: labelCount}, (_, ii) =>
-      Math.round(ii * (values.length - 1) / (labelCount - 1 || 1))
-    ).filter((v, i, a) => a.indexOf(v) === i);
     ctx.fillStyle = '#9AA0A8';
     ctx.font = `10px Pretendard Variable, sans-serif`;
-    indices.forEach((idx, ii) => {
+    const minGap = 36; // "MM-DD" 텍스트 폭(~28px) + 여백
+    const picked = [0];
+    for (let i = 1; i < values.length - 1; i++) {
+      if (xs[i] - xs[picked[picked.length - 1]] >= minGap) picked.push(i);
+    }
+    const last = values.length - 1;
+    if (xs[last] - xs[picked[picked.length - 1]] >= minGap / 2) picked.push(last);
+    picked.forEach((idx, ii) => {
       const label = dates[idx].slice(5); // MM-DD
       const xPos = xs[idx];
-      ctx.textAlign = ii === 0 ? 'left' : (ii === indices.length - 1 ? 'right' : 'center');
+      ctx.textAlign = ii === 0 ? 'left' : (ii === picked.length - 1 ? 'right' : 'center');
       ctx.fillText(label, xPos, H - 4);
     });
   }
