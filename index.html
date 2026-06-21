@@ -68,6 +68,8 @@
       --ch-threads-bg: #F3F4F6;
 
       /* 파이프라인 단계 색상 */
+      --stage-예정: #9CA3AF;
+      --stage-예정-bg: #F3F4F6;
       --stage-기획: #8B5CF6;
       --stage-기획-bg: #EDE9FE;
       --stage-진행-중: #F59E0B;
@@ -127,6 +129,8 @@
       --ch-threads: #D1D5DB;
       --ch-threads-bg: #374151;
 
+      --stage-예정: #6B7280;
+      --stage-예정-bg: #374151;
       --stage-기획: #A78BFA;
       --stage-기획-bg: #2E1B5E;
       --stage-진행-중: #FCD34D;
@@ -336,6 +340,7 @@
     .badge-ch-twitter { color: var(--ch-twitter); background: var(--ch-twitter-bg); }
     .badge-ch-threads { color: var(--ch-threads); background: var(--ch-threads-bg); }
 
+    .badge-stage-예정 { color: var(--stage-예정); background: var(--stage-예정-bg); }
     .badge-stage-기획 { color: var(--stage-기획); background: var(--stage-기획-bg); }
     .badge-stage-진행-중 { color: var(--stage-진행-중); background: var(--stage-진행-중-bg); }
     .badge-stage-제작완료 { color: var(--stage-제작완료); background: var(--stage-제작완료-bg); }
@@ -625,7 +630,7 @@
     .pipeline-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
     .pipeline-board {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 12px;
       align-items: start;
     }
@@ -975,6 +980,7 @@
         <label class="form-label" for="entry-stage">파이프라인 단계</label>
         <select class="form-input form-select" id="entry-stage">
           <option value="">없음</option>
+          <option value="예정">예정</option>
           <option value="기획">기획</option>
           <option value="진행 중">진행 중</option>
           <option value="제작완료">제작완료</option>
@@ -1701,7 +1707,7 @@ function renderSnsTab() {
 // ================================================================
 // 15. 파이프라인 탭 렌더링
 // ================================================================
-const STAGES = ['기획','진행 중','제작완료','검수','게시'];
+const STAGES = ['예정','기획','진행 중','제작완료','검수','게시'];
 
 function renderPipelineTab() {
   const board = document.getElementById('pipeline-board');
@@ -1718,6 +1724,7 @@ function renderPipelineTab() {
   board.innerHTML = STAGES.map(stage => {
     const cards = grouped[stage];
     const stageIndex = STAGES.indexOf(stage);
+    const prevStage = stageIndex > 0 ? STAGES[stageIndex - 1] : null;
     const nextStage = STAGES[stageIndex + 1] || null;
 
     return `
@@ -1744,9 +1751,14 @@ function renderPipelineTab() {
                   <div class="pipeline-card-task">${esc(e.task).slice(0,60)}${e.task.length>60?'…':''}</div>
                   <div class="pipeline-card-footer">
                     ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}" style="font-size:10px">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '<span></span>'}
-                    ${nextStage
-                      ? `<button class="pipeline-move-btn" data-id="${esc(e.id)}" data-next-stage="${esc(nextStage)}" aria-label="${esc(stage)}에서 ${esc(nextStage)}으로 이동">→ ${esc(nextStage)}</button>`
-                      : `<span style="font-size:11px;color:var(--status-완료);font-weight:600">✓ 완료</span>`}
+                    <div style="display:flex; gap:4px;">
+                      ${prevStage
+                        ? `<button class="pipeline-move-btn" style="background:var(--bg); border:1px solid var(--border); color:var(--text); flex-shrink:0" data-id="${esc(e.id)}" data-next-stage="${esc(prevStage)}" aria-label="이전 단계">←</button>`
+                        : ''}
+                      ${nextStage
+                        ? `<button class="pipeline-move-btn" data-id="${esc(e.id)}" data-next-stage="${esc(nextStage)}" aria-label="다음 단계">${esc(nextStage)} →</button>`
+                        : `<span style="font-size:11px;color:var(--status-완료);font-weight:600;display:flex;align-items:center;">✓ 완료</span>`}
+                    </div>
                   </div>
                 </div>`;
               }).join('')}

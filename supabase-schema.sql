@@ -30,7 +30,7 @@ CREATE TABLE work_entries (
   image_url   TEXT,
   channel     TEXT        CHECK (channel IS NULL OR channel IN
                             ('youtube','fb_page','fb_group','instagram','twitter','threads')),
-  stage       TEXT        CHECK (stage IS NULL OR stage IN ('기획','진행 중','제작완료','검수','게시')),
+  stage       TEXT        CHECK (stage IS NULL OR stage IN ('예정','기획','진행 중','제작완료','검수','게시')),
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
