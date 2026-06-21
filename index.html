@@ -1903,11 +1903,11 @@ function getThemeColor(varName) {
   return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
-function drawLineChart(canvas, values, color) {
+function drawLineChart(canvas, values, color, dates) {
   if (!canvas) return;
   const dpr = window.devicePixelRatio || 1;
   const W = canvas.offsetWidth || 240;
-  const H = 52;
+  const H = 110;
   canvas.width  = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width  = W + 'px';
@@ -1919,18 +1919,40 @@ function drawLineChart(canvas, values, color) {
 
   if (!values || values.length < 2) return;
 
+  const hasDates = dates && dates.length === values.length;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
-  const pad = { t:6, r:6, b:6, l:6 };
+  const pad = { t:14, r:8, b: hasDates ? 22 : 8, l:50 };
   const iW = W - pad.l - pad.r;
   const iH = H - pad.t - pad.b;
 
   const xs = values.map((_, i) => pad.l + (i / (values.length - 1)) * iW);
   const ys = values.map(v => pad.t + iH - ((v - min) / range) * iH);
 
+  const textColor = getThemeColor('--text');
+  const gridColor = '#ECEEF1';
+
+  // y축 격자 + 라벨
+  [0, 0.5, 1].forEach(t => {
+    const v = min + t * range;
+    const y = pad.t + iH - (t * iH);
+    ctx.strokeStyle = gridColor;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(pad.l, y);
+    ctx.lineTo(pad.l + iW, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#9AA0A8';
+    ctx.font = `10px Pretendard Variable, sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(v).toLocaleString(), pad.l - 4, y + 3);
+  });
+
   // 그라데이션 영역
-  const grad = ctx.createLinearGradient(0, pad.t, 0, H);
+  const grad = ctx.createLinearGradient(0, pad.t, 0, H - pad.b);
   grad.addColorStop(0, color + '33');
   grad.addColorStop(1, color + '00');
   ctx.beginPath();
@@ -1952,7 +1974,6 @@ function drawLineChart(canvas, values, color) {
   ctx.stroke();
 
   // 점
-  const textColor = getThemeColor('--text');
   xs.forEach((x, i) => {
     ctx.beginPath();
     ctx.arc(x, ys[i], 3, 0, Math.PI * 2);
@@ -1963,12 +1984,21 @@ function drawLineChart(canvas, values, color) {
     ctx.stroke();
   });
 
-  // 마지막 값 표시
-  const last = values[values.length - 1];
-  ctx.font = `bold 10px Pretendard Variable, sans-serif`;
-  ctx.fillStyle = textColor;
-  ctx.textAlign = 'right';
-  ctx.fillText(last.toLocaleString(), xs[xs.length-1], ys[ys.length-1] - 7);
+  // x축 날짜 라벨
+  if (hasDates) {
+    const labelCount = Math.min(5, values.length);
+    const indices = Array.from({length: labelCount}, (_, ii) =>
+      Math.round(ii * (values.length - 1) / (labelCount - 1 || 1))
+    ).filter((v, i, a) => a.indexOf(v) === i);
+    ctx.fillStyle = '#9AA0A8';
+    ctx.font = `10px Pretendard Variable, sans-serif`;
+    indices.forEach((idx, ii) => {
+      const label = dates[idx].slice(5); // MM-DD
+      const xPos = xs[idx];
+      ctx.textAlign = ii === 0 ? 'left' : (ii === indices.length - 1 ? 'right' : 'center');
+      ctx.fillText(label, xPos, H - 4);
+    });
+  }
 }
 
 function renderSnsTab() {
@@ -1992,8 +2022,10 @@ function renderSnsTab() {
     let deltaHtml = '';
     if (todayCount !== null && prevCount !== null) {
       const diff = todayCount - prevCount;
-      if (diff > 0) deltaHtml = `<span class="sns-platform-delta delta-up">▲ ${diff.toLocaleString()}</span>`;
-      else if (diff < 0) deltaHtml = `<span class="sns-platform-delta delta-down">▼ ${Math.abs(diff).toLocaleString()}</span>`;
+      const rate = prevCount !== 0 ? (diff / prevCount * 100) : null;
+      const rateStr = rate !== null ? ` (${rate >= 0 ? '+' : ''}${rate.toFixed(1)}%)` : '';
+      if (diff > 0) deltaHtml = `<span class="sns-platform-delta delta-up">▲ ${diff.toLocaleString()}${rateStr}</span>`;
+      else if (diff < 0) deltaHtml = `<span class="sns-platform-delta delta-down">▼ ${Math.abs(diff).toLocaleString()}${rateStr}</span>`;
       else deltaHtml = `<span class="sns-platform-delta delta-zero">변동없음</span>`;
     }
 
@@ -2017,8 +2049,10 @@ function renderSnsTab() {
             style="width:100%;display:block" aria-label="${esc(p.label)} 추이 그래프"></canvas>
         </div>
         <div class="sns-input-row">
-          <input class="sns-input" type="number" min="0" placeholder="오늘 수치 입력"
-            id="sns-input-${esc(p.key)}" aria-label="${esc(p.label)} 오늘 수치 입력"
+          <input type="date" class="sns-input" style="flex:0 1 130px;min-width:110px"
+            id="sns-date-${esc(p.key)}" value="${today}" max="${today}" aria-label="${esc(p.label)} 날짜 선택" />
+          <input class="sns-input" type="number" min="0" placeholder="수치 입력"
+            id="sns-input-${esc(p.key)}" aria-label="${esc(p.label)} 수치 입력"
             value="${todayCount !== null ? todayCount : ''}" />
           <button class="sns-save-btn" data-platform="${esc(p.key)}" aria-label="${esc(p.label)} 저장">저장</button>
         </div>
@@ -2032,8 +2066,10 @@ function renderSnsTab() {
       const color = canvas.dataset.color;
       const rows = allSnsData[platformKey] || [];
       const sorted = [...rows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
-      const values = sorted.slice(-14).map(r => r.count); // 최근 14일
-      drawLineChart(canvas, values, color);
+      const recent = sorted.slice(-14); // 최근 14일
+      const values = recent.map(r => r.count);
+      const dates = recent.map(r => r.metric_date);
+      drawLineChart(canvas, values, color, dates);
     });
   });
 }
@@ -2743,7 +2779,9 @@ document.getElementById('sns-grid').addEventListener('click', async e => {
   }
   btn.disabled = true;
   btn.textContent = '...';
-  const result = await upsertSnsEntry(platformKey, getTodayStr(), val);
+  const dateInput = document.getElementById('sns-date-' + platformKey);
+  const selectedDate = (dateInput && dateInput.value) ? dateInput.value : getTodayStr();
+  const result = await upsertSnsEntry(platformKey, selectedDate, val);
   btn.disabled = false;
   btn.textContent = '저장';
   if (result) {
