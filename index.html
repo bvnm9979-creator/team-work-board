@@ -2034,9 +2034,9 @@ function renderSnsTab() {
       const diff = todayCount - prevCount;
       const rate = prevCount !== 0 ? (diff / prevCount * 100) : null;
       const rateStr = rate !== null ? ` (${rate >= 0 ? '+' : ''}${rate.toFixed(1)}%)` : '';
-      if (diff > 0) deltaHtml = `<span class="sns-platform-delta delta-up">▲ ${diff.toLocaleString()}${rateStr}</span>`;
-      else if (diff < 0) deltaHtml = `<span class="sns-platform-delta delta-down">▼ ${Math.abs(diff).toLocaleString()}${rateStr}</span>`;
-      else deltaHtml = `<span class="sns-platform-delta delta-zero">변동없음</span>`;
+      if (diff > 0) deltaHtml = `<span class="sns-platform-delta delta-up">전일대비 ▲ ${diff.toLocaleString()}명${rateStr}</span>`;
+      else if (diff < 0) deltaHtml = `<span class="sns-platform-delta delta-down">전일대비 ▼ ${Math.abs(diff).toLocaleString()}명${rateStr}</span>`;
+      else deltaHtml = `<span class="sns-platform-delta delta-zero">전일대비 변동없음</span>`;
     }
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -2051,7 +2051,7 @@ function renderSnsTab() {
           <span class="sns-platform-name">${esc(p.label)}</span>
         </div>
         <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
-          <span class="sns-platform-count">${todayCount !== null ? todayCount.toLocaleString() : '—'}</span>
+          <span class="sns-platform-count">${todayCount !== null ? todayCount.toLocaleString() + '명' : '—'}</span>
           ${deltaHtml}
         </div>
         <div class="sns-canvas-wrap">
@@ -2235,9 +2235,9 @@ async function renderReportContent() {
     const rateStr = rate !== null ? ` (${rate >= 0 ? '+' : ''}${rate.toFixed(1)}%)` : '';
     let deltaHtml = '';
     if (rows.length >= 2) {
-      if (diff > 0) deltaHtml = `<div class="report-sns-delta delta-up">▲ ${diff.toLocaleString()}${rateStr}</div>`;
-      else if (diff < 0) deltaHtml = `<div class="report-sns-delta delta-down">▼ ${Math.abs(diff).toLocaleString()}${rateStr}</div>`;
-      else deltaHtml = `<div class="report-sns-delta delta-zero">변동없음</div>`;
+      if (diff > 0) deltaHtml = `<div class="report-sns-delta delta-up">전일대비 ▲ ${diff.toLocaleString()}명${rateStr}</div>`;
+      else if (diff < 0) deltaHtml = `<div class="report-sns-delta delta-down">전일대비 ▼ ${Math.abs(diff).toLocaleString()}명${rateStr}</div>`;
+      else deltaHtml = `<div class="report-sns-delta delta-zero">전일대비 변동없음</div>`;
     }
     const color = CH_COLORS_REPORT[p.key] || '#5B4FE5';
     return `
@@ -2246,7 +2246,7 @@ async function renderReportContent() {
           <span class="report-sns-icon">${p.icon}</span>
           <span class="report-sns-name">${esc(p.label)}</span>
         </div>
-        <div class="report-sns-count">${last.count.toLocaleString()}</div>
+        <div class="report-sns-count">${last.count.toLocaleString()}명</div>
         ${deltaHtml}
         <canvas class="report-sns-canvas" data-platform="${esc(p.key)}" data-color="${esc(color)}"
           style="width:100%;display:block" height="70"></canvas>
