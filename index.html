@@ -1656,6 +1656,9 @@ function renderBoardTab() {
   const search = boardSearch.toLowerCase();
   let entries = [...allEntries];
 
+  const STATUS_ORDER = { '예정': 0, '진행중': 1, '보류': 2, '완료': 3 };
+  entries.sort((a, b) => (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9));
+
   if (boardFilter !== 'all') entries = entries.filter(e => e.status === boardFilter);
   if (search) entries = entries.filter(e =>
     (e.name || '').toLowerCase().includes(search) ||
