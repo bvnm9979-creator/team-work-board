@@ -54,6 +54,12 @@
       --status-보류-bg: #FEF3C7;
 
       /* 채널 색상 */
+      --ch-yt_cm: #FF0000;
+      --ch-yt_cm-bg: #FEE2E2;
+      --ch-yt_yy: #FF6600;
+      --ch-yt_yy-bg: #FFEDE0;
+      --ch-yt_1b: #CC0000;
+      --ch-yt_1b-bg: #FFD5D5;
       --ch-youtube: #FF0000;
       --ch-youtube-bg: #FEE2E2;
       --ch-fb_page: #1877F2;
@@ -116,6 +122,12 @@
       --status-보류: #FCD34D;
       --status-보류-bg: #451A03;
 
+      --ch-yt_cm: #FF6B6B;
+      --ch-yt_cm-bg: #3B1515;
+      --ch-yt_yy: #FF8844;
+      --ch-yt_yy-bg: #3B1F10;
+      --ch-yt_1b: #EE4444;
+      --ch-yt_1b-bg: #2E1010;
       --ch-youtube: #FF6B6B;
       --ch-youtube-bg: #3B1515;
       --ch-fb_page: #60A5FA;
@@ -429,6 +441,9 @@
     .badge-status-완료 { color: var(--status-완료); background: var(--status-완료-bg); }
     .badge-status-보류 { color: var(--status-보류); background: var(--status-보류-bg); }
 
+    .badge-ch-yt_cm { color: var(--ch-yt_cm); background: var(--ch-yt_cm-bg); }
+    .badge-ch-yt_yy { color: var(--ch-yt_yy); background: var(--ch-yt_yy-bg); }
+    .badge-ch-yt_1b { color: var(--ch-yt_1b); background: var(--ch-yt_1b-bg); }
     .badge-ch-youtube { color: var(--ch-youtube); background: var(--ch-youtube-bg); }
     .badge-ch-fb_page { color: var(--ch-fb_page); background: var(--ch-fb_page-bg); }
     .badge-ch-fb_group { color: var(--ch-fb_group); background: var(--ch-fb_group-bg); }
@@ -436,12 +451,25 @@
     .badge-ch-twitter { color: var(--ch-twitter); background: var(--ch-twitter-bg); }
     .badge-ch-threads { color: var(--ch-threads); background: var(--ch-threads-bg); }
 
-    .badge-stage-예정 { color: var(--stage-예정); background: var(--stage-예정-bg); }
-    .badge-stage-기획 { color: var(--stage-기획); background: var(--stage-기획-bg); }
+    .badge-stage-예정    { color: var(--stage-예정);    background: var(--stage-예정-bg); }
+    .badge-stage-기획    { color: var(--stage-기획);    background: var(--stage-기획-bg); }
     .badge-stage-진행-중 { color: var(--stage-진행-중); background: var(--stage-진행-중-bg); }
     .badge-stage-제작완료 { color: var(--stage-제작완료); background: var(--stage-제작완료-bg); }
-    .badge-stage-검수 { color: var(--stage-검수); background: var(--stage-검수-bg); }
-    .badge-stage-게시 { color: var(--stage-게시); background: var(--stage-게시-bg); }
+    .badge-stage-검수    { color: var(--stage-검수);    background: var(--stage-검수-bg); }
+    .badge-stage-게시    { color: var(--stage-게시);    background: var(--stage-게시-bg); }
+    /* 새 단계명 별칭 */
+    .badge-stage-기획완료  { color: var(--stage-기획);    background: var(--stage-기획-bg); }
+    .badge-stage-편집중    { color: var(--stage-진행-중); background: var(--stage-진행-중-bg); }
+    .badge-stage-컨펌대기  { color: var(--stage-검수);    background: var(--stage-검수-bg); }
+    .badge-stage-업로드됨  { color: var(--stage-게시);    background: var(--stage-게시-bg); }
+    .badge-stage-디자인    { color: var(--stage-제작완료); background: var(--stage-제작완료-bg); }
+    .badge-stage-컨펌      { color: var(--stage-검수);    background: var(--stage-검수-bg); }
+    .badge-stage-진행중    { color: var(--stage-진행-중); background: var(--stage-진행-중-bg); }
+    .badge-stage-완료      { color: var(--stage-게시);    background: var(--stage-게시-bg); }
+    /* 카운트 요약 바 */
+    .type-count-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .type-count-chip { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface-2); font-size: 12px; font-weight: 600; color: var(--text-soft); cursor: default; }
+    .type-count-chip .num { font-size: 14px; font-weight: 700; color: var(--text); margin-left: 4px; }
 
     .category-chip {
       font-size: 11px; font-weight: 500; padding: 2px 7px;
@@ -505,22 +533,22 @@
     ============================================================ */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.5);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
+      background: rgba(0,0,0,.25);
+      display: flex; align-items: stretch; justify-content: flex-end;
       opacity: 0; pointer-events: none;
       transition: opacity 200ms ease;
     }
     .modal-overlay.open { opacity: 1; pointer-events: auto; }
     .modal {
-      background: var(--surface); border-radius: var(--radius-lg);
-      padding: 24px; width: 100%; max-width: 540px;
-      max-height: calc(100vh - 40px); overflow-y: auto;
+      background: var(--surface);
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+      padding: 28px 32px; width: 100%; max-width: 580px;
+      height: 100vh; max-height: 100vh; overflow-y: auto;
       box-shadow: var(--shadow-lg);
-      transform: translateY(8px);
+      transform: translateX(40px);
       transition: transform 200ms ease, background var(--transition);
     }
-    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-overlay.open .modal { transform: translateX(0); }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 20px;
@@ -546,6 +574,38 @@
     }
     .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
     textarea.form-input { resize: vertical; min-height: 72px; }
+    .form-section-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; margin-top: 16px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .task-type-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .task-type-chip { padding: 6px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface-2); color: var(--text-soft); font-size: 13px; font-weight: 500; cursor: pointer; transition: var(--transition); }
+    .task-type-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .task-type-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    .modal-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 640px) {
+      .modal-two-col { grid-template-columns: 1fr; }
+      .modal { border-radius: 0; max-width: 100vw; padding: 20px 16px; }
+    }
+    /* 컷 구성 테이블 */
+    .cut-row { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
+    .cut-row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .cut-label { font-size: 12px; font-weight: 700; color: var(--accent); }
+    .cut-delete-btn { font-size: 11px; padding: 2px 8px; color: var(--text-faint); border: 1px solid var(--border); border-radius: 4px; background: var(--surface); cursor: pointer; }
+    .cut-delete-btn:hover { color: #EF4444; border-color: #EF4444; }
+    .cut-fields { display: grid; grid-template-columns: 140px 1fr; gap: 6px; }
+    .cut-fields .cut-caption { grid-column: 1 / -1; min-height: 48px; resize: vertical; }
+    .cut-fields .cut-source-desc { grid-column: 1 / -1; }
+    .cut-add-area { text-align: center; padding: 6px 0; }
+    .cuts-table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .cuts-table-header .form-label { margin: 0; }
+    /* 카드에서 컷 정보 표시 */
+    .cut-summary-chip { display: inline-block; font-size: 10px; background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 10px; margin-right: 4px; }
+    /* 상세보기 컷 테이블 */
+    .detail-cuts-wrapper { overflow-x: auto; }
+    .detail-cuts-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; min-width: 560px; }
+    .detail-cuts-table th { background: var(--surface-2); color: var(--text-faint); font-weight: 600; padding: 5px 8px; text-align: left; font-size: 11px; }
+    .detail-cuts-table td { padding: 5px 8px; border-bottom: 1px solid var(--border-soft); vertical-align: top; word-break: break-all; }
+    .detail-cuts-table tr:last-child td { border-bottom: none; }
+    .detail-cuts-table .cut-url-link { color: var(--accent); text-decoration: none; font-size: 11px; }
+    .detail-cuts-table .cut-url-link:hover { text-decoration: underline; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA0AD' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
@@ -766,7 +826,9 @@
     .pipe-detail-overlay.open { opacity: 1; pointer-events: auto; }
     .pipe-detail-box {
       background: var(--surface); border-radius: 14px;
-      width: min(480px, 92vw);
+      width: min(860px, 94vw);
+      max-height: 88vh;
+      display: flex; flex-direction: column;
       box-shadow: 0 16px 48px rgba(0,0,0,0.22);
       transform: translateY(16px); transition: transform 0.18s;
       overflow: hidden;
@@ -786,7 +848,7 @@
       transition: background var(--transition), color var(--transition);
     }
     .pipe-detail-close:hover { background: var(--surface-2); color: var(--text); }
-    .pipe-detail-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .pipe-detail-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; flex: 1; }
     .pipe-detail-name { font-size: 15px; font-weight: 700; color: var(--text); }
     .pipe-detail-date { font-size: 12px; color: var(--text-faint); margin-top: 2px; }
     .pipe-detail-task {
@@ -808,6 +870,7 @@
       padding: 12px 20px 16px;
       border-top: 1px solid var(--border);
       display: flex; gap: 8px; justify-content: flex-end;
+      flex-shrink: 0;
     }
     .pipeline-card-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
     .pipeline-card-task { font-size: 12px; color: var(--text-soft); margin-bottom: 6px; line-height: 1.4; }
@@ -856,6 +919,269 @@
     .report-sns-delta.delta-down { color: #C0392B; }
     .report-sns-delta.delta-zero { color: var(--text-faint); }
     .report-export-btns { display: flex; gap: 8px; }
+
+    /* ============================================================
+       모니터링 탭
+    ============================================================ */
+    /* API 키 설정 패널 */
+    .monitor-api-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: border-color var(--transition);
+    }
+    .monitor-api-panel.connected { border-color: #10B981; }
+    .monitor-api-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 16px; cursor: pointer;
+      transition: background var(--transition);
+    }
+    .monitor-api-panel-header:hover { background: var(--surface-2); }
+    .monitor-api-status {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 100px;
+      background: var(--surface-2); color: var(--text-faint);
+    }
+    .monitor-api-status.connected { background: #D1FAE5; color: #065F46; }
+    .monitor-api-status.partial { background: #FEF3C7; color: #92400E; }
+    .monitor-api-chevron {
+      font-size: 11px; color: var(--text-faint);
+      transition: transform 0.2s;
+    }
+    .monitor-api-chevron.open { transform: rotate(180deg); }
+    .monitor-api-body {
+      padding: 0 16px 14px;
+      display: none;
+      flex-direction: column; gap: 12px;
+    }
+    .monitor-api-body.open { display: flex; }
+    .monitor-api-row { display: flex; flex-direction: column; gap: 5px; }
+    .monitor-api-label {
+      font-size: 12px; font-weight: 600; color: var(--text-soft);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .monitor-api-hint {
+      font-size: 11px; font-weight: 400; color: var(--text-faint);
+    }
+    .monitor-api-input-wrap {
+      display: flex; gap: 6px; align-items: center;
+    }
+    .monitor-api-input {
+      flex: 1; padding: 7px 10px; font-size: 12px; font-family: monospace;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface-2); color: var(--text);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .monitor-api-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft); outline: none;
+    }
+    .monitor-api-eye {
+      font-size: 14px; padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      cursor: pointer; color: var(--text-soft);
+      transition: background var(--transition);
+      flex-shrink: 0;
+    }
+    .monitor-api-eye:hover { background: var(--border); }
+    .monitor-channels {
+      display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+    }
+    .monitor-ch-chip {
+      font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-soft);
+      cursor: pointer; transition: all var(--transition);
+    }
+    .monitor-ch-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .monitor-ch-chip.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .monitor-type-filter {
+      display: flex; gap: 8px; margin-bottom: 18px;
+      flex-wrap: wrap; align-items: center;
+    }
+    .monitor-type-btn {
+      font-size: 12px; font-weight: 600;
+      padding: 5px 14px; border-radius: 100px;
+      border: 1.5px solid var(--border);
+      background: var(--surface); color: var(--text-soft);
+      cursor: pointer; transition: all var(--transition);
+    }
+    .monitor-type-btn:hover { border-color: var(--accent); }
+    .monitor-type-btn.active[data-type="all"] {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .monitor-type-btn.active[data-type="promote"] {
+      background: #10B981; color: #fff; border-color: #10B981;
+    }
+    .monitor-type-btn.active[data-type="defend"] {
+      background: #EF4444; color: #fff; border-color: #EF4444;
+    }
+    .monitor-type-btn.active[data-type="unclassified"] {
+      background: var(--text-soft); color: #fff; border-color: var(--text-soft);
+    }
+    .monitor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
+    }
+    .monitor-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: box-shadow var(--transition), border-color var(--transition);
+      display: flex; flex-direction: column;
+    }
+    .monitor-card:hover { box-shadow: var(--shadow-md); border-color: var(--accent); }
+    .monitor-card-thumb {
+      width: 100%; height: 152px;
+      background: linear-gradient(135deg, var(--surface-2) 0%, var(--border) 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; flex-shrink: 0;
+    }
+    .monitor-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .monitor-card-thumb-icon { font-size: 40px; opacity: 0.35; }
+    .monitor-live-badge {
+      position: absolute; top: 8px; left: 8px;
+      background: #EF4444; color: #fff;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px;
+      letter-spacing: 0.5px; animation: livePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.6; }
+    }
+    .monitor-card-type-bar {
+      height: 3px; width: 100%; flex-shrink: 0;
+    }
+    .monitor-card-type-bar.promote { background: #10B981; }
+    .monitor-card-type-bar.defend { background: #EF4444; }
+    .monitor-card-type-bar.unclassified { background: var(--border); }
+    .monitor-card-body { padding: 12px 14px; flex: 1; }
+    .monitor-card-channel {
+      font-size: 11px; color: var(--accent); font-weight: 700;
+      margin-bottom: 4px; display: flex; align-items: center; gap: 4px;
+    }
+    .monitor-card-title {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      line-height: 1.45; margin-bottom: 10px;
+      display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .monitor-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .monitor-card-time { font-size: 11px; color: var(--text-faint); }
+    .monitor-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 8px; border-radius: 100px;
+    }
+    .monitor-badge.promote { background: #D1FAE5; color: #065F46; }
+    .monitor-badge.defend { background: #FEE2E2; color: #991B1B; }
+    .monitor-badge.unclassified { background: var(--surface-2); color: var(--text-faint); }
+    .monitor-ts-count {
+      font-size: 10px; color: var(--text-faint); margin-top: 6px;
+    }
+    /* 상세 드로어 */
+    .monitor-drawer-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,.45);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .monitor-drawer-overlay.open { opacity: 1; pointer-events: auto; }
+    .monitor-drawer {
+      background: var(--surface);
+      border-radius: 18px 18px 0 0;
+      width: min(700px, 100vw);
+      max-height: 88vh;
+      overflow-y: auto;
+      box-shadow: 0 -8px 40px rgba(0,0,0,.2);
+      transform: translateY(100%);
+      transition: transform 0.24s cubic-bezier(.32,.72,0,1);
+    }
+    .monitor-drawer-overlay.open .monitor-drawer { transform: translateY(0); }
+    .monitor-drawer-handle {
+      width: 36px; height: 4px;
+      background: var(--border); border-radius: 2px;
+      margin: 12px auto 0;
+    }
+    .monitor-drawer-header {
+      padding: 14px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 12px;
+      position: sticky; top: 0;
+      background: var(--surface); z-index: 1;
+    }
+    .monitor-drawer-ch {
+      font-size: 11px; color: var(--accent);
+      font-weight: 700; margin-bottom: 4px;
+    }
+    .monitor-drawer-title {
+      font-size: 14px; font-weight: 700;
+      color: var(--text); line-height: 1.4;
+    }
+    .monitor-drawer-close {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--text-soft);
+      cursor: pointer; flex-shrink: 0;
+      transition: background var(--transition);
+    }
+    .monitor-drawer-close:hover { background: var(--surface-2); }
+    .monitor-drawer-body { padding: 18px 20px; }
+    .monitor-section-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--text-faint); text-transform: uppercase;
+      letter-spacing: 0.8px; margin-bottom: 8px;
+    }
+    .monitor-summary-box {
+      background: var(--surface-2); border-radius: var(--radius-sm);
+      padding: 12px 14px; font-size: 13px; color: var(--text);
+      line-height: 1.75; margin-bottom: 20px;
+    }
+    .monitor-timestamps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .monitor-ts-row {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+    }
+    .monitor-ts-row.promote { border-left: 3px solid #10B981; }
+    .monitor-ts-row.defend { border-left: 3px solid #EF4444; }
+    .monitor-ts-time {
+      font-size: 12px; font-weight: 700; color: var(--accent);
+      white-space: nowrap; min-width: 55px; padding-top: 1px;
+    }
+    .monitor-ts-text { font-size: 12px; color: var(--text); line-height: 1.6; flex: 1; }
+    .monitor-ts-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+    }
+    .monitor-ts-badge.promote { background: #D1FAE5; color: #065F46; }
+    .monitor-ts-badge.defend { background: #FEE2E2; color: #991B1B; }
+    .monitor-ts-badge.unclassified { background: var(--surface-2); color: var(--text-faint); }
+    .monitor-drawer-footer {
+      padding: 12px 20px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; gap: 8px; justify-content: flex-end;
+      position: sticky; bottom: 0;
+      background: var(--surface);
+    }
+    .monitor-to-pipeline-btn {
+      padding: 9px 18px; border-radius: var(--radius-sm);
+      background: var(--accent); color: #fff;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: background var(--transition);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .monitor-to-pipeline-btn:hover { background: var(--accent-dark); }
 
     /* ============================================================
        환경변수 경고
@@ -965,50 +1291,45 @@
 
   <!-- 탭 네비게이션 -->
   <nav class="tabs-wrap" role="tablist" aria-label="메인 탭">
-    <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="board"    id="tab-board">📋 보드</button>
-    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="project"  id="tab-project">📁 프로젝트별</button>
+    <button class="tab-btn active" role="tab" aria-selected="true"  data-tab="shorts"   id="tab-shorts">🎬 쇼츠</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="cardnews" id="tab-cardnews">🃏 카드뉴스</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="admin"    id="tab-admin">📌 행정</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="sns"      id="tab-sns">📊 SNS 수치</button>
-    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="pipeline" id="tab-pipeline">🔄 파이프라인</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="report"   id="tab-report">📝 보고서</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="monitor"  id="tab-monitor">🔍 모니터링</button>
   </nav>
 
   <!-- 메인 콘텐츠 -->
   <main class="main-content">
 
-    <!-- ────────── 보드 탭 ────────── -->
-    <section class="tab-panel active" id="panel-board" role="tabpanel" aria-labelledby="tab-board">
+    <!-- ────────── 쇼츠 탭 ────────── -->
+    <section class="tab-panel active" id="panel-shorts" role="tabpanel" aria-labelledby="tab-shorts">
       <div class="section-header">
-        <div style="display:flex;align-items:center;gap:8px">
-          <span class="section-title">업무 목록</span>
-          <span class="section-count" id="board-count">0</span>
-        </div>
-        <button class="btn btn-primary" id="add-entry-btn" aria-label="업무 추가">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          업무 추가
-        </button>
+        <span class="section-title">🎬 쇼츠 파이프라인</span>
+        <button class="btn btn-primary type-add-btn" data-type="쇼츠">+ 쇼츠 추가</button>
       </div>
-      <div class="filter-bar">
-        <div class="search-input-wrap">
-          <span class="search-icon">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          </span>
-          <input class="form-input search-input" type="search" id="board-search" placeholder="이름·업무 검색" aria-label="업무 검색" />
-        </div>
-        <button class="filter-chip active" data-filter="all">전체</button>
-        <button class="filter-chip" data-filter="예정">예정</button>
-        <button class="filter-chip" data-filter="진행중">진행중</button>
-        <button class="filter-chip" data-filter="완료">완료</button>
-        <button class="filter-chip" data-filter="보류">보류</button>
-      </div>
-      <div id="board-list" class="entry-list"></div>
+      <div class="type-count-bar" id="count-bar-shorts"></div>
+      <div class="pipeline-board" id="pipeline-board-shorts"></div>
     </section>
 
-    <!-- ────────── 프로젝트별 탭 ────────── -->
-    <section class="tab-panel" id="panel-project" role="tabpanel" aria-labelledby="tab-project">
+    <!-- ────────── 카드뉴스 탭 ────────── -->
+    <section class="tab-panel" id="panel-cardnews" role="tabpanel" aria-labelledby="tab-cardnews">
       <div class="section-header">
-        <span class="section-title">프로젝트별 현황</span>
+        <span class="section-title">🃏 카드뉴스 파이프라인</span>
+        <button class="btn btn-primary type-add-btn" data-type="카드뉴스">+ 카드뉴스 추가</button>
       </div>
-      <div id="project-list"></div>
+      <div class="type-count-bar" id="count-bar-cardnews"></div>
+      <div class="pipeline-board" id="pipeline-board-cardnews"></div>
+    </section>
+
+    <!-- ────────── 행정 탭 ────────── -->
+    <section class="tab-panel" id="panel-admin" role="tabpanel" aria-labelledby="tab-admin">
+      <div class="section-header">
+        <span class="section-title">📌 행정 업무</span>
+        <button class="btn btn-primary type-add-btn" data-type="행정">+ 업무 추가</button>
+      </div>
+      <div class="type-count-bar" id="count-bar-admin"></div>
+      <div class="pipeline-board" id="pipeline-board-admin"></div>
     </section>
 
     <!-- ────────── SNS 수치 탭 ────────── -->
@@ -1018,25 +1339,6 @@
         <span style="font-size:12px;color:var(--text-faint)">오늘 기준</span>
       </div>
       <div class="sns-grid" id="sns-grid"></div>
-    </section>
-
-    <!-- ────────── 파이프라인 탭 ────────── -->
-    <section class="tab-panel" id="panel-pipeline" role="tabpanel" aria-labelledby="tab-pipeline">
-      <div class="section-header">
-        <span class="section-title">콘텐츠 파이프라인</span>
-        <button class="btn btn-primary" id="pipeline-add-btn">+ 업무 추가</button>
-      </div>
-      <div class="pipeline-filters">
-        <span style="font-size:12px;color:var(--text-soft);font-weight:600">채널:</span>
-        <button class="filter-chip active" data-pipeline-filter="all">전체</button>
-        <button class="filter-chip" data-pipeline-filter="youtube">YouTube</button>
-        <button class="filter-chip" data-pipeline-filter="fb_page">FB 페이지</button>
-        <button class="filter-chip" data-pipeline-filter="fb_group">FB 그룹</button>
-        <button class="filter-chip" data-pipeline-filter="instagram">Instagram</button>
-        <button class="filter-chip" data-pipeline-filter="twitter">Twitter/X</button>
-        <button class="filter-chip" data-pipeline-filter="threads">Threads</button>
-      </div>
-      <div class="pipeline-board" id="pipeline-board"></div>
     </section>
 
     <!-- ────────── 보고서 탭 ────────── -->
@@ -1068,7 +1370,122 @@
       </div>
     </section>
 
+    <!-- ────────── 모니터링 탭 ────────── -->
+    <section class="tab-panel" id="panel-monitor" role="tabpanel" aria-labelledby="tab-monitor">
+      <div class="section-header">
+        <span class="section-title">채널 모니터링</span>
+        <button class="btn btn-secondary btn-sm" id="monitor-refresh-btn" style="opacity:0.45;cursor:not-allowed" disabled title="YouTube API 연결 후 활성화됩니다">
+          🔄 새로고침
+        </button>
+      </div>
+
+      <!-- API 키 설정 패널 -->
+      <div class="monitor-api-panel" id="monitor-api-panel">
+        <div class="monitor-api-panel-header" id="monitor-api-toggle">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px">🔑</span>
+            <span style="font-size:13px;font-weight:700;color:var(--text)">API 키 설정</span>
+            <span class="monitor-api-status" id="monitor-api-status">미연결</span>
+          </div>
+          <span class="monitor-api-chevron" id="monitor-api-chevron">▼</span>
+        </div>
+        <div class="monitor-api-body" id="monitor-api-body">
+          <div class="monitor-api-row">
+            <label class="monitor-api-label">
+              YouTube Data API 키
+              <span class="monitor-api-hint">Google Cloud Console에서 발급</span>
+            </label>
+            <div class="monitor-api-input-wrap">
+              <input type="password" class="monitor-api-input" id="yt-api-key-input"
+                placeholder="AIzaSy..." autocomplete="off" spellcheck="false" />
+              <button class="monitor-api-eye" data-target="yt-api-key-input" title="키 보기/숨기기">👁</button>
+            </div>
+          </div>
+          <div class="monitor-api-row">
+            <label class="monitor-api-label">
+              Claude API 키
+              <span class="monitor-api-hint">console.anthropic.com에서 발급</span>
+            </label>
+            <div class="monitor-api-input-wrap">
+              <input type="password" class="monitor-api-input" id="claude-api-key-input"
+                placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+              <button class="monitor-api-eye" data-target="claude-api-key-input" title="키 보기/숨기기">👁</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+            <button class="btn btn-secondary btn-sm" id="monitor-api-clear-btn">초기화</button>
+            <button class="btn btn-primary btn-sm" id="monitor-api-save-btn">저장</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 채널 빠른 필터 -->
+      <div class="monitor-channels" id="monitor-ch-filters">
+        <button class="monitor-ch-chip active" data-ch="all">전체</button>
+        <button class="monitor-ch-chip" data-ch="DHLeeTV">이동형TV</button>
+        <button class="monitor-ch-chip" data-ch="SPEAKS_TV">스픽스</button>
+        <button class="monitor-ch-chip" data-ch="saenal">새날</button>
+        <button class="monitor-ch-chip" data-ch="UCAVVxL">취재편의점</button>
+        <button class="monitor-ch-chip" data-ch="kimyongminTV">김용민TV</button>
+        <button class="monitor-ch-chip" data-ch="OhmynewsTV">오마이TV</button>
+        <button class="monitor-ch-chip" data-ch="newstomatoTV">뉴스토마토</button>
+        <button class="monitor-ch-chip" data-ch="UCX7K">고발뉴스</button>
+        <button class="monitor-ch-chip" data-ch="JTBCSHOW">장르만여의도</button>
+        <button class="monitor-ch-chip" data-ch="cbsasklive">CBS질문</button>
+        <button class="monitor-ch-chip" data-ch="namcheondong">사장남천동</button>
+        <button class="monitor-ch-chip" data-ch="KTV_korea">청와대(KTV)</button>
+      </div>
+
+      <!-- 유형 필터 -->
+      <div class="monitor-type-filter">
+        <span style="font-size:12px;color:var(--text-soft);font-weight:600">유형:</span>
+        <button class="monitor-type-btn active" data-type="all">전체</button>
+        <button class="monitor-type-btn" data-type="promote">🟢 홍보 소재</button>
+        <button class="monitor-type-btn" data-type="defend">🔴 방어 필요</button>
+        <button class="monitor-type-btn" data-type="unclassified">⬜ 미분류</button>
+      </div>
+
+      <!-- 영상 카드 그리드 -->
+      <div class="monitor-grid" id="monitor-grid"></div>
+    </section>
+
   </main>
+</div>
+
+<!-- ================================================================
+     모니터링 상세 드로어
+================================================================ -->
+<div class="monitor-drawer-overlay" id="monitor-drawer-overlay">
+  <div class="monitor-drawer" id="monitor-drawer">
+    <div class="monitor-drawer-handle"></div>
+    <div class="monitor-drawer-header">
+      <div>
+        <div class="monitor-drawer-ch" id="drawer-ch-name"></div>
+        <div class="monitor-drawer-title" id="drawer-title"></div>
+      </div>
+      <button class="monitor-drawer-close" id="monitor-drawer-close">✕</button>
+    </div>
+    <div class="monitor-drawer-body">
+      <!-- 배지 + 시간 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+        <span class="monitor-badge" id="drawer-type-badge"></span>
+        <span style="font-size:12px;color:var(--text-faint)" id="drawer-time"></span>
+      </div>
+      <!-- AI 요약 -->
+      <div class="monitor-section-label">📝 방송 요약</div>
+      <div class="monitor-summary-box" id="drawer-summary"></div>
+      <!-- 타임스탬프 -->
+      <div class="monitor-section-label">⏱️ 주요 구간</div>
+      <div class="monitor-timestamps" id="drawer-timestamps"></div>
+    </div>
+    <div class="monitor-drawer-footer">
+      <button class="btn btn-secondary btn-sm" id="monitor-drawer-close2">닫기</button>
+      <button class="monitor-to-pipeline-btn" id="drawer-to-pipeline-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        파이프라인으로 보내기
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ================================================================
@@ -1083,6 +1500,58 @@
 
     <form id="entry-form" novalidate>
       <input type="hidden" id="entry-id" />
+      <input type="hidden" id="entry-task-type" value="기타" />
+
+      <!-- 업무 유형 선택 -->
+      <div class="form-group" style="margin-bottom:16px;">
+        <label class="form-label">업무 유형 *</label>
+        <div class="task-type-chips" id="task-type-chips">
+          <button type="button" class="task-type-chip" data-type="쇼츠">🎬 쇼츠</button>
+          <button type="button" class="task-type-chip" data-type="카드뉴스">🃏 카드뉴스</button>
+          <button type="button" class="task-type-chip" data-type="행정">📌 행정</button>
+          <button type="button" class="task-type-chip" data-type="모니터링">🔍 모니터링</button>
+          <button type="button" class="task-type-chip" data-type="기타">📎 기타</button>
+        </div>
+      </div>
+
+      <!-- 기획+기본 정보 2단 레이아웃 -->
+      <div class="modal-two-col">
+
+      <!-- 기획 정보 섹션 (쇼츠/카드뉴스만) -->
+      <div id="section-planning" style="display:none">
+        <div class="form-section-label">📋 기획 정보</div>
+
+        <!-- 쇼츠 전용 필드 -->
+        <div id="fields-shorts-only">
+          <div class="form-group">
+            <label class="form-label" for="entry-shorts-title">쇼츠 제목</label>
+            <input class="form-input" type="text" id="entry-shorts-title" placeholder="영상 제목을 입력하세요" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="entry-schedule-name">일정명 / 행사명</label>
+            <input class="form-input" type="text" id="entry-schedule-name" placeholder="예) 6/22 양산 유세" />
+          </div>
+        </div>
+
+        <!-- 쇼츠+카드뉴스 공통 필드 -->
+        <div id="fields-content-common">
+          <div class="form-group">
+            <label class="form-label" for="entry-post-hashtags">게시명 / 해시태그</label>
+            <textarea class="form-input" id="entry-post-hashtags" placeholder="SNS 게시명과 #해시태그를 입력하세요" style="min-height:60px"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="entry-remarks">비고</label>
+            <textarea class="form-input" id="entry-remarks" placeholder="추가 메모" style="min-height:52px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 기본 정보 섹션 (항상 표시) -->
+      <div>
+      <div class="form-section-label" style="margin-top:4px">👤 기본 정보</div>
+
       <div class="form-row">
         <div class="form-group autocomplete-wrap">
           <label class="form-label" for="entry-name">담당자 *</label>
@@ -1105,11 +1574,6 @@
         <input class="form-input" type="date" id="entry-date" required>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="entry-task">업무 내용 *</label>
-        <textarea class="form-input" id="entry-task" placeholder="업무 내용을 입력하세요" required></textarea>
-      </div>
-
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="entry-category-input">프로젝트/카테고리</label>
@@ -1120,7 +1584,11 @@
           <label class="form-label" for="entry-channel">SNS 채널</label>
           <select class="form-input form-select" id="entry-channel">
             <option value="">없음</option>
-            <option value="youtube">YouTube</option>
+            <optgroup label="YouTube">
+              <option value="yt_cm">📺 YouTube — 총명 김민석</option>
+              <option value="yt_yy">📺 YouTube — 유용한 김용</option>
+              <option value="yt_1b">📺 YouTube — 1번가</option>
+            </optgroup>
             <option value="fb_page">FB 페이지</option>
             <option value="fb_group">FB 그룹</option>
             <option value="instagram">Instagram</option>
@@ -1144,8 +1612,35 @@
       </div>
 
       <div class="form-group">
+        <label class="form-label" for="entry-task">업무 내용 / 메모</label>
+        <textarea class="form-input" id="entry-task" placeholder="업무 내용을 입력하세요"></textarea>
+      </div>
+
+      <div class="form-group">
         <label class="form-label" for="entry-link">관련 링크</label>
         <input class="form-input" type="url" id="entry-link" placeholder="https://" />
+      </div>
+
+      </div><!-- /기본 정보 -->
+      </div><!-- /modal-two-col -->
+
+      <!-- 컷 구성 섹션 (쇼츠만) -->
+      <div id="section-cuts" style="display:none">
+        <div class="form-section-label" style="margin-top:4px">🎬 컷 구성</div>
+        <div class="cuts-table-header">
+          <span style="font-size:12px;color:var(--text-faint);">소스 영상별로 컷을 추가하세요</span>
+          <button type="button" id="cut-add-btn" class="btn btn-ghost btn-sm" style="font-size:12px;padding:4px 12px;">+ 컷 추가</button>
+        </div>
+        <div id="cuts-list"></div>
+      </div>
+
+      <!-- 제작 정보 섹션 (쇼츠/카드뉴스만) -->
+      <div id="section-production" style="display:none">
+        <div class="form-section-label" style="margin-top:4px">✂️ 제작 정보</div>
+        <div class="form-group">
+          <label class="form-label" for="entry-editor-name">편집자</label>
+          <input class="form-input" type="text" id="entry-editor-name" placeholder="편집 담당자 이름" />
+        </div>
       </div>
 
       <div class="form-group">
@@ -1185,6 +1680,7 @@
         <div class="pipe-detail-date" id="pipe-detail-date"></div>
       </div>
       <div class="pipe-detail-task" id="pipe-detail-task"></div>
+      <div id="pipe-detail-extras" style="display:flex;flex-direction:column;gap:8px;font-size:13px;"></div>
       <img class="pipe-detail-img" id="pipe-detail-img" alt="첨부 이미지" style="display:none" />
       <a class="pipe-detail-link" id="pipe-detail-link" target="_blank" rel="noopener" style="display:none">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -1714,9 +2210,6 @@ function subscribeRealtime() {
       { event: '*', schema: 'public', table: 'work_entries' },
       async () => {
         allEntries = await loadBoardEntries();
-        if (getActiveTab() === 'pipeline') {
-          pipelineEntries = await loadPipelineEntries();
-        }
         renderCurrentTab();
       })
     .subscribe(status => {
@@ -1741,23 +2234,106 @@ function subscribeRealtime() {
 // ================================================================
 // 11. 탭 관리
 // ================================================================
+const TYPE_STAGES = {
+  '쇼츠':    ['기획완료', '편집중', '컨펌대기', '업로드됨'],
+  '카드뉴스': ['기획', '디자인', '컨펌', '게시'],
+  '행정':    ['예정', '진행중', '완료'],
+};
+const TAB_TYPE = { shorts: '쇼츠', cardnews: '카드뉴스', admin: '행정' };
+
 function getActiveTab() {
   const btn = document.querySelector('.tab-btn.active');
-  return btn ? btn.dataset.tab : 'board';
+  return btn ? btn.dataset.tab : 'shorts';
 }
 
 function renderCurrentTab() {
   const tab = getActiveTab();
-  if (tab === 'board')    renderBoardTab();
-  if (tab === 'project')  renderProjectTab();
-  if (tab === 'pipeline') renderPipelineTab();
-  if (tab === 'report')   { /* 보고서는 조회 버튼으로 수동 갱신 */ }
+  if (TAB_TYPE[tab]) renderTypeKanban(tab);
+}
+
+function renderTypeKanban(tabId) {
+  const taskType = TAB_TYPE[tabId];
+  const stages   = TYPE_STAGES[taskType];
+  const boardEl  = document.getElementById(`pipeline-board-${tabId}`);
+  const countBar = document.getElementById(`count-bar-${tabId}`);
+  if (!boardEl) return;
+
+  // 데이터 필터
+  let entries;
+  if (tabId === 'admin') {
+    entries = allEntries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
+  } else {
+    entries = allEntries.filter(e => e.task_type === taskType);
+  }
+
+  // 카운트 요약
+  const total = entries.length;
+  const counts = {};
+  stages.forEach(s => { counts[s] = 0; });
+  entries.forEach(e => {
+    const s = e.stage || stages[0];
+    if (counts[s] !== undefined) counts[s]++;
+    else counts[stages[0]]++;
+  });
+  countBar.innerHTML = `
+    <div class="type-count-chip">전체 <span class="num">${total}</span></div>
+    ${stages.map(s => `<div class="type-count-chip">${s} <span class="num">${counts[s]||0}</span></div>`).join('')}
+  `;
+
+  // 그룹핑
+  const grouped = {};
+  stages.forEach(s => { grouped[s] = []; });
+  entries.forEach(e => {
+    const s = e.stage && grouped[e.stage] !== undefined ? e.stage : stages[0];
+    grouped[s].push(e);
+  });
+
+  boardEl.innerHTML = stages.map((stage, idx) => {
+    const cards = grouped[stage];
+    const prevStage = idx > 0 ? stages[idx - 1] : null;
+    const nextStage = stages[idx + 1] || null;
+    return `
+      <div class="pipeline-col" data-stage="${esc(stage)}">
+        <div class="pipeline-col-header">
+          <span class="badge badge-stage-${esc(stage).replace(/\s+/g,'-')}">${esc(stage)}</span>
+          <span class="pipeline-col-count">${cards.length}</span>
+        </div>
+        <div class="pipeline-cards">
+          ${cards.length === 0
+            ? `<div style="font-size:12px;color:var(--text-faint);text-align:center;padding:16px 0">없음</div>`
+            : cards.map(e => {
+                const dateStr = esc(e.work_date||'').substring(5,10).replace('-','/');
+                return `
+                <div class="pipeline-card" data-id="${esc(e.id)}">
+                  <div class="pipeline-card-name">
+                    ${esc(e.name||'')}
+                    <span style="font-size:10px;color:var(--text-faint);margin-left:3px;">(${dateStr})</span>
+                    ${e.editor_name ? `<span style="font-size:10px;color:var(--text-faint);margin-left:3px;">✂️${esc(e.editor_name)}</span>` : ''}
+                  </div>
+                  ${e.shorts_title ? `<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3;">🎬 ${esc(e.shorts_title).slice(0,45)}${e.shorts_title.length>45?'…':''}</div>` : ''}
+                  <div class="pipeline-card-task">${esc(e.task||'').slice(0,50)}${(e.task||'').length>50?'…':''}</div>
+                  ${(()=>{ try{ const c=JSON.parse(e.cuts_json||'null'); return c&&c.length?`<div style="font-size:10px;color:var(--text-faint);margin-bottom:3px;">🎬 ${c.length}컷 구성</div>`:''; }catch(x){return '';} })()}
+                  <div class="pipeline-card-footer">
+                    ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}" style="font-size:10px">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '<span></span>'}
+                    <div style="display:flex;gap:4px;">
+                      ${prevStage ? `<button class="pipeline-move-btn" style="background:var(--bg);border:1px solid var(--border);color:var(--text);" data-id="${esc(e.id)}" data-next-stage="${esc(prevStage)}" aria-label="이전">←</button>` : ''}
+                      ${nextStage
+                        ? `<button class="pipeline-move-btn" data-id="${esc(e.id)}" data-next-stage="${esc(nextStage)}" aria-label="다음">${esc(nextStage)} →</button>`
+                        : `<span style="font-size:11px;color:var(--status-완료);font-weight:600;">✓ 완료</span>`}
+                    </div>
+                  </div>
+                </div>`;
+              }).join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // ================================================================
 // 12. 보드 탭 렌더링
 // ================================================================
 const CH_LABELS = {
+  yt_cm: 'YT 총명 김민석', yt_yy: 'YT 유용한 김용', yt_1b: 'YT 1번가',
   youtube: 'YouTube', fb_page: 'FB 페이지', fb_group: 'FB 그룹',
   instagram: 'Instagram', twitter: 'Twitter/X', threads: 'Threads'
 };
@@ -1797,19 +2373,25 @@ function renderBoardTab() {
             <span style="font-size:11px; color:var(--text-faint); margin-left:4px; font-weight:normal;">
               (${esc(e.work_date).substring(5,10).replace('-','/')})
             </span>
+            ${e.editor_name ? `<span style="font-size:11px;color:var(--text-faint);margin-left:4px;">✂️ ${esc(e.editor_name)}</span>` : ''}
           </span>
           <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
+          ${e.task_type && e.task_type !== '기타' ? `<span class="category-chip" style="background:var(--accent-soft);color:var(--accent);">${esc(e.task_type)}</span>` : ''}
           ${e.category ? `<span class="category-chip">${esc(e.category)}</span>` : ''}
           ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel] || e.channel)}</span>` : ''}
           ${e.stage ? `<span class="badge badge-stage-${esc(e.stage).replace(/\\s+/g, '-')}">${esc(e.stage)}</span>` : ''}
         </div>
-        <div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>
-        <div class="entry-meta">
-          ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener">
+        ${e.shorts_title ? `<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">🎬 ${esc(e.shorts_title)}</div>` : ''}
+        ${(e.task) ? `<div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>` : ''}
+        <div class="entry-meta" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          ${(()=>{ try{ const c=JSON.parse(e.cuts_json||'null'); return c&&c.length?`<span class="cut-summary-chip">🎬 ${c.length}컷</span>`:''; }catch(x){return '';} })()}
+          ${e.schedule_name ? `<span style="font-size:11px;color:var(--text-faint);">📅 ${esc(e.schedule_name)}</span>` : ''}
+          ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener" style="font-size:11px;">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
             링크
           </a>` : ''}
         </div>
+        ${e.post_hashtags ? `<div style="font-size:11px;color:var(--text-faint);margin-top:3px;line-height:1.5;">${esc(e.post_hashtags).replace(/\n/g,'<br>')}</div>` : ''}
       </div>
       ${e.image_url ? `<img class="entry-img-thumb" src="${esc(e.image_url)}" alt="첨부 이미지" loading="lazy" data-imgurl="${esc(e.image_url)}" />` : ''}
       <div class="entry-actions">
@@ -1873,13 +2455,18 @@ function renderProjectTab() {
                     <span style="font-size:11px; color:var(--text-faint); margin-left:4px; font-weight:normal;">
                       (${esc(e.work_date).substring(5,10).replace('-','/')})
                     </span>
+                    ${e.editor_name ? `<span style="font-size:11px;color:var(--text-faint);margin-left:4px;">✂️ ${esc(e.editor_name)}</span>` : ''}
                   </span>
                   <span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span>
                   ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : ''}
                   ${e.stage ? `<span class="badge badge-stage-${esc(e.stage).replace(/\\s+/g, '-')}">${esc(e.stage)}</span>` : ''}
                 </div>
-                <div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>
-                ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener">링크 ↗</a>` : ''}
+                ${e.shorts_title ? `<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;">🎬 ${esc(e.shorts_title)}</div>` : ''}
+                ${e.task ? `<div class="entry-task">${esc(e.task).replace(/\n/g,'<br>')}</div>` : ''}
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:3px;">
+                  ${(()=>{ try{ const c=JSON.parse(e.cuts_json||'null'); return c&&c.length?`<span class="cut-summary-chip">🎬 ${c.length}컷</span>`:''; }catch(x){return '';} })()}
+                  ${e.link ? `<a class="entry-link" href="${esc(e.link)}" target="_blank" rel="noopener" style="font-size:11px;">링크 ↗</a>` : ''}
+                </div>
               </div>
               ${e.image_url ? `<img class="entry-img-thumb" src="${esc(e.image_url)}" alt="첨부 이미지" loading="lazy" data-imgurl="${esc(e.image_url)}" />` : ''}
               <div class="entry-actions">
@@ -1901,12 +2488,14 @@ function renderProjectTab() {
 // 14. SNS 수치 탭 렌더링
 // ================================================================
 const SNS_PLATFORMS = [
-  { key:'youtube',   label:'YouTube',   icon:'📺' },
-  { key:'fb_page',   label:'FB 페이지', icon:'📘' },
-  { key:'fb_group',  label:'FB 그룹',   icon:'👥' },
-  { key:'instagram', label:'Instagram', icon:'📷' },
-  { key:'twitter',   label:'Twitter/X', icon:'🐦' },
-  { key:'threads',   label:'Threads',   icon:'🧵' },
+  { key:'yt_cm',     label:'YT 총명 김민석', icon:'📺' },
+  { key:'yt_yy',     label:'YT 유용한 김용', icon:'📺' },
+  { key:'yt_1b',     label:'YT 1번가',        icon:'📺' },
+  { key:'fb_page',   label:'FB 페이지',       icon:'📘' },
+  { key:'fb_group',  label:'FB 그룹',         icon:'👥' },
+  { key:'instagram', label:'Instagram',       icon:'📷' },
+  { key:'twitter',   label:'Twitter/X',       icon:'🐦' },
+  { key:'threads',   label:'Threads',         icon:'🧵' },
 ];
 
 function getThemeColor(varName) {
@@ -2019,6 +2608,7 @@ function renderSnsTab() {
   const today = getTodayStr();
 
   const CH_COLORS = {
+    yt_cm:'#FF0000', yt_yy:'#FF6600', yt_1b:'#CC0000',
     youtube:'#FF0000', fb_page:'#1877F2', fb_group:'#7C3AED',
     instagram:'#E1306C', twitter:'#1DA1F2', threads:'#242526'
   };
@@ -2130,8 +2720,11 @@ function renderPipelineTab() {
                     <span style="font-size:10px; color:var(--text-faint); margin-left:4px; font-weight:normal;">
                       (${dateText})
                     </span>
+                    ${e.editor_name ? `<span style="font-size:10px;color:var(--text-faint);margin-left:3px;">✂️ ${esc(e.editor_name)}</span>` : ''}
                   </div>
-                  <div class="pipeline-card-task">${esc(e.task).slice(0,60)}${e.task.length>60?'…':''}</div>
+                  ${e.shorts_title ? `<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3;">🎬 ${esc(e.shorts_title).slice(0,50)}${e.shorts_title.length>50?'…':''}</div>` : ''}
+                  <div class="pipeline-card-task">${esc(e.task||'').slice(0,50)}${(e.task||'').length>50?'…':''}</div>
+                  ${(()=>{ try{ const c=JSON.parse(e.cuts_json||'null'); return c&&c.length?`<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;">🎬 ${c.length}컷 구성</div>`:''; }catch(x){return '';} })()}
                   <div class="pipeline-card-footer">
                     ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}" style="font-size:10px">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '<span></span>'}
                     <div style="display:flex; gap:4px;">
@@ -2223,6 +2816,7 @@ async function renderReportContent() {
 
   // SNS 섹션 데이터 준비
   const CH_COLORS_REPORT = {
+    yt_cm:'#FF0000', yt_yy:'#FF6600', yt_1b:'#CC0000',
     youtube:'#FF0000', fb_page:'#1877F2', fb_group:'#7C3AED',
     instagram:'#E1306C', twitter:'#1DA1F2', threads:'#242526'
   };
@@ -2329,7 +2923,7 @@ async function renderReportContent() {
 // ================================================================
 // 17. 업무 추가/수정 모달
 // ================================================================
-function openEntryModal(entry = null) {
+function openEntryModal(entry = null, presetType = null) {
   const modal = document.getElementById('entry-modal-overlay');
   const title = document.getElementById('entry-modal-title');
   const form  = document.getElementById('entry-form');
@@ -2362,9 +2956,21 @@ function openEntryModal(entry = null) {
     document.getElementById('entry-task').value     = entry.task || '';
 
     catInput.value = entry.category || '';
-    document.getElementById('entry-channel').value  = entry.channel || '';
-    document.getElementById('entry-stage').value    = entry.stage || '';
-    document.getElementById('entry-link').value     = entry.link || '';
+    document.getElementById('entry-channel').value       = entry.channel || '';
+    document.getElementById('entry-stage').value         = entry.stage || '';
+    document.getElementById('entry-link').value          = entry.link || '';
+    document.getElementById('entry-shorts-title').value  = entry.shorts_title || '';
+    document.getElementById('entry-schedule-name').value = entry.schedule_name || '';
+    document.getElementById('entry-post-hashtags').value = entry.post_hashtags || '';
+    document.getElementById('entry-remarks').value       = entry.remarks || '';
+    document.getElementById('entry-editor-name').value   = entry.editor_name || '';
+    // 컷 구성 로딩 (기존 단일 필드 자동 마이그레이션)
+    let initialCuts = null;
+    try { initialCuts = entry.cuts_json ? JSON.parse(entry.cuts_json) : null; } catch(e) {}
+    if (!initialCuts && (entry.clip_section || entry.youtube_url || entry.source_title)) {
+      initialCuts = [{ section: entry.clip_section||'', source_url: entry.youtube_url||'', source_desc: entry.source_title||'', caption: '' }];
+    }
+    setCutsToForm(initialCuts || []);
     if (entry.image_url) {
       pendingImgUrl = entry.image_url;
       const preview = document.getElementById('img-preview');
@@ -2375,11 +2981,13 @@ function openEntryModal(entry = null) {
       document.getElementById('img-upload-area').classList.add('has-img');
     }
     toggleStageField();
+    setTaskType(entry.task_type || '기타');
   } else {
     title.textContent = '업무 추가';
     document.getElementById('entry-id').value = '';
     document.getElementById('entry-date').value = currentDate;
     toggleStageField();
+    setTaskType(presetType || '기타');
   }
 
   modal.classList.add('open');
@@ -2395,24 +3003,93 @@ function toggleStageField() {
   document.getElementById('stage-group').style.display = channel ? '' : 'none';
 }
 
+// ================================================================
+// 컷 구성 관리
+// ================================================================
+function addCutRow(cut = {}) {
+  const list = document.getElementById('cuts-list');
+  const idx  = list.querySelectorAll('.cut-row').length + 1;
+  const div  = document.createElement('div');
+  div.className = 'cut-row';
+  div.innerHTML = `
+    <div class="cut-row-header">
+      <span class="cut-label">컷 ${idx}</span>
+      <button type="button" class="cut-delete-btn">✕ 삭제</button>
+    </div>
+    <div class="cut-fields">
+      <input class="form-input cut-section" type="text" placeholder="구간 (예: 0:47~1:03)" value="${esc(cut.section||'')}" />
+      <input class="form-input cut-source-url" type="text" placeholder="소스 영상 링크 (https://...)" value="${esc(cut.source_url||'')}" />
+      <input class="form-input cut-source-desc" type="text" placeholder="출처 / 화면 설명 (예: 박지원 JTBC 인터뷰)" value="${esc(cut.source_desc||'')}" />
+      <textarea class="form-input cut-caption" placeholder="번인 자막 / 멘트">${esc(cut.caption||'')}</textarea>
+    </div>
+  `;
+  div.querySelector('.cut-delete-btn').addEventListener('click', () => {
+    div.remove();
+    document.querySelectorAll('#cuts-list .cut-row').forEach((r, i) => {
+      r.querySelector('.cut-label').textContent = `컷 ${i + 1}`;
+    });
+  });
+  list.appendChild(div);
+}
+
+function getCutsFromForm() {
+  return Array.from(document.querySelectorAll('#cuts-list .cut-row')).map(row => ({
+    section:     row.querySelector('.cut-section').value.trim(),
+    source_url:  row.querySelector('.cut-source-url').value.trim(),
+    source_desc: row.querySelector('.cut-source-desc').value.trim(),
+    caption:     row.querySelector('.cut-caption').value.trim(),
+  })).filter(c => c.section || c.source_url || c.source_desc || c.caption);
+}
+
+function setCutsToForm(cuts) {
+  const list = document.getElementById('cuts-list');
+  list.innerHTML = '';
+  if (!cuts || cuts.length === 0) return;
+  cuts.forEach(cut => addCutRow(cut));
+}
+
+function setTaskType(type) {
+  document.getElementById('entry-task-type').value = type;
+  document.querySelectorAll('.task-type-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.type === type);
+  });
+  const isContent    = type === '쇼츠' || type === '카드뉴스';
+  const isShortsOnly = type === '쇼츠';
+  document.getElementById('section-planning').style.display   = isContent ? '' : 'none';
+  document.getElementById('section-production').style.display = isContent ? '' : 'none';
+  document.getElementById('fields-shorts-only').style.display = isShortsOnly ? '' : 'none';
+  document.getElementById('section-cuts').style.display       = isShortsOnly ? '' : 'none';
+
+  // stage 드롭다운 옵션 동적 변경
+  const stageSelect = document.getElementById('entry-stage');
+  const curVal = stageSelect.value;
+  const stages = TYPE_STAGES[type] || ['예정', '진행중', '완료'];
+  stageSelect.innerHTML = `<option value="">없음</option>` +
+    stages.map(s => `<option value="${esc(s)}"${s === curVal ? ' selected' : ''}>${esc(s)}</option>`).join('');
+}
+
 async function saveEntry() {
   const id       = document.getElementById('entry-id').value;
-  const name     = document.getElementById('entry-name').value.trim();
-  const status   = document.getElementById('entry-status').value;
-  const task     = document.getElementById('entry-task').value.trim();
-  let category = document.getElementById('entry-category-input').value.trim();
-  const channel  = document.getElementById('entry-channel').value;
-  const stage    = document.getElementById('entry-stage').value;
-  const link     = document.getElementById('entry-link').value.trim();
+  const name         = document.getElementById('entry-name').value.trim();
+  const status       = document.getElementById('entry-status').value;
+  const task         = document.getElementById('entry-task').value.trim();
+  let category       = document.getElementById('entry-category-input').value.trim();
+  const channel      = document.getElementById('entry-channel').value;
+  const stage        = document.getElementById('entry-stage').value;
+  const link         = document.getElementById('entry-link').value.trim();
+  const task_type     = document.getElementById('entry-task-type').value || '기타';
+  const shorts_title  = document.getElementById('entry-shorts-title').value.trim();
+  const schedule_name = document.getElementById('entry-schedule-name').value.trim();
+  const post_hashtags = document.getElementById('entry-post-hashtags').value.trim();
+  const remarks       = document.getElementById('entry-remarks').value.trim();
+  const editor_name   = document.getElementById('entry-editor-name').value.trim();
+  const cutsArr       = getCutsFromForm();
+  const cuts_json     = cutsArr.length ? JSON.stringify(cutsArr) : null;
 
-  if (!name) { showToast('담당자 이름을 입력해주세요.', 'error'); document.getElementById('entry-name').focus(); return; }
-  if (!task) { showToast('업무 내용을 입력해주세요.', 'error'); document.getElementById('entry-task').focus(); return; }
+  if (!name) { showToast('기획자 이름을 입력해주세요.', 'error'); document.getElementById('entry-name').focus(); return; }
 
-  // URL 유효성
-  if (link && !link.startsWith('http')) {
-    showToast('링크는 http:// 또는 https://로 시작해야 합니다.', 'warning');
-    return;
-  }
+  // URL 자동 보정 (http 없으면 자동 추가)
+  const finalLink = link ? (link.startsWith('http') ? link : 'https://' + link) : null;
 
   const saveBtn = document.getElementById('entry-save-btn');
   saveBtn.disabled = true;
@@ -2436,12 +3113,19 @@ async function saveEntry() {
 
     const payload = {
       work_date: workDate,
-      name, status, task,
+      name, status, task: task || null,
       category: category || null,
       channel: channel || null,
       stage: (channel && stage) ? stage : null,
-      link: link || null,
+      link: finalLink,
       image_url: imageUrl || null,
+      task_type: task_type,
+      shorts_title: shorts_title || null,
+      schedule_name: schedule_name || null,
+      post_hashtags: post_hashtags || null,
+      remarks: remarks || null,
+      editor_name: editor_name || null,
+      cuts_json: cuts_json,
     };
 
     let result;
@@ -2528,23 +3212,22 @@ function updateThemeIcon() {
 
 // 탭 전환
 document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
+  btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     btn.setAttribute('aria-selected','true');
     document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
-
     const tab = btn.dataset.tab;
-    if (tab === 'pipeline') {
-      document.getElementById('pipeline-board').innerHTML = '<div class="loading-center"><span class="spinner"></span> 전체 파이프라인 불러오는 중...</div>';
-      pipelineEntries = await loadPipelineEntries();
-    }
-    if (tab === 'board')    renderBoardTab();
-    if (tab === 'project')  renderProjectTab();
-    if (tab === 'sns')      renderSnsTab();
-    if (tab === 'pipeline') renderPipelineTab();
-    // 보고서는 조회 버튼으로만 갱신
+    if (TAB_TYPE[tab]) renderTypeKanban(tab);
+    if (tab === 'sns')  renderSnsTab();
+  });
+});
+
+// 타입별 추가 버튼
+document.querySelectorAll('.type-add-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openEntryModal(null, btn.dataset.type);
   });
 });
 
@@ -2568,17 +3251,56 @@ function openPipeDetail(entry) {
     ${entry.channel ? `<span class="badge badge-ch-${esc(entry.channel)}">${esc(CH_LABELS[entry.channel]||entry.channel)}</span>` : ''}
   `;
   // 이름·날짜
-  document.getElementById('pipe-detail-name').textContent = entry.name || '';
+  const nameEl = document.getElementById('pipe-detail-name');
+  nameEl.innerHTML = `${esc(entry.name || '')}${entry.editor_name ? ` <span style="font-size:12px;color:var(--text-faint);font-weight:400;">✂️ ${esc(entry.editor_name)}</span>` : ''}`;
   document.getElementById('pipe-detail-date').textContent = entry.work_date ? `업무일: ${entry.work_date.substring(5,10).replace('-','/')}` : '';
-  // 업무 내용
-  document.getElementById('pipe-detail-task').textContent = entry.task || '';
+  // 쇼츠 제목
+  const taskEl = document.getElementById('pipe-detail-task');
+  taskEl.innerHTML = entry.shorts_title
+    ? `<div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px;">🎬 ${esc(entry.shorts_title)}</div>${entry.task ? `<div style="font-size:13px;color:var(--text-soft)">${esc(entry.task)}</div>` : ''}`
+    : (entry.task ? esc(entry.task) : '');
+  // 추가 정보
+  const extras = document.getElementById('pipe-detail-extras');
+  const rows = [];
+  if (entry.schedule_name)  rows.push(`<div><span style="color:var(--text-faint);font-size:11px;">일정명 / 행사명</span><br><strong>📅 ${esc(entry.schedule_name)}</strong></div>`);
+  if (entry.post_hashtags)  rows.push(`<div><span style="color:var(--text-faint);font-size:11px;">게시명 / 해시태그</span><br><span style="white-space:pre-wrap;font-size:12px;">${esc(entry.post_hashtags)}</span></div>`);
+  if (entry.remarks)        rows.push(`<div><span style="color:var(--text-faint);font-size:11px;">비고</span><br>${esc(entry.remarks)}</div>`);
+  // 컷 구성 테이블
+  let cuts = [];
+  try { cuts = entry.cuts_json ? JSON.parse(entry.cuts_json) : []; } catch(e) {}
+  // 기존 단일 필드 마이그레이션 표시
+  if (cuts.length === 0 && (entry.clip_section || entry.youtube_url || entry.source_title)) {
+    cuts = [{ section: entry.clip_section||'', source_url: entry.youtube_url||'', source_desc: entry.source_title||'', caption: '' }];
+  }
+  if (cuts.length > 0) {
+    const cutsHtml = `
+      <div>
+        <span style="color:var(--text-faint);font-size:11px;">컷 구성 (${cuts.length}컷)</span>
+        <div class="detail-cuts-wrapper"><table class="detail-cuts-table" style="margin-top:6px">
+          <thead><tr><th>컷</th><th>구간</th><th>소스</th><th>화면</th><th>자막/멘트</th></tr></thead>
+          <tbody>
+            ${cuts.map((c, i) => `<tr>
+              <td style="white-space:nowrap;font-weight:600;color:var(--accent);">${i+1}</td>
+              <td style="white-space:nowrap;">${esc(c.section||'')}</td>
+              <td>${c.source_url ? `<a class="cut-url-link" href="${esc(c.source_url)}" target="_blank" rel="noopener">링크↗</a>` : ''}</td>
+              <td>${esc(c.source_desc||'')}</td>
+              <td style="white-space:pre-wrap;">${esc(c.caption||'')}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>
+      </div>`;
+    rows.push(cutsHtml);
+  }
+  extras.innerHTML = rows.join('<hr style="border:none;border-top:1px solid var(--border);margin:6px 0">');
+  extras.style.display = rows.length ? '' : 'none';
   // 이미지
   const img = document.getElementById('pipe-detail-img');
   if (entry.image_url) { img.src = entry.image_url; img.style.display = ''; }
   else { img.src = ''; img.style.display = 'none'; }
-  // 링크
+  // 관련 링크
   const link = document.getElementById('pipe-detail-link');
-  if (entry.link) { link.href = entry.link; link.style.display = ''; }
+  const linkUrl = entry.link;
+  if (linkUrl) { link.href = linkUrl; link.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> 관련 링크 열기`; link.style.display = ''; }
   else { link.style.display = 'none'; }
   // 수정 버튼
   document.getElementById('pipe-detail-edit-btn').onclick = () => {
@@ -2619,24 +3341,12 @@ function openPipeDetail(entry) {
 // 다크모드 토글
 document.getElementById('theme-btn').addEventListener('click', toggleTheme);
 
-// 업무 추가 버튼
-document.getElementById('add-entry-btn').addEventListener('click', () => openEntryModal());
-document.getElementById('pipeline-add-btn').addEventListener('click', () => {
-  openEntryModal();
-  // SNS 채널 선택란이 보이도록 채널 필드 표시 트리거
-  const channelSelect = document.getElementById('entry-channel');
-  if (channelSelect && pipelineFilter !== 'all') {
-    channelSelect.value = pipelineFilter;
-    channelSelect.dispatchEvent(new Event('change'));
-  }
-});
+// (업무 추가 버튼 — .type-add-btn 으로 통합됨)
 
 // 모달 닫기
 document.getElementById('entry-modal-close').addEventListener('click', closeEntryModal);
 document.getElementById('entry-cancel-btn').addEventListener('click', closeEntryModal);
-document.getElementById('entry-modal-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('entry-modal-overlay')) closeEntryModal();
-});
+// 패널 외부 클릭으로는 닫히지 않음 — X 버튼 또는 취소 버튼으로만 닫기
 
 // 저장 버튼
 document.getElementById('entry-save-btn').addEventListener('click', saveEntry);
@@ -2644,8 +3354,17 @@ document.getElementById('entry-form').addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') { e.preventDefault(); saveEntry(); }
 });
 
+// 컷 추가 버튼
+document.getElementById('cut-add-btn').addEventListener('click', () => addCutRow());
+
 // 채널 변경 시 파이프라인 단계 표시
 document.getElementById('entry-channel').addEventListener('change', toggleStageField);
+
+// 업무 유형 칩 클릭
+document.getElementById('task-type-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.task-type-chip');
+  if (chip) setTaskType(chip.dataset.type);
+});
 
 // 카테고리 직접 입력 토글 (datalist 방식으로 변경되어 삭제됨)
 
@@ -2712,7 +3431,7 @@ document.addEventListener('click', async e => {
   const pipeCard = e.target.closest('.pipeline-card');
   if (pipeCard && !e.target.closest('.pipeline-move-btn')) {
     const id = pipeCard.dataset.id;
-    const entry = pipelineEntries.find(en => en.id === id) || allEntries.find(en => en.id === id);
+    const entry = allEntries.find(en => en.id === id);
     if (entry) openPipeDetail(entry);
     return;
   }
@@ -2722,30 +3441,16 @@ document.addEventListener('click', async e => {
   if (moveBtn) {
     const id = moveBtn.dataset.id;
     const nextStage = moveBtn.dataset.nextStage;
-    const entry = pipelineEntries.find(en => en.id === id) || allEntries.find(en => en.id === id);
+    const entry = allEntries.find(en => en.id === id);
     if (!entry) return;
-    let statusUpdate = entry.status;
-    if (nextStage === '게시') {
-      statusUpdate = '완료';
-    } else if (nextStage === '예정') {
-      statusUpdate = '예정';
-    } else {
-      statusUpdate = '진행중';
-    }
+    const lastStages = ['업로드됨', '게시', '완료'];
+    const statusUpdate = lastStages.includes(nextStage) ? '완료' : nextStage === '예정' ? '예정' : '진행중';
     const result = await updateEntry(id, { stage: nextStage, status: statusUpdate });
     if (result) {
-      showToast(`"${entry.name}" 항목을 "${nextStage}"으로 이동했습니다.`, 'success');
-      pipelineEntries = await loadPipelineEntries();
+      showToast(`"${esc(entry.name)}" → "${esc(nextStage)}"으로 이동`, 'success');
       allEntries = await loadBoardEntries();
-      renderPipelineTab();
+      renderCurrentTab();
     }
-    return;
-  }
-
-  // 프로젝트 그룹 접기/펼치기
-  const groupHeader = e.target.closest('.project-group-header');
-  if (groupHeader) {
-    groupHeader.parentElement.classList.toggle('collapsed');
     return;
   }
 });
@@ -2788,31 +3493,7 @@ document.getElementById('name-autocomplete').addEventListener('click', e => {
 
 
 
-// 보드 검색
-document.getElementById('board-search').addEventListener('input', function() {
-  boardSearch = this.value;
-  renderBoardTab();
-});
-
-// 보드 필터 칩
-document.querySelector('.filter-bar').addEventListener('click', e => {
-  const chip = e.target.closest('.filter-chip[data-filter]');
-  if (!chip) return;
-  document.querySelectorAll('.filter-chip[data-filter]').forEach(c => c.classList.remove('active'));
-  chip.classList.add('active');
-  boardFilter = chip.dataset.filter;
-  renderBoardTab();
-});
-
-// 파이프라인 채널 필터
-document.querySelector('.pipeline-filters').addEventListener('click', e => {
-  const chip = e.target.closest('.filter-chip[data-pipeline-filter]');
-  if (!chip) return;
-  document.querySelectorAll('.filter-chip[data-pipeline-filter]').forEach(c => c.classList.remove('active'));
-  chip.classList.add('active');
-  pipelineFilter = chip.dataset.pipelineFilter;
-  renderPipelineTab();
-});
+// (보드 검색/필터 제거됨 — 탭별 칸반으로 이동)
 
 // SNS 저장 버튼 (이벤트 위임)
 document.getElementById('sns-grid').addEventListener('click', async e => {
@@ -2943,7 +3624,7 @@ async function initApp() {
       names: ['김민준', '이서연', '박도윤', '최지우'],
       categories: ['SNS 홍보', '영상 제작', '언론 홍보', '행정'],
     };
-    renderBoardTab();
+    renderTypeKanban('shorts');
     setConnDot(''); // 데모 모드에서는 연결 없음
     // 데모 토스트
     setTimeout(() => showToast('🎭 데모 모드로 실행 중 (샘플 데이터)', 'warning', 5000), 800);
@@ -2960,7 +3641,7 @@ async function initApp() {
   allSnsData = snsData;
 
   // 초기 렌더
-  renderBoardTab();
+  renderTypeKanban('shorts');
 
   // Realtime 구독 시작
   subscribeRealtime(currentDate);
@@ -2969,6 +3650,345 @@ async function initApp() {
 initApp().catch(err => {
   console.error('[TWB] 앱 초기화 실패:', err);
   showToast('앱 초기화 중 오류가 발생했습니다. 페이지를 새로고침해주세요.', 'error');
+});
+
+/* ================================================================
+   모니터링 탭 — 채널 정의 & 샘플 데이터
+================================================================ */
+const MONITOR_CHANNELS = [
+  { id:'DHLeeTV',      name:'이동형TV/이이제이', icon:'📺', live:'화목 오후 7시' },
+  { id:'SPEAKS_TV',    name:'스픽스',            icon:'🎙️', live:'월~금 12:34' },
+  { id:'saenal',       name:'새날',              icon:'🌅', live:'매일 오전 8시' },
+  { id:'UCAVVxL',      name:'취재편의점',         icon:'🏪', live:'평일 오전 9시' },
+  { id:'kimyongminTV', name:'김용민TV',           icon:'📻', live:'평일 7시/9시' },
+  { id:'OhmynewsTV',   name:'오마이TV',           icon:'📰', live:'매일 오전 11시' },
+  { id:'newstomatoTV', name:'뉴스토마토',         icon:'🍅', live:'평일 오전 7:30' },
+  { id:'UCX7K',        name:'고발뉴스',           icon:'🔍', live:'평일 12시/5시' },
+  { id:'JTBCSHOW',     name:'장르만여의도',        icon:'🏛️', live:'평일 11시~오후 1시' },
+  { id:'cbsasklive',   name:'CBS 질문하는 기자',  icon:'🎤', live:'평일 오후 1시' },
+  { id:'namcheondong', name:'사장남천동',          icon:'👨‍💼', live:'월~금 오후 9시' },
+  { id:'KTV_korea',    name:'청와대(KTV)',         icon:'🏛️', live:'매주 화/목' },
+];
+
+const MONITOR_SAMPLES = [
+  {
+    id:'ms1', channelId:'saenal', isLive:false, type:'promote',
+    title:'[새날 라이브] 전당대회 레이스 본격화, 총명 김민석 캠프 전략은?',
+    time:'오늘 오전 8:12',
+    thumb:'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+    summary:'총명 김민석 후보의 당대표 출마 공식 선언 이후 캠프 전략과 지지층 확보 방안에 대한 심층 분석. 진행자 푸른나무가 긍정적 시각으로 인터뷰를 진행하며 당내 주요 지지세력과의 연대 가능성을 조명.',
+    timestamps:[
+      { time:'00:14:32', text:'총명 김민석 후보 출마 선언 배경 및 캠프 전략 설명', type:'promote' },
+      { time:'00:32:15', text:'당내 지지 기반 현황 분석 — 호남 고정 지지층 언급', type:'promote' },
+      { time:'01:05:44', text:'경쟁 후보 비교 언급 (중립적 논조)', type:'unclassified' },
+    ]
+  },
+  {
+    id:'ms2', channelId:'kimyongminTV', isLive:false, type:'promote',
+    title:'뉴스관장 | 전당대회 여론조사 결과 분석 & 각 후보 전략 비교',
+    time:'오늘 오전 9:05',
+    thumb:'',
+    summary:'최신 전당대회 여론조사 수치를 바탕으로 각 후보의 강점과 약점 분석. 총명 후보에 대한 우호적 평가와 함께 지지율 상승 요인을 구체적으로 분석. 클립용으로 활용 가능한 발언 다수 포함.',
+    timestamps:[
+      { time:'00:07:20', text:'총명 김민석 후보 지지율 상승세 구체적 수치와 함께 언급', type:'promote' },
+      { time:'00:24:10', text:'국민의힘 내부 분열 관련 날카로운 비판 — 쇼츠 소재 가능', type:'promote' },
+      { time:'00:38:55', text:'권리당원 vs 일반국민 투표 가중치 변수 분석', type:'unclassified' },
+    ]
+  },
+  {
+    id:'ms3', channelId:'SPEAKS_TV', isLive:true, type:'defend',
+    title:'스픽스1234 | 전당대회 D-30 긴급 점검, 누가 유리한가 🔴LIVE',
+    time:'지금 방송 중',
+    thumb:'',
+    summary:'전당대회 30일 앞 긴급 점검 방송. 일부 구간에서 총명 후보의 과거 발언에 대한 비판적 시각 제시. 청년층 이탈 가능성 언급 등 대응 전략 필요한 내용 포함.',
+    timestamps:[
+      { time:'00:18:44', text:'총명 후보의 2022년 발언 재조명 — 비판적 논조', type:'defend' },
+      { time:'00:41:22', text:'청년층 지지 이탈 가능성 언급 및 데이터 인용', type:'defend' },
+      { time:'00:55:10', text:'전당대회 판세 전망 — 복수 후보 균형 비교', type:'unclassified' },
+    ]
+  },
+  {
+    id:'ms4', channelId:'OhmynewsTV', isLive:false, type:'promote',
+    title:'오연호가 묻다 | 총명 김민석 단독 인터뷰 "당을 하나로"',
+    time:'어제 오전 11:20',
+    thumb:'',
+    summary:'오연호 대표가 직접 진행한 총명 김민석 후보 단독 인터뷰. 당 통합 비전과 총선 전략 공약을 구체적으로 제시. 클립용으로 적합한 핵심 발언 다수 포함. 조회수 반응도 양호.',
+    timestamps:[
+      { time:'00:05:00', text:'"당원과 함께하는 민주당 만들겠다" — 핵심 발언 클립 추천', type:'promote' },
+      { time:'00:22:35', text:'청년 정치 활성화 공약 상세 설명', type:'promote' },
+      { time:'00:38:50', text:'국민의힘 비판 발언 — 여의도1번가 소재 가능', type:'promote' },
+    ]
+  },
+  {
+    id:'ms5', channelId:'UCX7K', isLive:false, type:'promote',
+    title:'이상호의 고발뉴스 | 윤석열 정권 실정 2년 총정리 (전당대회 대비용)',
+    time:'어제 오후 5:15',
+    thumb:'',
+    summary:'윤석열 정권 2년 실정을 정리한 탐사 방송. 여의도1번가 콘텐츠 기획의 핵심 소재 다수 포함. 경제·외교·민생 각 분야별 실패 사례 타임스탬프로 정리.',
+    timestamps:[
+      { time:'00:12:30', text:'경제 실정 — 물가 상승률 데이터 시각화 구간', type:'promote' },
+      { time:'00:34:00', text:'외교 실패 — 일본 굴욕 외교 재조명', type:'promote' },
+      { time:'01:02:15', text:'민생 경제 — 서민 피해 사례 인터뷰', type:'promote' },
+    ]
+  },
+  {
+    id:'ms6', channelId:'newstomatoTV', isLive:false, type:'unclassified',
+    title:'뉴스인사이다 | 민주당 전당대회 관전 포인트 5가지',
+    time:'2일 전 오전 7:30',
+    thumb:'',
+    summary:'민주당 전당대회의 주요 관전 포인트를 5가지로 정리. 총명 후보 관련 중립적 언급 포함. 전략적 활용 가능성 중간 정도.',
+    timestamps:[
+      { time:'00:09:00', text:'관전 포인트 ②: 총명 vs 경쟁 후보 지지율 격차', type:'unclassified' },
+      { time:'00:23:45', text:'권리당원 투표 변수 분석 — 세부 수치 인용', type:'unclassified' },
+    ]
+  },
+];
+
+let monitorChFilter = 'all';
+let monitorTypeFilter = 'all';
+let monitorActiveItem = null;
+
+function getChName(id) {
+  return MONITOR_CHANNELS.find(c => c.id === id)?.name || id;
+}
+
+function renderMonitorTab() {
+  const grid = document.getElementById('monitor-grid');
+  if (!grid) return;
+
+  const filtered = MONITOR_SAMPLES.filter(v => {
+    const chOk = monitorChFilter === 'all' || v.channelId === monitorChFilter;
+    const tOk  = monitorTypeFilter === 'all' || v.type === monitorTypeFilter;
+    return chOk && tOk;
+  });
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-state-icon">📭</div>
+      <div class="empty-state-title">해당 조건의 영상이 없어요</div>
+    </div>`;
+    return;
+  }
+
+  const typeLabel = { promote:'🟢 홍보 소재', defend:'🔴 방어 필요', unclassified:'⬜ 미분류' };
+
+  grid.innerHTML = filtered.map(v => {
+    const ch = MONITOR_CHANNELS.find(c => c.id === v.channelId);
+    const thumbHtml = v.thumb
+      ? `<img src="${esc(v.thumb)}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const iconPlaceholder = `<div class="monitor-card-thumb-icon" ${v.thumb ? 'style="display:none"' : ''}>${ch?.icon || '📺'}</div>`;
+    return `
+    <div class="monitor-card" data-vid="${esc(v.id)}" role="button" tabindex="0" aria-label="${esc(v.title)}">
+      <div class="monitor-card-thumb">
+        ${thumbHtml}${iconPlaceholder}
+        ${v.isLive ? '<span class="monitor-live-badge">🔴 LIVE</span>' : ''}
+      </div>
+      <div class="monitor-card-type-bar ${v.type}"></div>
+      <div class="monitor-card-body">
+        <div class="monitor-card-channel">${ch?.icon || ''} ${esc(getChName(v.channelId))}</div>
+        <div class="monitor-card-title">${esc(v.title)}</div>
+        <div class="monitor-card-footer">
+          <span class="monitor-card-time">${esc(v.time)}</span>
+          <span class="monitor-badge ${v.type}">${typeLabel[v.type] || v.type}</span>
+        </div>
+        <div class="monitor-ts-count">⏱️ 주요 구간 ${v.timestamps.length}개</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.monitor-card').forEach(card => {
+    card.addEventListener('click', () => openMonitorDrawer(card.dataset.vid));
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openMonitorDrawer(card.dataset.vid); });
+  });
+}
+
+function openMonitorDrawer(vid) {
+  const item = MONITOR_SAMPLES.find(v => v.id === vid);
+  if (!item) return;
+  monitorActiveItem = item;
+
+  const typeLabel = { promote:'🟢 홍보 소재', defend:'🔴 방어 필요', unclassified:'⬜ 미분류' };
+  document.getElementById('drawer-ch-name').textContent = getChName(item.channelId);
+  document.getElementById('drawer-title').textContent   = item.title;
+  document.getElementById('drawer-time').textContent    = item.time;
+
+  const badge = document.getElementById('drawer-type-badge');
+  badge.textContent = typeLabel[item.type] || item.type;
+  badge.className = `monitor-badge ${item.type}`;
+
+  document.getElementById('drawer-summary').textContent = item.summary;
+
+  document.getElementById('drawer-timestamps').innerHTML = item.timestamps.map(ts => `
+    <div class="monitor-ts-row ${ts.type}">
+      <span class="monitor-ts-time">${esc(ts.time)}</span>
+      <span class="monitor-ts-text">${esc(ts.text)}</span>
+      <span class="monitor-ts-badge ${ts.type}">${typeLabel[ts.type] || ts.type}</span>
+    </div>`).join('');
+
+  document.getElementById('monitor-drawer-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMonitorDrawer() {
+  document.getElementById('monitor-drawer-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  monitorActiveItem = null;
+}
+
+/* ================================================================
+   모니터링 API 키 관리
+================================================================ */
+const API_KEY_STORAGE = { yt: 'twb-yt-api-key', claude: 'twb-claude-api-key' };
+
+function loadApiKeys() {
+  return {
+    yt:     localStorage.getItem(API_KEY_STORAGE.yt)     || '',
+    claude: localStorage.getItem(API_KEY_STORAGE.claude) || '',
+  };
+}
+
+function saveApiKeys(yt, claude) {
+  if (yt)     localStorage.setItem(API_KEY_STORAGE.yt, yt);
+  else        localStorage.removeItem(API_KEY_STORAGE.yt);
+  if (claude) localStorage.setItem(API_KEY_STORAGE.claude, claude);
+  else        localStorage.removeItem(API_KEY_STORAGE.claude);
+}
+
+function updateApiStatusBadge() {
+  const { yt, claude } = loadApiKeys();
+  const panel  = document.getElementById('monitor-api-panel');
+  const badge  = document.getElementById('monitor-api-status');
+  const refreshBtn = document.getElementById('monitor-refresh-btn');
+  if (!badge) return;
+
+  if (yt && claude) {
+    badge.textContent = '✅ 연결됨';
+    badge.className   = 'monitor-api-status connected';
+    panel?.classList.add('connected');
+    if (refreshBtn) { refreshBtn.removeAttribute('disabled'); refreshBtn.style.opacity='1'; refreshBtn.style.cursor='pointer'; }
+  } else if (yt || claude) {
+    badge.textContent = '⚠️ 부분 연결';
+    badge.className   = 'monitor-api-status partial';
+    panel?.classList.remove('connected');
+    if (refreshBtn) { refreshBtn.setAttribute('disabled',''); refreshBtn.style.opacity='0.45'; refreshBtn.style.cursor='not-allowed'; }
+  } else {
+    badge.textContent = '미연결';
+    badge.className   = 'monitor-api-status';
+    panel?.classList.remove('connected');
+    if (refreshBtn) { refreshBtn.setAttribute('disabled',''); refreshBtn.style.opacity='0.45'; refreshBtn.style.cursor='not-allowed'; }
+  }
+}
+
+function initApiKeyPanel() {
+  const { yt, claude } = loadApiKeys();
+  const ytInput     = document.getElementById('yt-api-key-input');
+  const claudeInput = document.getElementById('claude-api-key-input');
+  if (ytInput)     ytInput.value     = yt;
+  if (claudeInput) claudeInput.value = claude;
+  updateApiStatusBadge();
+
+  // 토글 열기/닫기
+  document.getElementById('monitor-api-toggle')?.addEventListener('click', () => {
+    const body    = document.getElementById('monitor-api-body');
+    const chevron = document.getElementById('monitor-api-chevron');
+    const isOpen  = body?.classList.toggle('open');
+    chevron?.classList.toggle('open', isOpen);
+  });
+
+  // 눈 아이콘 (보기/숨기기)
+  document.querySelectorAll('.monitor-api-eye').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      if (!input) return;
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  // 저장
+  document.getElementById('monitor-api-save-btn')?.addEventListener('click', () => {
+    const yt     = document.getElementById('yt-api-key-input')?.value.trim() || '';
+    const claude = document.getElementById('claude-api-key-input')?.value.trim() || '';
+    saveApiKeys(yt, claude);
+    updateApiStatusBadge();
+    showToast('API 키가 저장됐어요', 'success');
+
+    // 패널 닫기
+    document.getElementById('monitor-api-body')?.classList.remove('open');
+    document.getElementById('monitor-api-chevron')?.classList.remove('open');
+  });
+
+  // 초기화
+  document.getElementById('monitor-api-clear-btn')?.addEventListener('click', () => {
+    saveApiKeys('', '');
+    const ytInput     = document.getElementById('yt-api-key-input');
+    const claudeInput = document.getElementById('claude-api-key-input');
+    if (ytInput)     ytInput.value     = '';
+    if (claudeInput) claudeInput.value = '';
+    updateApiStatusBadge();
+    showToast('API 키가 초기화됐어요', 'info');
+  });
+}
+
+// 모니터링 탭 이벤트 바인딩 (DOM 준비 후)
+document.addEventListener('DOMContentLoaded', () => {
+  initApiKeyPanel();
+  // 채널 필터
+  document.getElementById('monitor-ch-filters')?.addEventListener('click', e => {
+    const btn = e.target.closest('.monitor-ch-chip');
+    if (!btn) return;
+    document.querySelectorAll('.monitor-ch-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    monitorChFilter = btn.dataset.ch;
+    renderMonitorTab();
+  });
+
+  // 유형 필터
+  document.querySelector('.monitor-type-filter')?.addEventListener('click', e => {
+    const btn = e.target.closest('.monitor-type-btn');
+    if (!btn) return;
+    document.querySelectorAll('.monitor-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    monitorTypeFilter = btn.dataset.type;
+    renderMonitorTab();
+  });
+
+  // 드로어 닫기
+  document.getElementById('monitor-drawer-close')?.addEventListener('click', closeMonitorDrawer);
+  document.getElementById('monitor-drawer-close2')?.addEventListener('click', closeMonitorDrawer);
+  document.getElementById('monitor-drawer-overlay')?.addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeMonitorDrawer();
+  });
+
+  // 파이프라인으로 보내기
+  document.getElementById('drawer-to-pipeline-btn')?.addEventListener('click', () => {
+    if (!monitorActiveItem) return;
+    const chName = getChName(monitorActiveItem.channelId);
+    const tsText = monitorActiveItem.timestamps
+      .map(t => `[${t.time}] ${t.text}`)
+      .join('\n');
+
+    // 쇼츠 탭으로 이동 후 추가 모달 오픈
+    document.querySelector('[data-tab="shorts"]')?.click();
+    closeMonitorDrawer();
+
+    // 짧은 딜레이 후 업무 추가 모달 오픈 (탭 전환 완료 후)
+    setTimeout(() => {
+      openEntryModal({
+        id: null,
+        name: '모니터링팀',
+        category: '방송 모니터링',
+        task: `[모니터링 → 기획안]\n출처: ${chName}\n제목: ${monitorActiveItem.title}\n시간: ${monitorActiveItem.time}\n\n${tsText}`,
+        status: '예정',
+        stage: '기획',
+        channel: 'youtube',
+        date: getTodayStr(),
+      });
+    }, 180);
+  });
+
+  // 초기 렌더
+  renderMonitorTab();
 });
 
 </script>
