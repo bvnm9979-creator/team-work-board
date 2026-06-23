@@ -3361,6 +3361,7 @@ document.getElementById('entry-delete-btn').addEventListener('click', async () =
     allEntries = allEntries.filter(e => e.id !== id);
     closeEntryModal();
     renderBoardTab();
+    renderCurrentTab();
     showToast('업무가 삭제되었습니다.', 'success');
   }
 });
