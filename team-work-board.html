@@ -3353,11 +3353,16 @@ document.getElementById('entry-cancel-btn').addEventListener('click', closeEntry
 document.getElementById('entry-delete-btn').addEventListener('click', async () => {
   const id = document.getElementById('entry-id').value;
   if (!id) return;
-  const entry = entries.find(e => e.id === id);
+  const entry = allEntries.find(e => e.id === id);
   const label = entry ? entry.task.slice(0, 30) : '이 업무';
   if (!confirm(`"${label}" 업무를 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
   const ok = await deleteEntry(id);
-  if (ok) { closeEntryModal(); showToast('업무가 삭제되었습니다.', 'success'); }
+  if (ok) {
+    allEntries = allEntries.filter(e => e.id !== id);
+    closeEntryModal();
+    renderBoardTab();
+    showToast('업무가 삭제되었습니다.', 'success');
+  }
 });
 // 패널 외부 클릭으로는 닫히지 않음 — X 버튼 또는 취소 버튼으로만 닫기
 
