@@ -3567,7 +3567,7 @@ async function saveEntry() {
 
     const payload = {
       work_date: workDate,
-      name, status, task: task || null,
+      name, status, task: task || shorts_title || cardnews_title || '(내용 없음)',
       category: category || null,
       channel: channel || null,
       stage: (channel && stage) ? stage : null,
