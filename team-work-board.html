@@ -2252,6 +2252,11 @@ const EDITOR_STAGES = {
   '쇼츠':    ['편집중', '컨펌대기', '업로드됨'],
   '카드뉴스': ['디자인', '컨펌', '게시'],
 };
+// 기획자는 단계 어디에 있든 이 열에 고정 카운트 (이미 기획한 건이므로)
+const PLANNER_STAGE = {
+  '쇼츠':    '기획완료',
+  '카드뉴스': '기획',
+};
 const TAB_TYPE = { shorts: '쇼츠', cardnews: '카드뉴스', admin: '행정' };
 
 function getActiveTab() {
@@ -2320,12 +2325,14 @@ function renderDashboard() {
   entries.forEach(e => {
     const stage = (e.stage && stages.includes(e.stage)) ? e.stage : stages[0];
 
-    // 기획자
-    totalByStage[stage]++;
+    // 기획자 — 현재 단계 무관, 기획 역할 단계에 고정 카운트
+    const plannerStage = PLANNER_STAGE[e.task_type] || stage;
+    const plannerStageKey = stages.includes(plannerStage) ? plannerStage : stage;
+    totalByStage[plannerStageKey]++;
     const name = e.name || '(미지정)';
     if (!byName[name]) { byName[name] = { total: 0 }; stages.forEach(s => { byName[name][s] = 0; }); }
     byName[name].total++;
-    byName[name][stage]++;
+    byName[name][plannerStageKey]++;
 
     // 편집자 — 편집 단계(EDITOR_STAGES)에 해당할 때만 카운트
     if (e.editor_name) {
