@@ -1447,6 +1447,7 @@
             <button class="dash-type-btn" data-type="쇼츠">🎬 쇼츠</button>
             <button class="dash-type-btn" data-type="카드뉴스">🃏 카드뉴스</button>
             <button class="dash-type-btn" data-type="행정">📌 행정</button>
+            <button class="dash-type-btn" data-type="person">👤 담당자별</button>
           </div>
           <button class="btn btn-secondary btn-sm" id="dash-print-btn" title="현황 인쇄">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -2408,6 +2409,12 @@ function renderDashboard() {
     return;
   }
 
+  // 담당자별 모드
+  if (dashTypeFilter === 'person') {
+    renderDashboardByPerson(container);
+    return;
+  }
+
   let entries = pipelineEntries;
   if (dashTypeFilter === '행정') {
     entries = entries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
@@ -2746,6 +2753,112 @@ function renderDashboardAll(container) {
   });
 
   container.innerHTML = html || `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">업무가 없어요</div></div>`;
+}
+
+// 담당자별 현황
+function renderDashboardByPerson(container) {
+  let base = pipelineEntries;
+  if (dashPeriodFilter === 'week') {
+    const { start, end } = getWeekRange();
+    base = base.filter(e => e.work_date >= start && e.work_date <= end);
+  } else if (dashPeriodFilter === 'month') {
+    const ym = new Date().toISOString().substring(0, 7);
+    base = base.filter(e => (e.work_date || '').startsWith(ym));
+  }
+
+  const getStatusGroup = (e) => {
+    const stages = TYPE_STAGES[e.task_type] || TYPE_STAGES['행정'];
+    const stage = e.stage || stages[0];
+    if (stage === stages[stages.length - 1]) return 'done';
+    if (stage === stages[0]) return 'planned';
+    return 'doing';
+  };
+
+  const personMap = {};
+  base.forEach(e => {
+    const name = e.name || '(미지정)';
+    if (!personMap[name]) personMap[name] = { planned: [], doing: [], done: [] };
+    personMap[name][getStatusGroup(e)].push(e);
+
+    if (e.editor_name) {
+      const edStages = EDITOR_STAGES[e.task_type] || [];
+      if (edStages.includes(e.stage)) {
+        const ed = e.editor_name;
+        if (!personMap[ed]) personMap[ed] = { planned: [], doing: [], done: [] };
+        if (!personMap[ed].doing.find(x => x.id === e.id)) personMap[ed].doing.push(e);
+      }
+    }
+  });
+
+  const sorted = Object.entries(personMap).sort(([,a],[,b]) => {
+    return (b.doing.length + b.planned.length + b.done.length) - (a.doing.length + a.planned.length + a.done.length);
+  });
+
+  if (sorted.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">👤</div><div class="empty-state-title">담당자가 없어요</div></div>`;
+    return;
+  }
+
+  const typeEmoji = { '쇼츠': '🎬', '카드뉴스': '🃏', '행정': '📌', '기타': '📋', '모니터링': '🔍' };
+
+  const renderItems = (items) => {
+    const shown = items.slice(0, 5);
+    const rest = items.length - 5;
+    return shown.map(e => {
+      const emoji = typeEmoji[e.task_type] || '📋';
+      const title = e.task || e.shorts_title || e.schedule_name || '(제목 없음)';
+      const stage = e.stage || (TYPE_STAGES[e.task_type] || [''])[0];
+      return `<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <span style="flex-shrink:0;">${emoji}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${esc(title)}</span>
+        <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;background:var(--bg);border-radius:4px;padding:1px 5px;">${esc(stage)}</span>
+      </div>`;
+    }).join('') + (rest > 0 ? `<div style="font-size:11px;color:var(--text-muted);padding-top:5px;text-align:center;">+${rest}건 더</div>` : '');
+  };
+
+  const avatarColors = ['#8B5CF6','#0EA5E9','#10B981','#F59E0B','#EC4899','#6366F1','#F97316','#14B8A6'];
+
+  const cards = sorted.map(([person, data], i) => {
+    const total = data.planned.length + data.doing.length + data.done.length;
+    const doneRate = total > 0 ? Math.round(data.done.length / total * 100) : 0;
+    const avatarColor = avatarColors[i % avatarColors.length];
+    const showItems = data.doing.length > 0 ? data.doing : data.planned;
+    const showLabel = data.doing.length > 0 ? '진행중 업무' : '예정 업무';
+
+    return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:${avatarColor};display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;">${esc(person[0])}</div>
+          <div>
+            <div style="font-weight:600;font-size:14px;color:var(--text-primary);">${esc(person)}</div>
+            <div style="font-size:11px;color:var(--text-muted);">총 ${total}건</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;">
+          <div style="flex:1;text-align:center;background:#10B98118;border-radius:8px;padding:8px 4px;">
+            <div style="font-size:20px;font-weight:700;color:#10B981;">${data.done.length}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">완료</div>
+          </div>
+          <div style="flex:1;text-align:center;background:#F59E0B18;border-radius:8px;padding:8px 4px;">
+            <div style="font-size:20px;font-weight:700;color:#F59E0B;">${data.doing.length}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">진행중</div>
+          </div>
+          <div style="flex:1;text-align:center;background:#6366F118;border-radius:8px;padding:8px 4px;">
+            <div style="font-size:20px;font-weight:700;color:#6366F1;">${data.planned.length}</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">예정</div>
+          </div>
+        </div>
+        <div style="height:5px;background:var(--border);border-radius:3px;margin-bottom:14px;overflow:hidden;">
+          <div style="height:100%;width:${doneRate}%;background:#10B981;border-radius:3px;transition:width 0.3s;"></div>
+        </div>
+        ${showItems.length > 0 ? `
+          <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;">${showLabel}</div>
+          ${renderItems(showItems)}
+        ` : `<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:8px 0;">진행중 업무 없음</div>`}
+      </div>`;
+  }).join('');
+
+  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;padding:4px 0;">${cards}</div>`;
 }
 
 function renderTypeKanban(tabId) {
