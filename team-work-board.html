@@ -882,6 +882,48 @@
       transition: all var(--transition);
     }
     .pipeline-move-btn:hover { background: var(--accent); color: #fff; }
+    /* 파이프라인 복사 버튼 */
+    .pipeline-copy-btn {
+      font-size: 12px; padding: 2px 6px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface); color: var(--text-faint);
+      cursor: pointer; transition: all var(--transition);
+    }
+    .pipeline-copy-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    /* 보류 카드 강조 */
+    .pipeline-card.card-hold { border-left: 3px solid var(--status-보류); }
+    /* D-day 배지 */
+    .dday-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 100px; display: inline-block; white-space: nowrap; }
+    .dday-ok    { background: #D1FAE5; color: #059669; }
+    .dday-soon  { background: #FEF3C7; color: #D97706; }
+    .dday-late  { background: #FEE2E2; color: #DC2626; }
+    .dday-today { background: #DC2626; color: #fff; }
+    /* 파이프라인 담당자 필터 */
+    .pipe-person-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+    .pipe-person-chip {
+      padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border); color: var(--text-soft); background: var(--surface);
+      cursor: pointer; transition: all var(--transition);
+    }
+    .pipe-person-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .pipe-person-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    /* 진행률 바 */
+    .dash-progress-wrap { margin-bottom: 16px; }
+    .dash-progress-bar { display: flex; height: 10px; border-radius: 100px; overflow: hidden; background: var(--surface-2); gap: 2px; }
+    .dash-progress-seg { height: 100%; border-radius: 100px; min-width: 2px; }
+    .dash-progress-labels { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+    .dash-progress-label-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-soft); }
+    .dash-progress-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    /* 기간 필터 */
+    .dash-period-filter { display: flex; gap: 4px; }
+    /* 인쇄 */
+    @media print {
+      .topbar, .tabs-wrap, .section-header { display: none !important; }
+      .tab-panel { display: none !important; }
+      #panel-report { display: block !important; }
+      .dash-table-wrap { overflow: visible; }
+      .dash-summary { flex-wrap: wrap; }
+      #dashboard-content [data-person] { display: none; }
+    }
 
     /* ============================================================
        현황 대시보드 탭
@@ -1319,6 +1361,7 @@
         <button class="btn btn-primary type-add-btn" data-type="쇼츠">+ 쇼츠 추가</button>
       </div>
       <div class="type-count-bar" id="count-bar-shorts"></div>
+      <div id="person-filter-shorts"></div>
       <div class="pipeline-board" id="pipeline-board-shorts"></div>
     </section>
 
@@ -1329,6 +1372,7 @@
         <button class="btn btn-primary type-add-btn" data-type="카드뉴스">+ 카드뉴스 추가</button>
       </div>
       <div class="type-count-bar" id="count-bar-cardnews"></div>
+      <div id="person-filter-cardnews"></div>
       <div class="pipeline-board" id="pipeline-board-cardnews"></div>
     </section>
 
@@ -1339,6 +1383,7 @@
         <button class="btn btn-primary type-add-btn" data-type="행정">+ 업무 추가</button>
       </div>
       <div class="type-count-bar" id="count-bar-admin"></div>
+      <div id="person-filter-admin"></div>
       <div class="pipeline-board" id="pipeline-board-admin"></div>
     </section>
 
@@ -1365,11 +1410,23 @@
     <section class="tab-panel" id="panel-report" role="tabpanel" aria-labelledby="tab-report">
       <div class="section-header">
         <span class="section-title">업무 현황</span>
-        <div class="dash-type-filter">
-          <button class="dash-type-btn active" data-type="all">전체</button>
-          <button class="dash-type-btn" data-type="쇼츠">🎬 쇼츠</button>
-          <button class="dash-type-btn" data-type="카드뉴스">🃏 카드뉴스</button>
-          <button class="dash-type-btn" data-type="행정">📌 행정</button>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="dash-period-filter">
+            <button class="dash-type-btn active" data-period="all">전체</button>
+            <button class="dash-type-btn" data-period="week">이번 주</button>
+            <button class="dash-type-btn" data-period="month">이번 달</button>
+          </div>
+          <div style="width:1px;height:18px;background:var(--border);"></div>
+          <div class="dash-type-filter">
+            <button class="dash-type-btn active" data-type="all">전체</button>
+            <button class="dash-type-btn" data-type="쇼츠">🎬 쇼츠</button>
+            <button class="dash-type-btn" data-type="카드뉴스">🃏 카드뉴스</button>
+            <button class="dash-type-btn" data-type="행정">📌 행정</button>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="dash-print-btn" title="현황 인쇄">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            인쇄
+          </button>
         </div>
       </div>
       <div id="dashboard-content">
@@ -1524,34 +1581,37 @@
       <!-- 기획+기본 정보 2단 레이아웃 -->
       <div class="modal-two-col">
 
-      <!-- 기획 정보 섹션 (쇼츠/카드뉴스만) -->
-      <div id="section-planning" style="display:none">
-        <div class="form-section-label">📋 기획 정보</div>
-
-        <!-- 쇼츠 전용 필드 -->
-        <div id="fields-shorts-only">
-          <div class="form-group">
-            <label class="form-label" for="entry-shorts-title">쇼츠 제목</label>
-            <input class="form-input" type="text" id="entry-shorts-title" placeholder="영상 제목을 입력하세요" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="entry-schedule-name">일정명 / 행사명</label>
-            <input class="form-input" type="text" id="entry-schedule-name" placeholder="예) 6/22 양산 유세" />
-          </div>
+      <!-- 쇼츠 기획 정보 섹션 -->
+      <div id="section-planning-shorts" style="display:none">
+        <div class="form-section-label">📋 쇼츠 기획 정보</div>
+        <div class="form-group">
+          <label class="form-label" for="entry-shorts-title">쇼츠 제목</label>
+          <input class="form-input" type="text" id="entry-shorts-title" placeholder="영상 제목을 입력하세요" />
         </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-schedule-name">일정명 / 행사명</label>
+          <input class="form-input" type="text" id="entry-schedule-name" placeholder="예) 6/22 양산 유세" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-post-hashtags">게시명 / 해시태그</label>
+          <textarea class="form-input" id="entry-post-hashtags" placeholder="SNS 게시명과 #해시태그를 입력하세요" style="min-height:60px"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-remarks">비고</label>
+          <textarea class="form-input" id="entry-remarks" placeholder="추가 메모" style="min-height:52px"></textarea>
+        </div>
+      </div>
 
-        <!-- 쇼츠+카드뉴스 공통 필드 -->
-        <div id="fields-content-common">
-          <div class="form-group">
-            <label class="form-label" for="entry-post-hashtags">게시명 / 해시태그</label>
-            <textarea class="form-input" id="entry-post-hashtags" placeholder="SNS 게시명과 #해시태그를 입력하세요" style="min-height:60px"></textarea>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="entry-remarks">비고</label>
-            <textarea class="form-input" id="entry-remarks" placeholder="추가 메모" style="min-height:52px"></textarea>
-          </div>
+      <!-- 카드뉴스 기획 정보 섹션 -->
+      <div id="section-planning-cardnews" style="display:none">
+        <div class="form-section-label">📋 카드뉴스 기획 정보</div>
+        <div class="form-group">
+          <label class="form-label" for="entry-cardnews-title">카드뉴스 주제 / 제목</label>
+          <input class="form-input" type="text" id="entry-cardnews-title" placeholder="카드뉴스 주제나 제목을 입력하세요" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-cardnews-content">내용 / 카피</label>
+          <textarea class="form-input" id="entry-cardnews-content" placeholder="카드뉴스에 들어갈 내용이나 카피를 입력하세요" style="min-height:80px"></textarea>
         </div>
       </div>
 
@@ -1576,9 +1636,15 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="entry-date">업무일 (기한)</label>
-        <input class="form-input" type="date" id="entry-date" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="entry-date">업무일</label>
+          <input class="form-input" type="date" id="entry-date" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="entry-due-date">마감일 (D-day)</label>
+          <input class="form-input" type="date" id="entry-due-date" />
+        </div>
       </div>
 
       <div class="form-row">
@@ -1619,7 +1685,7 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="entry-task">업무 내용 / 메모</label>
+        <label class="form-label" id="task-field-label" for="entry-task">업무 내용 / 메모</label>
         <textarea class="form-input" id="entry-task" placeholder="업무 내용을 입력하세요"></textarea>
       </div>
 
@@ -1641,11 +1707,11 @@
         <div id="cuts-list"></div>
       </div>
 
-      <!-- 제작 정보 섹션 (쇼츠/카드뉴스만) -->
+      <!-- 제작 정보 섹션 (쇼츠/카드뉴스/행정) -->
       <div id="section-production" style="display:none">
         <div class="form-section-label" style="margin-top:4px">✂️ 제작 정보</div>
         <div class="form-group">
-          <label class="form-label" for="entry-editor-name">편집자</label>
+          <label class="form-label" id="production-role-label" for="entry-editor-name">편집자</label>
           <input class="form-input" type="text" id="entry-editor-name" placeholder="편집 담당자 이름" />
         </div>
       </div>
@@ -2275,6 +2341,30 @@ function renderCurrentTab() {
 // ================================================================
 let dashTypeFilter = 'all';
 let dashPersonFilter = 'all';
+let dashPeriodFilter = 'all';
+let pipelinePersonFilter = { shorts: 'all', cardnews: 'all', admin: 'all' };
+
+function getWeekRange() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const day = now.getDay();
+  const start = new Date(now); start.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  const end = new Date(start); end.setDate(start.getDate() + 6);
+  return {
+    start: start.toISOString().substring(0, 10),
+    end:   end.toISOString().substring(0, 10),
+  };
+}
+
+function getDdayBadge(dueDate) {
+  if (!dueDate) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due   = new Date(dueDate); due.setHours(0,0,0,0);
+  const diff  = Math.round((due - today) / 86400000);
+  if (diff < 0)  return `<span class="dday-badge dday-late">D+${-diff}</span>`;
+  if (diff === 0) return `<span class="dday-badge dday-today">D-DAY</span>`;
+  if (diff <= 3) return `<span class="dday-badge dday-soon">D-${diff}</span>`;
+  return `<span class="dday-badge dday-ok">D-${diff}</span>`;
+}
 
 function renderDashboard() {
   const container = document.getElementById('dashboard-content');
@@ -2285,6 +2375,15 @@ function renderDashboard() {
     entries = entries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
   } else if (dashTypeFilter !== 'all') {
     entries = entries.filter(e => e.task_type === dashTypeFilter);
+  }
+
+  // 기간 필터
+  if (dashPeriodFilter === 'week') {
+    const { start, end } = getWeekRange();
+    entries = entries.filter(e => e.work_date >= start && e.work_date <= end);
+  } else if (dashPeriodFilter === 'month') {
+    const ym = new Date().toISOString().substring(0, 7);
+    entries = entries.filter(e => (e.work_date || '').startsWith(ym));
   }
 
   // 담당자 필터용 전체 이름 수집 (필터 적용 전)
@@ -2417,6 +2516,25 @@ function renderDashboard() {
   );
   const editorStageColsFinal = editorStageCols.length > 0 ? editorStageCols : stages;
 
+  // 진행률 바 색상
+  const stageColors = ['#8B5CF6','#F59E0B','#0EA5E9','#EC4899','#10B981','#6366F1','#F97316','#14B8A6'];
+  const progressSegs = stages.map((s, i) => {
+    const cnt = totalByStage[s] || 0;
+    if (cnt === 0 || total === 0) return '';
+    const pct = (cnt / total * 100).toFixed(1);
+    return `<div class="dash-progress-seg" style="width:${pct}%;background:${stageColors[i % stageColors.length]}" title="${s}: ${cnt}건 (${pct}%)"></div>`;
+  }).join('');
+  const progressLabels = stages.map((s, i) => {
+    const cnt = totalByStage[s] || 0;
+    if (cnt === 0) return '';
+    return `<div class="dash-progress-label-item"><div class="dash-progress-dot" style="background:${stageColors[i % stageColors.length]}"></div>${esc(s)} ${cnt}건</div>`;
+  }).join('');
+  const progressHtml = total > 0 ? `
+    <div class="dash-progress-wrap">
+      <div class="dash-progress-bar">${progressSegs}</div>
+      <div class="dash-progress-labels">${progressLabels}</div>
+    </div>` : '';
+
   const summaryHtml = `
     <div class="dash-summary">
       <div class="dash-summary-card dash-summary-total">
@@ -2433,6 +2551,7 @@ function renderDashboard() {
   container.innerHTML =
     personFilterHtml +
     summaryHtml +
+    progressHtml +
     buildTable('기획자', '✏️', byName, stages, totalByStage, total) +
     (Object.keys(byEditor).length > 0
       ? buildTable('편집자', '✂️', byEditor, editorStageColsFinal, totalByEditorStage, editorTotal)
@@ -2455,11 +2574,31 @@ function renderTypeKanban(tabId) {
   if (!boardEl) return;
 
   // 데이터 필터
-  let entries;
+  let allTabEntries;
   if (tabId === 'admin') {
-    entries = allEntries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
+    allTabEntries = allEntries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
   } else {
-    entries = allEntries.filter(e => e.task_type === taskType);
+    allTabEntries = allEntries.filter(e => e.task_type === taskType);
+  }
+
+  // 담당자 필터 칩 렌더
+  const filterEl = document.getElementById(`person-filter-${tabId}`);
+  if (filterEl) {
+    const allPeople = new Set();
+    allTabEntries.forEach(e => { if (e.name) allPeople.add(e.name); if (e.editor_name) allPeople.add(e.editor_name); });
+    const pf = pipelinePersonFilter[tabId];
+    filterEl.innerHTML = allPeople.size > 0 ? `<div class="pipe-person-filter">
+      <span style="font-size:11px;color:var(--text-faint);white-space:nowrap;">👤 담당자:</span>
+      <button class="pipe-person-chip ${pf === 'all' ? 'active' : ''}" data-tabid="${tabId}" data-person="all">전체</button>
+      ${[...allPeople].sort().map(p => `<button class="pipe-person-chip ${pf === p ? 'active' : ''}" data-tabid="${tabId}" data-person="${esc(p)}">${esc(p)}</button>`).join('')}
+    </div>` : '';
+  }
+
+  // 담당자 필터 적용
+  let entries = allTabEntries;
+  const personF = pipelinePersonFilter[tabId];
+  if (personF !== 'all') {
+    entries = entries.filter(e => e.name === personF || e.editor_name === personF);
   }
 
   // 카운트 요약
@@ -2498,20 +2637,25 @@ function renderTypeKanban(tabId) {
           ${cards.length === 0
             ? `<div style="font-size:12px;color:var(--text-faint);text-align:center;padding:16px 0">없음</div>`
             : cards.map(e => {
-                const dateStr = esc(e.work_date||'').substring(5,10).replace('-','/');
+                const dateStr  = esc(e.work_date||'').substring(5,10).replace('-','/');
+                const ddayBadge = getDdayBadge(e.due_date);
+                const isHold   = e.status === '보류';
+                const titleLabel = e.task_type === '카드뉴스' ? '🃏' : '🎬';
                 return `
-                <div class="pipeline-card" data-id="${esc(e.id)}">
-                  <div class="pipeline-card-name">
+                <div class="pipeline-card${isHold ? ' card-hold' : ''}" data-id="${esc(e.id)}">
+                  <div class="pipeline-card-name" style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                     ${esc(e.name||'')}
-                    <span style="font-size:10px;color:var(--text-faint);margin-left:3px;">(${dateStr})</span>
-                    ${e.editor_name ? `<span style="font-size:10px;color:var(--text-faint);margin-left:3px;">✂️${esc(e.editor_name)}</span>` : ''}
+                    <span style="font-size:10px;color:var(--text-faint);">(${dateStr})</span>
+                    ${ddayBadge}
+                    ${e.editor_name ? `<span style="font-size:10px;color:var(--text-faint);">✂️${esc(e.editor_name)}</span>` : ''}
                   </div>
-                  ${e.shorts_title ? `<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3;">🎬 ${esc(e.shorts_title).slice(0,45)}${e.shorts_title.length>45?'…':''}</div>` : ''}
+                  ${e.shorts_title ? `<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3;">${titleLabel} ${esc(e.shorts_title).slice(0,45)}${e.shorts_title.length>45?'…':''}</div>` : ''}
                   <div class="pipeline-card-task">${esc(e.task||'').slice(0,50)}${(e.task||'').length>50?'…':''}</div>
                   ${(()=>{ try{ const c=JSON.parse(e.cuts_json||'null'); return c&&c.length?`<div style="font-size:10px;color:var(--text-faint);margin-bottom:3px;">🎬 ${c.length}컷 구성</div>`:''; }catch(x){return '';} })()}
                   <div class="pipeline-card-footer">
                     ${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}" style="font-size:10px">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '<span></span>'}
-                    <div style="display:flex;gap:4px;">
+                    <div style="display:flex;gap:4px;align-items:center;">
+                      <button class="pipeline-copy-btn" data-id="${esc(e.id)}" title="복사">📋</button>
                       ${prevStage ? `<button class="pipeline-move-btn" style="background:var(--bg);border:1px solid var(--border);color:var(--text);" data-id="${esc(e.id)}" data-next-stage="${esc(prevStage)}" aria-label="이전">←</button>` : ''}
                       ${nextStage
                         ? `<button class="pipeline-move-btn" data-id="${esc(e.id)}" data-next-stage="${esc(nextStage)}" aria-label="다음">${esc(nextStage)} →</button>`
@@ -3002,11 +3146,15 @@ function openEntryModal(entry = null, presetType = null) {
     document.getElementById('entry-channel').value       = entry.channel || '';
     document.getElementById('entry-stage').value         = entry.stage || '';
     document.getElementById('entry-link').value          = entry.link || '';
-    document.getElementById('entry-shorts-title').value  = entry.shorts_title || '';
-    document.getElementById('entry-schedule-name').value = entry.schedule_name || '';
-    document.getElementById('entry-post-hashtags').value = entry.post_hashtags || '';
-    document.getElementById('entry-remarks').value       = entry.remarks || '';
-    document.getElementById('entry-editor-name').value   = entry.editor_name || '';
+    document.getElementById('entry-shorts-title').value   = entry.shorts_title || '';
+    document.getElementById('entry-schedule-name').value  = entry.schedule_name || '';
+    document.getElementById('entry-post-hashtags').value  = entry.post_hashtags || '';
+    document.getElementById('entry-remarks').value        = entry.remarks || '';
+    document.getElementById('entry-editor-name').value    = entry.editor_name || '';
+    document.getElementById('entry-due-date').value       = entry.due_date || '';
+    // 카드뉴스 전용 필드 (shorts_title/remarks 재활용)
+    document.getElementById('entry-cardnews-title').value   = entry.task_type === '카드뉴스' ? (entry.shorts_title || '') : '';
+    document.getElementById('entry-cardnews-content').value = entry.task_type === '카드뉴스' ? (entry.remarks || '') : '';
     // 컷 구성 로딩 (기존 단일 필드 자동 마이그레이션)
     let initialCuts = null;
     try { initialCuts = entry.cuts_json ? JSON.parse(entry.cuts_json) : null; } catch(e) {}
@@ -3028,8 +3176,28 @@ function openEntryModal(entry = null, presetType = null) {
   } else {
     title.textContent = '업무 추가';
     deleteBtn.style.display = 'none';
-    document.getElementById('entry-id').value = '';
-    document.getElementById('entry-date').value = currentDate;
+    document.getElementById('entry-id').value     = '';
+    document.getElementById('entry-name').value   = '';
+    document.getElementById('entry-status').value = '예정';
+    document.getElementById('entry-date').value   = currentDate;
+    document.getElementById('entry-due-date').value       = '';
+    document.getElementById('entry-task').value           = '';
+    document.getElementById('entry-link').value           = '';
+    document.getElementById('entry-channel').value        = '';
+    document.getElementById('entry-editor-name').value    = '';
+    document.getElementById('entry-shorts-title').value   = '';
+    document.getElementById('entry-schedule-name').value  = '';
+    document.getElementById('entry-post-hashtags').value  = '';
+    document.getElementById('entry-remarks').value        = '';
+    document.getElementById('entry-cardnews-title').value   = '';
+    document.getElementById('entry-cardnews-content').value = '';
+    document.getElementById('entry-category-input').value  = '';
+    document.getElementById('cuts-list').innerHTML         = '';
+    pendingImgFile = null; pendingImgUrl = null;
+    document.getElementById('img-preview').style.display         = 'none';
+    document.getElementById('img-upload-placeholder').style.display = '';
+    document.getElementById('img-remove-btn').style.display       = 'none';
+    document.getElementById('img-upload-area').classList.remove('has-img');
     toggleStageField();
     setTaskType(presetType || '기타');
   }
@@ -3097,12 +3265,26 @@ function setTaskType(type) {
   document.querySelectorAll('.task-type-chip').forEach(c => {
     c.classList.toggle('active', c.dataset.type === type);
   });
-  const isContent    = type === '쇼츠' || type === '카드뉴스';
-  const isShortsOnly = type === '쇼츠';
-  document.getElementById('section-planning').style.display   = isContent ? '' : 'none';
-  document.getElementById('section-production').style.display = isContent ? '' : 'none';
-  document.getElementById('fields-shorts-only').style.display = isShortsOnly ? '' : 'none';
-  document.getElementById('section-cuts').style.display       = isShortsOnly ? '' : 'none';
+  const isShorts   = type === '쇼츠';
+  const isCardnews = type === '카드뉴스';
+  const isAdmin    = type === '행정';
+  const isContent  = isShorts || isCardnews;
+
+  document.getElementById('section-planning-shorts').style.display   = isShorts   ? '' : 'none';
+  document.getElementById('section-planning-cardnews').style.display  = isCardnews ? '' : 'none';
+  document.getElementById('section-production').style.display = (isContent || isAdmin) ? '' : 'none';
+  document.getElementById('section-cuts').style.display       = isShorts   ? '' : 'none';
+
+  // 제작 역할 레이블 동적 변경
+  const roleLabel   = document.getElementById('production-role-label');
+  const editorInput = document.getElementById('entry-editor-name');
+  if (isShorts)   { roleLabel.textContent = '편집자';     editorInput.placeholder = '편집 담당자 이름'; }
+  if (isCardnews) { roleLabel.textContent = '디자이너';   editorInput.placeholder = '디자인 담당자 이름'; }
+  if (isAdmin)    { roleLabel.textContent = '처리 담당자'; editorInput.placeholder = '처리 담당자 이름'; }
+
+  // 업무 내용 레이블
+  const taskLabel = document.getElementById('task-field-label');
+  if (taskLabel) taskLabel.textContent = isAdmin ? '요청 내용' : '업무 내용 / 메모';
 
   // stage 드롭다운 옵션 동적 변경
   const stageSelect = document.getElementById('entry-stage');
@@ -3121,12 +3303,18 @@ async function saveEntry() {
   const channel      = document.getElementById('entry-channel').value;
   const stage        = document.getElementById('entry-stage').value;
   const link         = document.getElementById('entry-link').value.trim();
-  const task_type     = document.getElementById('entry-task-type').value || '기타';
-  const shorts_title  = document.getElementById('entry-shorts-title').value.trim();
-  const schedule_name = document.getElementById('entry-schedule-name').value.trim();
-  const post_hashtags = document.getElementById('entry-post-hashtags').value.trim();
-  const remarks       = document.getElementById('entry-remarks').value.trim();
-  const editor_name   = document.getElementById('entry-editor-name').value.trim();
+  const task_type          = document.getElementById('entry-task-type').value || '기타';
+  const shorts_title_raw   = document.getElementById('entry-shorts-title').value.trim();
+  const cardnews_title     = document.getElementById('entry-cardnews-title').value.trim();
+  const cardnews_content   = document.getElementById('entry-cardnews-content').value.trim();
+  const schedule_name      = document.getElementById('entry-schedule-name').value.trim();
+  const post_hashtags      = document.getElementById('entry-post-hashtags').value.trim();
+  const remarks_raw        = document.getElementById('entry-remarks').value.trim();
+  const editor_name        = document.getElementById('entry-editor-name').value.trim();
+  const due_date           = document.getElementById('entry-due-date').value || null;
+  // 카드뉴스는 cardnews 전용 필드를 shorts_title/remarks 컬럼에 저장
+  const shorts_title = task_type === '카드뉴스' ? cardnews_title : shorts_title_raw;
+  const remarks      = task_type === '카드뉴스' ? cardnews_content : remarks_raw;
   const cutsArr       = getCutsFromForm();
   const cuts_json     = cutsArr.length ? JSON.stringify(cutsArr) : null;
 
@@ -3170,6 +3358,7 @@ async function saveEntry() {
       remarks: remarks || null,
       editor_name: editor_name || null,
       cuts_json: cuts_json,
+      ...(due_date ? { due_date } : {}),
     };
 
     let result;
@@ -3269,16 +3458,29 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// 현황 탭 타입 필터 버튼 (섹션 헤더에 있는 버튼만 — container 안 person 버튼과 구분)
-document.querySelectorAll('.section-header .dash-type-btn').forEach(btn => {
+// 현황 탭 타입 필터 버튼
+document.querySelectorAll('.section-header .dash-type-btn[data-type]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.section-header .dash-type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section-header .dash-type-btn[data-type]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     dashTypeFilter = btn.dataset.type;
-    dashPersonFilter = 'all'; // 타입 바꾸면 사람 필터 초기화
+    dashPersonFilter = 'all';
     renderDashboard();
   });
 });
+
+// 현황 탭 기간 필터 버튼
+document.querySelectorAll('[data-period]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    dashPeriodFilter = btn.dataset.period;
+    renderDashboard();
+  });
+});
+
+// 현황 탭 인쇄 버튼
+document.getElementById('dash-print-btn').addEventListener('click', () => window.print());
 
 // SNS 출력 버튼
 document.getElementById('sns-print-btn').addEventListener('click', () => {
@@ -3511,6 +3713,39 @@ document.addEventListener('click', async e => {
     const id = pipeCard.dataset.id;
     const entry = allEntries.find(en => en.id === id);
     if (entry) openPipeDetail(entry);
+    return;
+  }
+
+  // 파이프라인 복사 버튼
+  const copyBtn = e.target.closest('.pipeline-copy-btn');
+  if (copyBtn) {
+    e.stopPropagation();
+    const src = allEntries.find(en => en.id === copyBtn.dataset.id);
+    if (!src) return;
+    openEntryModal(null, src.task_type);
+    document.getElementById('entry-name').value  = src.name || '';
+    document.getElementById('entry-channel').value = src.channel || '';
+    document.getElementById('entry-editor-name').value = src.editor_name || '';
+    toggleStageField();
+    if (src.task_type === '쇼츠') {
+      document.getElementById('entry-shorts-title').value  = src.shorts_title || '';
+      document.getElementById('entry-schedule-name').value = src.schedule_name || '';
+      document.getElementById('entry-post-hashtags').value = src.post_hashtags || '';
+    }
+    if (src.task_type === '카드뉴스') {
+      document.getElementById('entry-cardnews-title').value   = src.shorts_title || '';
+      document.getElementById('entry-cardnews-content').value = src.remarks || '';
+    }
+    return;
+  }
+
+  // 파이프라인 담당자 필터 칩
+  const pipeChip = e.target.closest('.pipe-person-chip');
+  if (pipeChip) {
+    const tabId  = pipeChip.dataset.tabid;
+    const person = pipeChip.dataset.person;
+    pipelinePersonFilter[tabId] = person;
+    renderTypeKanban(tabId);
     return;
   }
 
