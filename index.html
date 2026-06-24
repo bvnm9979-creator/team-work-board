@@ -2370,10 +2370,16 @@ function renderDashboard() {
   const container = document.getElementById('dashboard-content');
   if (!container) return;
 
+  // 전체 모드: 유형별 3섹션 분리 렌더
+  if (dashTypeFilter === 'all') {
+    renderDashboardAll(container);
+    return;
+  }
+
   let entries = pipelineEntries;
   if (dashTypeFilter === '행정') {
     entries = entries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
-  } else if (dashTypeFilter !== 'all') {
+  } else {
     entries = entries.filter(e => e.task_type === dashTypeFilter);
   }
 
@@ -2564,6 +2570,150 @@ function renderDashboard() {
   container.querySelectorAll('[data-person]').forEach(btn => {
     btn.addEventListener('click', () => { dashPersonFilter = btn.dataset.person; renderDashboard(); });
   });
+}
+
+// 전체 모드: 유형별 3개 섹션 분리
+function renderDashboardAll(container) {
+  const TYPE_DEFS = [
+    { key: '쇼츠',    label: '🎬 쇼츠',    filterFn: e => e.task_type === '쇼츠',    color: '#8B5CF6' },
+    { key: '카드뉴스', label: '🃏 카드뉴스', filterFn: e => e.task_type === '카드뉴스', color: '#0EA5E9' },
+    { key: '행정',    label: '📌 행정',    filterFn: e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링', color: '#10B981' },
+  ];
+
+  // 기간 필터
+  let base = pipelineEntries;
+  if (dashPeriodFilter === 'week') {
+    const { start, end } = getWeekRange();
+    base = base.filter(e => e.work_date >= start && e.work_date <= end);
+  } else if (dashPeriodFilter === 'month') {
+    const ym = new Date().toISOString().substring(0, 7);
+    base = base.filter(e => (e.work_date || '').startsWith(ym));
+  }
+
+  const stageColors = ['#8B5CF6','#F59E0B','#0EA5E9','#EC4899','#10B981','#6366F1','#F97316','#14B8A6'];
+
+  const numCell = (n) => `<td class="dash-num${n === 0 ? ' dash-num-zero' : ''}">${n}</td>`;
+
+  const buildMiniTable = (title, icon, data, stageList, stageTotals, overallTotal) => {
+    const rows = Object.entries(data).sort(([,a],[,b]) => b.total - a.total);
+    if (rows.length === 0) return '';
+    return `
+      <div class="dash-section">
+        <div class="dash-section-title">${icon} ${title}별 현황</div>
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead><tr>
+              <th>${title}</th>
+              ${stageList.map(s => `<th class="dash-num">${esc(s)}</th>`).join('')}
+              <th class="dash-num">전체</th>
+            </tr></thead>
+            <tbody>
+              ${rows.map(([nm, c]) => `
+                <tr>
+                  <td class="dash-name">${esc(nm)}</td>
+                  ${stageList.map(s => numCell(c[s] || 0)).join('')}
+                  <td class="dash-num dash-total-col">${c.total}</td>
+                </tr>`).join('')}
+              <tr class="dash-footer-row">
+                <td>합계</td>
+                ${stageList.map(s => numCell(stageTotals[s] || 0)).join('')}
+                <td class="dash-num dash-total-col">${overallTotal}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  };
+
+  let html = '';
+
+  TYPE_DEFS.forEach(({ key, label, filterFn, color }) => {
+    const entries = base.filter(filterFn);
+    const stages = TYPE_STAGES[key] || TYPE_STAGES['행정'];
+    const total = entries.length;
+
+    // 요약 카운트
+    const totalByStage = {};
+    stages.forEach(s => { totalByStage[s] = 0; });
+    const byName = {}, byEditor = {}, byChannel = {};
+    const totalByEditorStage = {}, totalByChannelStage = {};
+    stages.forEach(s => { totalByEditorStage[s] = 0; totalByChannelStage[s] = 0; });
+    let editorTotal = 0, channelTotal = 0;
+
+    entries.forEach(e => {
+      const stage = (e.stage && stages.includes(e.stage)) ? e.stage : stages[0];
+      const plannerStage = PLANNER_STAGE[e.task_type] || stage;
+      const psk = stages.includes(plannerStage) ? plannerStage : stage;
+      totalByStage[psk]++;
+      const name = e.name || '(미지정)';
+      if (!byName[name]) { byName[name] = { total: 0 }; stages.forEach(s => { byName[name][s] = 0; }); }
+      byName[name].total++; byName[name][psk]++;
+
+      if (e.editor_name) {
+        const editorStages = EDITOR_STAGES[e.task_type] || [];
+        if (editorStages.includes(stage)) {
+          const ed = e.editor_name;
+          if (!byEditor[ed]) { byEditor[ed] = { total: 0 }; stages.forEach(s => { byEditor[ed][s] = 0; }); }
+          byEditor[ed].total++; byEditor[ed][stage]++;
+          totalByEditorStage[stage]++; editorTotal++;
+        }
+      }
+      if (e.channel) {
+        const ch = e.channel;
+        if (!byChannel[ch]) { byChannel[ch] = { total: 0 }; stages.forEach(s => { byChannel[ch][s] = 0; }); }
+        byChannel[ch].total++; byChannel[ch][stage]++;
+        totalByChannelStage[stage]++; channelTotal++;
+      }
+    });
+
+    // 진행률 바
+    const progressSegs = stages.map((s, i) => {
+      const cnt = totalByStage[s] || 0;
+      if (cnt === 0 || total === 0) return '';
+      const pct = (cnt / total * 100).toFixed(1);
+      return `<div class="dash-progress-seg" style="width:${pct}%;background:${stageColors[i % stageColors.length]}" title="${s}: ${cnt}건 (${pct}%)"></div>`;
+    }).join('');
+    const progressLabels = stages.map((s, i) => {
+      const cnt = totalByStage[s] || 0;
+      if (cnt === 0) return '';
+      return `<div class="dash-progress-label-item"><div class="dash-progress-dot" style="background:${stageColors[i % stageColors.length]}"></div>${esc(s)} ${cnt}건</div>`;
+    }).join('');
+
+    const editorStageCols = stages.filter(s => Object.values(EDITOR_STAGES).some(arr => arr.includes(s)));
+    const editorStageColsFinal = editorStageCols.length > 0 ? editorStageCols : stages;
+
+    html += `
+      <div style="margin-bottom:28px;border:2px solid ${color}22;border-radius:12px;overflow:hidden;">
+        <div style="background:${color}11;padding:12px 18px;border-bottom:2px solid ${color}33;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:15px;font-weight:700;color:${color};">${label}</span>
+          <span style="font-size:13px;color:var(--text-soft);">총 ${total}건</span>
+        </div>
+        <div style="padding:16px;">
+          ${total === 0 ? `<div style="text-align:center;padding:24px;color:var(--text-faint);">업무 없음</div>` : `
+            <div class="dash-summary" style="margin-bottom:12px;">
+              <div class="dash-summary-card dash-summary-total">
+                <div class="dash-summary-num">${total}</div>
+                <div class="dash-summary-label">전체</div>
+              </div>
+              ${stages.map(s => `
+                <div class="dash-summary-card">
+                  <div class="dash-summary-num">${totalByStage[s] || 0}</div>
+                  <div class="dash-summary-label">${esc(s)}</div>
+                </div>`).join('')}
+            </div>
+            <div class="dash-progress-wrap">
+              <div class="dash-progress-bar">${progressSegs}</div>
+              <div class="dash-progress-labels">${progressLabels}</div>
+            </div>
+            ${buildMiniTable('기획자', '✏️', byName, stages, totalByStage, total)}
+            ${Object.keys(byEditor).length > 0 ? buildMiniTable('편집자', '✂️', byEditor, editorStageColsFinal, totalByEditorStage, editorTotal) : ''}
+            ${Object.keys(byChannel).length > 0 ? buildMiniTable('채널', '📺', byChannel, stages, totalByChannelStage, channelTotal) : ''}
+          `}
+        </div>
+      </div>`;
+  });
+
+  container.innerHTML = html || `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">업무가 없어요</div></div>`;
 }
 
 function renderTypeKanban(tabId) {
