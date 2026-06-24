@@ -2247,6 +2247,11 @@ const TYPE_STAGES = {
   '카드뉴스': ['기획', '디자인', '컨펌', '게시'],
   '행정':    ['예정', '진행중', '완료'],
 };
+// 편집자 카운트는 이 단계에 있을 때만 집계
+const EDITOR_STAGES = {
+  '쇼츠':    ['편집중', '컨펌대기', '업로드됨'],
+  '카드뉴스': ['디자인', '컨펌', '게시'],
+};
 const TAB_TYPE = { shorts: '쇼츠', cardnews: '카드뉴스', admin: '행정' };
 
 function getActiveTab() {
@@ -2264,6 +2269,7 @@ function renderCurrentTab() {
 // 현황 대시보드
 // ================================================================
 let dashTypeFilter = 'all';
+let dashPersonFilter = 'all';
 
 function renderDashboard() {
   const container = document.getElementById('dashboard-content');
@@ -2276,53 +2282,96 @@ function renderDashboard() {
     entries = entries.filter(e => e.task_type === dashTypeFilter);
   }
 
+  // 담당자 필터용 전체 이름 수집 (필터 적용 전)
+  const allPeople = new Set();
+  entries.forEach(e => {
+    if (e.name) allPeople.add(e.name);
+    if (e.editor_name) allPeople.add(e.editor_name);
+  });
+
+  // 담당자 필터 적용
+  if (dashPersonFilter !== 'all') {
+    entries = entries.filter(e => e.name === dashPersonFilter || e.editor_name === dashPersonFilter);
+  }
+
   const stages =
     dashTypeFilter === '쇼츠'    ? TYPE_STAGES['쇼츠'] :
     dashTypeFilter === '카드뉴스' ? TYPE_STAGES['카드뉴스'] :
     dashTypeFilter === '행정'    ? TYPE_STAGES['행정'] :
     [...new Set([...TYPE_STAGES['쇼츠'], ...TYPE_STAGES['카드뉴스'], ...TYPE_STAGES['행정']])];
 
+  // 기획자 집계
   const totalByStage = {};
   stages.forEach(s => { totalByStage[s] = 0; });
+  const byName = {};
 
-  const byName    = {};
-  const byEditor  = {};
+  // 편집자 집계 (별도 totals — 편집 단계에 있을 때만)
+  const totalByEditorStage = {};
+  stages.forEach(s => { totalByEditorStage[s] = 0; });
+  const byEditor = {};
+  let editorTotal = 0;
+
+  // 채널 집계
+  const totalByChannelStage = {};
+  stages.forEach(s => { totalByChannelStage[s] = 0; });
   const byChannel = {};
+  let channelTotal = 0;
 
   entries.forEach(e => {
     const stage = (e.stage && stages.includes(e.stage)) ? e.stage : stages[0];
-    totalByStage[stage]++;
 
+    // 기획자
+    totalByStage[stage]++;
     const name = e.name || '(미지정)';
     if (!byName[name]) { byName[name] = { total: 0 }; stages.forEach(s => { byName[name][s] = 0; }); }
     byName[name].total++;
     byName[name][stage]++;
 
+    // 편집자 — 편집 단계(EDITOR_STAGES)에 해당할 때만 카운트
     if (e.editor_name) {
-      const ed = e.editor_name;
-      if (!byEditor[ed]) { byEditor[ed] = { total: 0 }; stages.forEach(s => { byEditor[ed][s] = 0; }); }
-      byEditor[ed].total++;
-      byEditor[ed][stage]++;
+      const editorStages = EDITOR_STAGES[e.task_type] || [];
+      if (editorStages.includes(stage)) {
+        const ed = e.editor_name;
+        if (!byEditor[ed]) { byEditor[ed] = { total: 0 }; stages.forEach(s => { byEditor[ed][s] = 0; }); }
+        byEditor[ed].total++;
+        byEditor[ed][stage]++;
+        totalByEditorStage[stage]++;
+        editorTotal++;
+      }
     }
 
+    // 채널
     if (e.channel) {
       const ch = e.channel;
       if (!byChannel[ch]) { byChannel[ch] = { total: 0 }; stages.forEach(s => { byChannel[ch][s] = 0; }); }
       byChannel[ch].total++;
       byChannel[ch][stage]++;
+      totalByChannelStage[stage]++;
+      channelTotal++;
     }
   });
 
   const total = entries.length;
 
+  // 담당자 필터 칩 HTML
+  const personFilterHtml = allPeople.size > 0 ? `
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
+      <span style="font-size:12px;font-weight:600;color:var(--text-soft);white-space:nowrap;">👤 담당자 필터:</span>
+      <button class="dash-type-btn ${dashPersonFilter === 'all' ? 'active' : ''}" data-person="all">전체</button>
+      ${[...allPeople].sort().map(p => `<button class="dash-type-btn ${dashPersonFilter === p ? 'active' : ''}" data-person="${esc(p)}">${esc(p)}</button>`).join('')}
+    </div>` : '';
+
   if (total === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">업무가 없어요</div></div>`;
+    container.innerHTML = personFilterHtml + `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">업무가 없어요</div></div>`;
+    container.querySelectorAll('[data-person]').forEach(btn => {
+      btn.addEventListener('click', () => { dashPersonFilter = btn.dataset.person; renderDashboard(); });
+    });
     return;
   }
 
   const numCell = (n) => `<td class="dash-num${n === 0 ? ' dash-num-zero' : ''}">${n}</td>`;
 
-  const buildTable = (title, icon, data) => {
+  const buildTable = (title, icon, data, stageList, stageTotals, overallTotal) => {
     const rows = Object.entries(data).sort(([,a],[,b]) => b.total - a.total);
     if (rows.length === 0) return '';
     return `
@@ -2333,7 +2382,7 @@ function renderDashboard() {
             <thead>
               <tr>
                 <th>${title}</th>
-                ${stages.map(s => `<th class="dash-num">${esc(s)}</th>`).join('')}
+                ${stageList.map(s => `<th class="dash-num">${esc(s)}</th>`).join('')}
                 <th class="dash-num">전체</th>
               </tr>
             </thead>
@@ -2341,19 +2390,25 @@ function renderDashboard() {
               ${rows.map(([nm, c]) => `
                 <tr>
                   <td class="dash-name">${esc(nm)}</td>
-                  ${stages.map(s => numCell(c[s] || 0)).join('')}
+                  ${stageList.map(s => numCell(c[s] || 0)).join('')}
                   <td class="dash-num dash-total-col">${c.total}</td>
                 </tr>`).join('')}
               <tr class="dash-footer-row">
                 <td>합계</td>
-                ${stages.map(s => numCell(totalByStage[s] || 0)).join('')}
-                <td class="dash-num dash-total-col">${total}</td>
+                ${stageList.map(s => numCell(stageTotals[s] || 0)).join('')}
+                <td class="dash-num dash-total-col">${overallTotal}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>`;
   };
+
+  // 편집자 테이블: 편집 관련 단계 컬럼만 표시
+  const editorStageCols = stages.filter(s =>
+    Object.values(EDITOR_STAGES).some(arr => arr.includes(s))
+  );
+  const editorStageColsFinal = editorStageCols.length > 0 ? editorStageCols : stages;
 
   const summaryHtml = `
     <div class="dash-summary">
@@ -2369,10 +2424,20 @@ function renderDashboard() {
     </div>`;
 
   container.innerHTML =
+    personFilterHtml +
     summaryHtml +
-    buildTable('기획자', '✏️', byName) +
-    (Object.keys(byEditor).length  > 0 ? buildTable('편집자', '✂️', byEditor)  : '') +
-    (Object.keys(byChannel).length > 0 ? buildTable('채널',   '📺', byChannel) : '');
+    buildTable('기획자', '✏️', byName, stages, totalByStage, total) +
+    (Object.keys(byEditor).length > 0
+      ? buildTable('편집자', '✂️', byEditor, editorStageColsFinal, totalByEditorStage, editorTotal)
+      : '') +
+    (Object.keys(byChannel).length > 0
+      ? buildTable('채널', '📺', byChannel, stages, totalByChannelStage, channelTotal)
+      : '');
+
+  // 담당자 필터 이벤트
+  container.querySelectorAll('[data-person]').forEach(btn => {
+    btn.addEventListener('click', () => { dashPersonFilter = btn.dataset.person; renderDashboard(); });
+  });
 }
 
 function renderTypeKanban(tabId) {
@@ -3197,12 +3262,13 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// 현황 탭 타입 필터 버튼
-document.querySelectorAll('.dash-type-btn').forEach(btn => {
+// 현황 탭 타입 필터 버튼 (섹션 헤더에 있는 버튼만 — container 안 person 버튼과 구분)
+document.querySelectorAll('.section-header .dash-type-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.dash-type-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.section-header .dash-type-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     dashTypeFilter = btn.dataset.type;
+    dashPersonFilter = 'all'; // 타입 바꾸면 사람 필터 초기화
     renderDashboard();
   });
 });
