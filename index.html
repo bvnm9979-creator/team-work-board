@@ -2802,6 +2802,9 @@ function renderDashboardByPerson(container) {
 
   const typeEmoji = { '쇼츠': '🎬', '카드뉴스': '🃏', '행정': '📌', '기타': '📋', '모니터링': '🔍' };
 
+  const nameChip = (label, name) =>
+    `<span style="font-size:10px;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 5px;white-space:nowrap;">${label} ${esc(name)}</span>`;
+
   const renderItems = (items) => {
     const shown = items.slice(0, 5);
     const rest = items.length - 5;
@@ -2809,10 +2812,17 @@ function renderDashboardByPerson(container) {
       const emoji = typeEmoji[e.task_type] || '📋';
       const title = e.task || e.shorts_title || e.schedule_name || '(제목 없음)';
       const stage = e.stage || (TYPE_STAGES[e.task_type] || [''])[0];
-      return `<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
-        <span style="flex-shrink:0;">${emoji}</span>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${esc(title)}</span>
-        <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;background:var(--bg);border-radius:4px;padding:1px 5px;">${esc(stage)}</span>
+      const chips = [
+        e.name        ? nameChip('기획', e.name)        : '',
+        e.editor_name ? nameChip('편집', e.editor_name) : '',
+      ].filter(Boolean).join('');
+      return `<div style="padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:${chips ? 4 : 0}px;">
+          <span style="flex-shrink:0;">${emoji}</span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-primary);">${esc(title)}</span>
+          <span style="font-size:11px;color:var(--text-muted);white-space:nowrap;background:var(--bg);border-radius:4px;padding:1px 5px;">${esc(stage)}</span>
+        </div>
+        ${chips ? `<div style="display:flex;gap:4px;padding-left:20px;">${chips}</div>` : ''}
       </div>`;
     }).join('') + (rest > 0 ? `<div style="font-size:11px;color:var(--text-muted);padding-top:5px;text-align:center;">+${rest}건 더</div>` : '');
   };
