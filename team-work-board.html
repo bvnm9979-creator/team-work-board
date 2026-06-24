@@ -884,41 +884,47 @@
     .pipeline-move-btn:hover { background: var(--accent); color: #fff; }
 
     /* ============================================================
-       보고서 탭
+       현황 대시보드 탭
     ============================================================ */
-    .report-controls {
-      display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+    .dash-type-filter { display: flex; gap: 4px; flex-wrap: wrap; }
+    .dash-type-btn {
+      padding: 4px 10px; border: 1px solid var(--border);
+      border-radius: 20px; font-size: 12px; font-weight: 600;
+      cursor: pointer; background: var(--surface); color: var(--text-soft);
+      transition: all var(--transition);
     }
-    .report-doc {
+    .dash-type-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .dash-type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .dash-summary {
+      display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .dash-summary-card {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px;
+      border-radius: var(--radius); padding: 12px 16px; text-align: center; min-width: 80px;
+      box-shadow: var(--shadow);
     }
-    .report-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-    .report-subtitle { font-size: 13px; color: var(--text-soft); margin-bottom: 20px; }
-    .report-section { margin-bottom: 24px; }
-    .report-section-title {
-      font-size: 14px; font-weight: 700;
+    .dash-summary-card.dash-summary-total { border-color: var(--accent); background: var(--accent-soft); }
+    .dash-summary-num { font-size: 24px; font-weight: 700; color: var(--text); }
+    .dash-summary-total .dash-summary-num { color: var(--accent); }
+    .dash-summary-label { font-size: 11px; color: var(--text-faint); margin-top: 2px; white-space: nowrap; }
+    .dash-section { margin-bottom: 24px; }
+    .dash-section-title {
+      font-size: 14px; font-weight: 700; color: var(--accent);
       border-bottom: 2px solid var(--accent); padding-bottom: 6px; margin-bottom: 12px;
-      color: var(--accent);
     }
-    .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .report-table th, .report-table td {
-      padding: 8px 10px; text-align: left;
-      border-bottom: 1px solid var(--border);
+    .dash-table-wrap { overflow-x: auto; }
+    .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .dash-table th, .dash-table td {
+      padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left;
     }
-    .report-table th { font-weight: 600; color: var(--text-soft); background: var(--surface-2); }
-    .report-table tr:last-child td { border-bottom: none; }
-    .report-sns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .report-sns-card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--surface); }
-    .report-sns-head { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
-    .report-sns-icon { font-size: 16px; }
-    .report-sns-name { font-size: 12px; font-weight: 700; color: var(--text-soft); }
-    .report-sns-count { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
-    .report-sns-delta { font-size: 11px; font-weight: 600; margin-bottom: 6px; }
-    .report-sns-delta.delta-up { color: #1F9D55; }
-    .report-sns-delta.delta-down { color: #C0392B; }
-    .report-sns-delta.delta-zero { color: var(--text-faint); }
-    .report-export-btns { display: flex; gap: 8px; }
+    .dash-table th { font-weight: 600; color: var(--text-soft); background: var(--surface-2); white-space: nowrap; }
+    .dash-table tbody tr:hover { background: var(--surface-2); }
+    .dash-table tr:last-child td { border-bottom: none; }
+    .dash-num { text-align: center !important; font-weight: 600; }
+    .dash-num-zero { color: var(--text-faint); font-weight: 400; }
+    .dash-total-col { color: var(--accent); font-weight: 700; }
+    .dash-name { font-weight: 600; }
+    .dash-footer-row td { background: var(--surface-2); font-weight: 700; }
 
     /* ============================================================
        모니터링 탭
@@ -1242,14 +1248,18 @@
     }
 
     /* ============================================================
-       인쇄 (보고서 항상 라이트 고정)
+       인쇄 (SNS 수치 출력 — 라이트 고정)
     ============================================================ */
     @media print {
-      .report-doc {
-        background: #fff !important; color: #1A1D23 !important;
-        border: none !important; padding: 0 !important;
-      }
-      .topbar, .tabs-wrap, .report-controls, .setup-warning { display: none !important; }
+      body { background: #fff !important; }
+      .topbar, .tabs-wrap, .section-header, .setup-warning, #sns-print-btn { display: none !important; }
+      .tab-panel { display: none !important; }
+      #panel-sns { display: block !important; }
+      #sns-print-header { display: block !important; margin-bottom: 20px; }
+      .sns-grid { background: #fff !important; }
+      .sns-card { border: 1px solid #e0e0e0 !important; background: #fff !important; color: #1A1D23 !important; break-inside: avoid; }
+      .sns-card-count { color: #1A1D23 !important; }
+      .sns-card-label { color: #666 !important; }
     }
   </style>
 </head>
@@ -1295,7 +1305,7 @@
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="cardnews" id="tab-cardnews">🃏 카드뉴스</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="admin"    id="tab-admin">📌 행정</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="sns"      id="tab-sns">📊 SNS 수치</button>
-    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="report"   id="tab-report">📝 보고서</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="report"   id="tab-report">📋 현황</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="monitor"  id="tab-monitor">🔍 모니터링</button>
   </nav>
 
@@ -1336,37 +1346,34 @@
     <section class="tab-panel" id="panel-sns" role="tabpanel" aria-labelledby="tab-sns">
       <div class="section-header">
         <span class="section-title">SNS 채널 수치</span>
-        <span style="font-size:12px;color:var(--text-faint)">오늘 기준</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--text-faint)">오늘 기준</span>
+          <button class="btn btn-secondary btn-sm" id="sns-print-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            출력
+          </button>
+        </div>
+      </div>
+      <div class="sns-print-header" id="sns-print-header" style="display:none">
+        <div style="font-size:20px;font-weight:700;margin-bottom:4px">SNS 채널 현황 보고</div>
+        <div style="font-size:13px;color:#666" id="sns-print-date"></div>
       </div>
       <div class="sns-grid" id="sns-grid"></div>
     </section>
 
-    <!-- ────────── 보고서 탭 ────────── -->
+    <!-- ────────── 현황 탭 ────────── -->
     <section class="tab-panel" id="panel-report" role="tabpanel" aria-labelledby="tab-report">
-      <div class="report-controls">
-        <div style="display:flex;gap:8px;align-items:center">
-          <label style="font-size:12px;font-weight:600;color:var(--text-soft)">기간:</label>
-          <input type="date" id="report-start" class="form-input" style="padding:5px 8px;font-size:12px;width:130px" aria-label="보고서 시작일" />
-          <span style="color:var(--text-faint);font-size:12px">~</span>
-          <input type="date" id="report-end" class="form-input" style="padding:5px 8px;font-size:12px;width:130px" aria-label="보고서 종료일" />
-          <button class="btn btn-secondary btn-sm" id="report-load-btn">조회</button>
-        </div>
-        <div class="report-export-btns">
-          <button class="btn btn-secondary btn-sm" id="report-jpg-btn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            JPG
-          </button>
-          <button class="btn btn-secondary btn-sm" id="report-pdf-btn">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            PDF
-          </button>
+      <div class="section-header">
+        <span class="section-title">업무 현황</span>
+        <div class="dash-type-filter">
+          <button class="dash-type-btn active" data-type="all">전체</button>
+          <button class="dash-type-btn" data-type="쇼츠">🎬 쇼츠</button>
+          <button class="dash-type-btn" data-type="카드뉴스">🃏 카드뉴스</button>
+          <button class="dash-type-btn" data-type="행정">📌 행정</button>
         </div>
       </div>
-      <div id="report-doc" class="report-doc">
-        <div class="empty-state">
-          <div class="empty-state-icon">📝</div>
-          <div class="empty-state-title">기간을 선택하고 조회하세요</div>
-        </div>
+      <div id="dashboard-content">
+        <div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-title">불러오는 중...</div></div>
       </div>
     </section>
 
@@ -2210,7 +2217,7 @@ function subscribeRealtime() {
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'work_entries' },
       async () => {
-        allEntries = await loadBoardEntries();
+        [allEntries, pipelineEntries] = await Promise.all([loadBoardEntries(), loadPipelineEntries()]);
         renderCurrentTab();
       })
     .subscribe(status => {
@@ -2225,7 +2232,7 @@ function subscribeRealtime() {
       async () => {
         allSnsData = await loadAllSnsData();
         if (getActiveTab() === 'sns') renderSnsTab();
-        if (getActiveTab() === 'report') renderReportContent();
+        if (getActiveTab() === 'report') renderDashboard();
       })
     .subscribe();
 
@@ -2250,6 +2257,122 @@ function getActiveTab() {
 function renderCurrentTab() {
   const tab = getActiveTab();
   if (TAB_TYPE[tab]) renderTypeKanban(tab);
+  else if (tab === 'report') renderDashboard();
+}
+
+// ================================================================
+// 현황 대시보드
+// ================================================================
+let dashTypeFilter = 'all';
+
+function renderDashboard() {
+  const container = document.getElementById('dashboard-content');
+  if (!container) return;
+
+  let entries = pipelineEntries;
+  if (dashTypeFilter === '행정') {
+    entries = entries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
+  } else if (dashTypeFilter !== 'all') {
+    entries = entries.filter(e => e.task_type === dashTypeFilter);
+  }
+
+  const stages =
+    dashTypeFilter === '쇼츠'    ? TYPE_STAGES['쇼츠'] :
+    dashTypeFilter === '카드뉴스' ? TYPE_STAGES['카드뉴스'] :
+    dashTypeFilter === '행정'    ? TYPE_STAGES['행정'] :
+    [...new Set([...TYPE_STAGES['쇼츠'], ...TYPE_STAGES['카드뉴스'], ...TYPE_STAGES['행정']])];
+
+  const totalByStage = {};
+  stages.forEach(s => { totalByStage[s] = 0; });
+
+  const byName    = {};
+  const byEditor  = {};
+  const byChannel = {};
+
+  entries.forEach(e => {
+    const stage = (e.stage && stages.includes(e.stage)) ? e.stage : stages[0];
+    totalByStage[stage]++;
+
+    const name = e.name || '(미지정)';
+    if (!byName[name]) { byName[name] = { total: 0 }; stages.forEach(s => { byName[name][s] = 0; }); }
+    byName[name].total++;
+    byName[name][stage]++;
+
+    if (e.editor_name) {
+      const ed = e.editor_name;
+      if (!byEditor[ed]) { byEditor[ed] = { total: 0 }; stages.forEach(s => { byEditor[ed][s] = 0; }); }
+      byEditor[ed].total++;
+      byEditor[ed][stage]++;
+    }
+
+    if (e.channel) {
+      const ch = e.channel;
+      if (!byChannel[ch]) { byChannel[ch] = { total: 0 }; stages.forEach(s => { byChannel[ch][s] = 0; }); }
+      byChannel[ch].total++;
+      byChannel[ch][stage]++;
+    }
+  });
+
+  const total = entries.length;
+
+  if (total === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">업무가 없어요</div></div>`;
+    return;
+  }
+
+  const numCell = (n) => `<td class="dash-num${n === 0 ? ' dash-num-zero' : ''}">${n}</td>`;
+
+  const buildTable = (title, icon, data) => {
+    const rows = Object.entries(data).sort(([,a],[,b]) => b.total - a.total);
+    if (rows.length === 0) return '';
+    return `
+      <div class="dash-section">
+        <div class="dash-section-title">${icon} ${title}별 현황</div>
+        <div class="dash-table-wrap">
+          <table class="dash-table">
+            <thead>
+              <tr>
+                <th>${title}</th>
+                ${stages.map(s => `<th class="dash-num">${esc(s)}</th>`).join('')}
+                <th class="dash-num">전체</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows.map(([nm, c]) => `
+                <tr>
+                  <td class="dash-name">${esc(nm)}</td>
+                  ${stages.map(s => numCell(c[s] || 0)).join('')}
+                  <td class="dash-num dash-total-col">${c.total}</td>
+                </tr>`).join('')}
+              <tr class="dash-footer-row">
+                <td>합계</td>
+                ${stages.map(s => numCell(totalByStage[s] || 0)).join('')}
+                <td class="dash-num dash-total-col">${total}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+  };
+
+  const summaryHtml = `
+    <div class="dash-summary">
+      <div class="dash-summary-card dash-summary-total">
+        <div class="dash-summary-num">${total}</div>
+        <div class="dash-summary-label">전체</div>
+      </div>
+      ${stages.map(s => `
+        <div class="dash-summary-card">
+          <div class="dash-summary-num">${totalByStage[s] || 0}</div>
+          <div class="dash-summary-label">${esc(s)}</div>
+        </div>`).join('')}
+    </div>`;
+
+  container.innerHTML =
+    summaryHtml +
+    buildTable('기획자', '✏️', byName) +
+    (Object.keys(byEditor).length  > 0 ? buildTable('편집자', '✂️', byEditor)  : '') +
+    (Object.keys(byChannel).length > 0 ? buildTable('채널',   '📺', byChannel) : '');
 }
 
 function renderTypeKanban(tabId) {
@@ -2765,161 +2888,6 @@ async function loadEntriesForRange(startDate, endDate) {
   }
 }
 
-let reportEntries = [];
-
-async function renderReportContent() {
-  const startDate = document.getElementById('report-start').value;
-  const endDate   = document.getElementById('report-end').value;
-  const doc = document.getElementById('report-doc');
-
-  if (!startDate || !endDate) {
-    doc.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-title">기간을 선택하고 조회하세요</div></div>`;
-    return;
-  }
-  if (startDate > endDate) {
-    showToast('시작일이 종료일보다 늦을 수 없습니다.', 'error');
-    return;
-  }
-
-  doc.innerHTML = `<div class="loading-center"><span class="spinner"></span> 보고서 불러오는 중...</div>`;
-  reportEntries = await loadEntriesForRange(startDate, endDate);
-
-  if (reportEntries.length === 0) {
-    doc.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">해당 기간에 데이터가 없어요</div></div>`;
-    return;
-  }
-
-  // 담당자별 그룹
-  const byName = {};
-  reportEntries.forEach(e => {
-    if (!byName[e.name]) byName[e.name] = [];
-    byName[e.name].push(e);
-  });
-
-  // 프로젝트별 그룹
-  const byCategory = {};
-  reportEntries.forEach(e => {
-    const k = e.category || '(미분류)';
-    if (!byCategory[k]) byCategory[k] = [];
-    byCategory[k].push(e);
-  });
-
-  const statusCount = (entries) => {
-    const c = { 예정:0, 진행중:0, 완료:0, 보류:0 };
-    entries.forEach(e => { if(c[e.status]!==undefined) c[e.status]++; });
-    return c;
-  };
-
-  const completionRate = (entries) => {
-    const done = entries.filter(e => e.status === '완료').length;
-    return Math.round(done / entries.length * 100);
-  };
-
-  // SNS 섹션 데이터 준비
-  const CH_COLORS_REPORT = {
-    yt_cm:'#FF0000', yt_yy:'#FF6600', yt_1b:'#CC0000',
-    youtube:'#FF0000', fb_page:'#1877F2', fb_group:'#7C3AED',
-    instagram:'#E1306C', twitter:'#1DA1F2', threads:'#242526'
-  };
-  const snsReportCards = SNS_PLATFORMS.map(p => {
-    const rows = (allSnsData[p.key] || [])
-      .filter(r => r.metric_date >= startDate && r.metric_date <= endDate)
-      .sort((a,b) => a.metric_date.localeCompare(b.metric_date));
-    if (rows.length === 0) return '';
-    const first = rows[0];
-    const last  = rows[rows.length - 1];
-    const diff  = last.count - first.count;
-    const rate  = first.count !== 0 ? (diff / first.count * 100) : null;
-    const rateStr = rate !== null ? ` (${rate >= 0 ? '+' : ''}${rate.toFixed(1)}%)` : '';
-    let deltaHtml = '';
-    if (rows.length >= 2) {
-      if (diff > 0) deltaHtml = `<div class="report-sns-delta delta-up">전일대비 ▲ ${diff.toLocaleString()}명${rateStr}</div>`;
-      else if (diff < 0) deltaHtml = `<div class="report-sns-delta delta-down">전일대비 ▼ ${Math.abs(diff).toLocaleString()}명${rateStr}</div>`;
-      else deltaHtml = `<div class="report-sns-delta delta-zero">전일대비 변동없음</div>`;
-    }
-    const color = CH_COLORS_REPORT[p.key] || '#5B4FE5';
-    return `
-      <div class="report-sns-card">
-        <div class="report-sns-head">
-          <span class="report-sns-icon">${p.icon}</span>
-          <span class="report-sns-name">${esc(p.label)}</span>
-        </div>
-        <div class="report-sns-count">${last.count.toLocaleString()}명</div>
-        ${deltaHtml}
-        <canvas class="report-sns-canvas" data-platform="${esc(p.key)}" data-color="${esc(color)}"
-          style="width:100%;display:block" height="120"></canvas>
-      </div>`;
-  }).join('');
-
-  const hasSnsData = snsReportCards.trim().length > 0;
-
-  doc.innerHTML = `
-    <div class="report-title">업무 현황 보고서</div>
-    <div class="report-subtitle">${startDate} ~ ${endDate} · 총 ${reportEntries.length}건</div>
-
-    ${hasSnsData ? `
-    <div class="report-section">
-      <div class="report-section-title">SNS 채널 현황</div>
-      <div class="report-sns-grid">${snsReportCards}</div>
-    </div>` : ''}
-
-    <div class="report-section">
-      <div class="report-section-title">프로젝트별 현황</div>
-      <table class="report-table">
-        <thead><tr>
-          <th>프로젝트</th><th>예정</th><th>진행중</th><th>완료</th><th>보류</th><th>합계</th>
-        </tr></thead>
-        <tbody>
-          ${Object.entries(byCategory).sort(([a],[b]) => a.localeCompare(b,'ko')).map(([cat, entries]) => {
-            const sc = statusCount(entries);
-            return `<tr>
-              <td><strong>${esc(cat)}</strong></td>
-              <td>${sc.예정  || '-'}</td>
-              <td>${sc.진행중 || '-'}</td>
-              <td>${sc.완료  || '-'}</td>
-              <td>${sc.보류  || '-'}</td>
-              <td><strong>${entries.length}</strong></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="report-section">
-      <div class="report-section-title">업무 전체 목록</div>
-      <table class="report-table">
-        <thead><tr>
-          <th>날짜</th><th>담당자</th><th>업무</th><th>프로젝트</th><th>상태</th><th>채널</th>
-        </tr></thead>
-        <tbody>
-          ${reportEntries.map(e => `
-            <tr>
-              <td style="white-space:nowrap;color:var(--text-soft)">${esc(e.work_date)}</td>
-              <td><strong>${esc(e.name)}</strong></td>
-              <td>${esc(e.task).slice(0,60)}${e.task&&e.task.length>60?'…':''}</td>
-              <td>${esc(e.category || '-')}</td>
-              <td><span class="badge badge-status-${esc(e.status)}">${esc(e.status)}</span></td>
-              <td>${e.channel ? `<span class="badge badge-ch-${esc(e.channel)}">${esc(CH_LABELS[e.channel]||e.channel)}</span>` : '-'}</td>
-            </tr>`).join('')}
-        </tbody>
-      </table>
-    </div>`;
-
-  // 보고서 SNS 차트 그리기
-  if (hasSnsData) {
-    requestAnimationFrame(() => {
-      doc.querySelectorAll('.report-sns-canvas').forEach(canvas => {
-        const platformKey = canvas.dataset.platform;
-        const color = canvas.dataset.color;
-        const rows = (allSnsData[platformKey] || [])
-          .filter(r => r.metric_date >= startDate && r.metric_date <= endDate)
-          .sort((a,b) => a.metric_date.localeCompare(b.metric_date));
-        if (rows.length < 2) return;
-        drawLineChart(canvas, rows.map(r => r.count), color, rows.map(r => r.metric_date));
-      });
-    });
-  }
-}
 
 // ================================================================
 // 17. 업무 추가/수정 모달
@@ -3224,8 +3192,26 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
     const tab = btn.dataset.tab;
     if (TAB_TYPE[tab]) renderTypeKanban(tab);
-    if (tab === 'sns')  renderSnsTab();
+    if (tab === 'sns')    renderSnsTab();
+    if (tab === 'report') renderDashboard();
   });
+});
+
+// 현황 탭 타입 필터 버튼
+document.querySelectorAll('.dash-type-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dash-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    dashTypeFilter = btn.dataset.type;
+    renderDashboard();
+  });
+});
+
+// SNS 출력 버튼
+document.getElementById('sns-print-btn').addEventListener('click', () => {
+  const dateEl = document.getElementById('sns-print-date');
+  if (dateEl) dateEl.textContent = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' }) + ' 기준';
+  window.print();
 });
 
 // 타입별 추가 버튼
@@ -3540,70 +3526,6 @@ document.getElementById('sns-grid').addEventListener('click', async e => {
   }
 });
 
-// 보고서 조회
-document.getElementById('report-load-btn').addEventListener('click', renderReportContent);
-
-// 보고서 JPG 내보내기
-document.getElementById('report-jpg-btn').addEventListener('click', async () => {
-  const doc = document.getElementById('report-doc');
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-
-  // 라이트 모드로 임시 전환
-  if (isDark) document.documentElement.setAttribute('data-theme', 'light');
-
-  try {
-    const canvas = await html2canvas(doc, {
-      scale: 2, backgroundColor: '#ffffff',
-      useCORS: true, allowTaint: false,
-      logging: false,
-    });
-    const link = document.createElement('a');
-    link.download = `업무보고서_${getTodayStr()}.jpg`;
-    link.href = canvas.toDataURL('image/jpeg', 0.92);
-    link.click();
-    showToast('JPG 파일이 저장되었습니다.', 'success');
-  } catch (err) {
-    console.error('[TWB] JPG export error:', err);
-    showToast('JPG 저장 중 오류가 발생했습니다.', 'error');
-  } finally {
-    // 다크 모드 복원
-    if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
-  }
-});
-
-// 보고서 PDF 내보내기
-document.getElementById('report-pdf-btn').addEventListener('click', async () => {
-  const doc = document.getElementById('report-doc');
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  if (isDark) document.documentElement.setAttribute('data-theme', 'light');
-
-  try {
-    const canvas = await html2canvas(doc, {
-      scale: 2, backgroundColor: '#ffffff',
-      useCORS: true, allowTaint: false,
-      logging: false,
-    });
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ orientation: canvas.width > canvas.height ? 'l' : 'p', unit: 'px', format: [canvas.width / 2, canvas.height / 2] });
-    pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width / 2, canvas.height / 2);
-    pdf.save(`업무보고서_${getTodayStr()}.pdf`);
-    showToast('PDF 파일이 저장되었습니다.', 'success');
-  } catch (err) {
-    console.error('[TWB] PDF export error:', err);
-    showToast('PDF 저장 중 오류가 발생했습니다.', 'error');
-  } finally {
-    if (isDark) document.documentElement.setAttribute('data-theme', 'dark');
-  }
-});
-
-// 보고서 기간 기본값 (이번 달 1일 ~ 오늘)
-(function setReportDefaultDates() {
-  const today = getTodayStr();
-  const firstOfMonth = today.slice(0,7) + '-01';
-  document.getElementById('report-start').value = firstOfMonth;
-  document.getElementById('report-end').value   = today;
-})();
 
 // ================================================================
 // 22. 앱 초기화
@@ -3637,8 +3559,9 @@ async function initApp() {
 
   if (isDemoMode) {
     // 데모 모드: 샘플 데이터로 즉시 렌더링
-    allEntries = DEMO_ENTRIES;
-    allSnsData = DEMO_SNS;
+    allEntries      = DEMO_ENTRIES;
+    pipelineEntries = DEMO_ENTRIES;
+    allSnsData      = DEMO_SNS;
     suggestions = {
       names: ['김민준', '이서연', '박도윤', '최지우'],
       categories: ['SNS 홍보', '영상 제작', '언론 홍보', '행정'],
@@ -3651,13 +3574,15 @@ async function initApp() {
   }
 
   // 실제 모드: Supabase에서 데이터 로드
-  const [entries, snsData] = await Promise.all([
+  const [entries, allPipeline, snsData] = await Promise.all([
     loadBoardEntries(),
+    loadPipelineEntries(),
     loadAllSnsData(),
     loadSuggestions(),
   ]);
-  allEntries = entries;
-  allSnsData = snsData;
+  allEntries      = entries;
+  pipelineEntries = allPipeline;
+  allSnsData      = snsData;
 
   // 초기 렌더
   renderTypeKanban('shorts');
