@@ -1294,6 +1294,7 @@
     /* ============================================================
        인쇄 (SNS 수치 출력 — 라이트 고정)
     ============================================================ */
+    @page { size: A4 portrait; margin: 15mm; }
     @media print {
       body.printing-sns { background: #fff !important; }
       body.printing-sns .topbar,
@@ -1302,13 +1303,30 @@
       body.printing-sns .setup-warning,
       body.printing-sns #sns-print-btn { display: none !important; }
       body.printing-sns .tab-panel { display: none !important; }
-      body.printing-sns #panel-sns { display: block !important; }
-      body.printing-sns #sns-print-header { display: block !important; margin-bottom: 20px; }
-      body.printing-sns .sns-grid { background: #fff !important; }
-      body.printing-sns .sns-card { border: 1px solid #e0e0e0 !important; background: #fff !important; color: #1A1D23 !important; break-inside: avoid; }
-      body.printing-sns .sns-card-count { color: #1A1D23 !important; }
-      body.printing-sns .sns-card-label { color: #666 !important; }
+      body.printing-sns #panel-sns { display: block !important; padding: 0 !important; }
+      body.printing-sns #sns-print-header { display: block !important; margin-bottom: 16px; }
+      /* 카드 그리드 숨기고 인쇄 테이블만 표시 */
+      body.printing-sns .sns-grid { display: none !important; }
+      body.printing-sns #sns-print-table { display: block !important; }
     }
+    /* 인쇄 테이블 (화면에선 숨김) */
+    #sns-print-table { display: none; }
+    #sns-print-table table {
+      width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'Pretendard', sans-serif;
+    }
+    #sns-print-table th {
+      background: #1A1D23; color: #fff; padding: 9px 12px; text-align: left; font-weight: 700;
+    }
+    #sns-print-table td {
+      padding: 10px 12px; border-bottom: 1px solid #e0e0e0; color: #1A1D23; vertical-align: middle;
+    }
+    #sns-print-table tr:nth-child(even) td { background: #f8f9fa; }
+    #sns-print-table .pt-icon { font-size: 18px; }
+    #sns-print-table .pt-count { font-size: 15px; font-weight: 700; }
+    #sns-print-table .pt-up   { color: #059669; font-weight: 600; }
+    #sns-print-table .pt-down { color: #DC2626; font-weight: 600; }
+    #sns-print-table .pt-zero { color: #9CA3AF; }
+    #sns-print-table .pt-none { color: #9CA3AF; }
   </style>
 </head>
 <body>
@@ -1406,9 +1424,10 @@
         </div>
       </div>
       <div class="sns-print-header" id="sns-print-header" style="display:none">
-        <div style="font-size:20px;font-weight:700;margin-bottom:4px">SNS 채널 현황 보고</div>
+        <div style="font-size:22px;font-weight:800;margin-bottom:4px">SNS 채널 현황 보고</div>
         <div style="font-size:13px;color:#666" id="sns-print-date"></div>
       </div>
+      <div id="sns-print-table"><!-- JS로 채워짐 --></div>
       <div class="sns-grid" id="sns-grid"></div>
     </section>
 
@@ -3158,14 +3177,54 @@ function renderSnsTab() {
       </div>`;
   }).join('');
 
+  // 인쇄용 테이블 생성
+  const printTableEl = document.getElementById('sns-print-table');
+  if (printTableEl) {
+    const rows = SNS_PLATFORMS.map(p => {
+      const pRows = allSnsData[p.key] || [];
+      const sorted = [...pRows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
+      const todayRow = pRows.find(r => r.metric_date === today);
+      const todayCount = todayRow ? todayRow.count : null;
+      const prevRow = sorted.length >= 2 ? sorted[sorted.length - 2] : null;
+      const prevCount = prevRow ? prevRow.count : null;
+      let deltaCell = '<span class="pt-none">—</span>';
+      if (todayCount !== null && prevCount !== null) {
+        const diff = todayCount - prevCount;
+        const rate = prevCount !== 0 ? ` (${diff >= 0 ? '+' : ''}${(diff/prevCount*100).toFixed(1)}%)` : '';
+        if (diff > 0) deltaCell = `<span class="pt-up">▲ +${diff.toLocaleString()}명${rate}</span>`;
+        else if (diff < 0) deltaCell = `<span class="pt-down">▼ ${diff.toLocaleString()}명${rate}</span>`;
+        else deltaCell = `<span class="pt-zero">변동없음</span>`;
+      }
+      const prevStr = prevCount !== null ? prevCount.toLocaleString() + '명' : '—';
+      return `<tr>
+        <td><span class="pt-icon">${p.icon}</span></td>
+        <td style="font-weight:600">${esc(p.label)}</td>
+        <td class="pt-count">${todayCount !== null ? todayCount.toLocaleString() + '명' : '<span class="pt-none">미입력</span>'}</td>
+        <td>${prevStr}</td>
+        <td>${deltaCell}</td>
+      </tr>`;
+    }).join('');
+    printTableEl.innerHTML = `
+      <table>
+        <thead><tr>
+          <th style="width:36px"></th>
+          <th>채널</th>
+          <th>오늘 수치</th>
+          <th>전일 수치</th>
+          <th>전일 대비</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
   // 차트 그리기 (DOM에 붙은 후)
   requestAnimationFrame(() => {
     document.querySelectorAll('.sns-chart-canvas').forEach(canvas => {
       const platformKey = canvas.dataset.platform;
       const color = canvas.dataset.color;
-      const rows = allSnsData[platformKey] || [];
-      const sorted = [...rows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
-      const recent = sorted.slice(-14); // 최근 14일
+      const pRows = allSnsData[platformKey] || [];
+      const sorted = [...pRows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
+      const recent = sorted.slice(-14);
       const values = recent.map(r => r.count);
       const dates = recent.map(r => r.metric_date);
       drawLineChart(canvas, values, color, dates);
