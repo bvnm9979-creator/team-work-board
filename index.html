@@ -917,12 +917,14 @@
     .dash-period-filter { display: flex; gap: 4px; }
     /* 인쇄 */
     @media print {
-      .topbar, .tabs-wrap, .section-header { display: none !important; }
-      .tab-panel { display: none !important; }
-      #panel-report { display: block !important; }
-      .dash-table-wrap { overflow: visible; }
-      .dash-summary { flex-wrap: wrap; }
-      #dashboard-content [data-person] { display: none; }
+      body.printing-report .topbar,
+      body.printing-report .tabs-wrap,
+      body.printing-report .section-header { display: none !important; }
+      body.printing-report .tab-panel { display: none !important; }
+      body.printing-report #panel-report { display: block !important; }
+      body.printing-report .dash-table-wrap { overflow: visible; }
+      body.printing-report .dash-summary { flex-wrap: wrap; }
+      body.printing-report #dashboard-content [data-person] { display: none; }
     }
 
     /* ============================================================
@@ -1293,15 +1295,19 @@
        인쇄 (SNS 수치 출력 — 라이트 고정)
     ============================================================ */
     @media print {
-      body { background: #fff !important; }
-      .topbar, .tabs-wrap, .section-header, .setup-warning, #sns-print-btn { display: none !important; }
-      .tab-panel { display: none !important; }
-      #panel-sns { display: block !important; }
-      #sns-print-header { display: block !important; margin-bottom: 20px; }
-      .sns-grid { background: #fff !important; }
-      .sns-card { border: 1px solid #e0e0e0 !important; background: #fff !important; color: #1A1D23 !important; break-inside: avoid; }
-      .sns-card-count { color: #1A1D23 !important; }
-      .sns-card-label { color: #666 !important; }
+      body.printing-sns { background: #fff !important; }
+      body.printing-sns .topbar,
+      body.printing-sns .tabs-wrap,
+      body.printing-sns .section-header,
+      body.printing-sns .setup-warning,
+      body.printing-sns #sns-print-btn { display: none !important; }
+      body.printing-sns .tab-panel { display: none !important; }
+      body.printing-sns #panel-sns { display: block !important; }
+      body.printing-sns #sns-print-header { display: block !important; margin-bottom: 20px; }
+      body.printing-sns .sns-grid { background: #fff !important; }
+      body.printing-sns .sns-card { border: 1px solid #e0e0e0 !important; background: #fff !important; color: #1A1D23 !important; break-inside: avoid; }
+      body.printing-sns .sns-card-count { color: #1A1D23 !important; }
+      body.printing-sns .sns-card-label { color: #666 !important; }
     }
   </style>
 </head>
@@ -3630,13 +3636,19 @@ document.querySelectorAll('[data-period]').forEach(btn => {
 });
 
 // 현황 탭 인쇄 버튼
-document.getElementById('dash-print-btn').addEventListener('click', () => window.print());
+document.getElementById('dash-print-btn').addEventListener('click', () => {
+  document.body.classList.add('printing-report');
+  window.print();
+  document.body.classList.remove('printing-report');
+});
 
 // SNS 출력 버튼
 document.getElementById('sns-print-btn').addEventListener('click', () => {
   const dateEl = document.getElementById('sns-print-date');
   if (dateEl) dateEl.textContent = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric' }) + ' 기준';
+  document.body.classList.add('printing-sns');
   window.print();
+  document.body.classList.remove('printing-sns');
 });
 
 // 타입별 추가 버튼
