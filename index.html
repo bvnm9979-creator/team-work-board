@@ -2785,7 +2785,8 @@ function renderDashboardByPerson(container) {
       if (edStages.includes(e.stage)) {
         const ed = e.editor_name;
         if (!personMap[ed]) personMap[ed] = { planned: [], doing: [], done: [] };
-        if (!personMap[ed].doing.find(x => x.id === e.id)) personMap[ed].doing.push(e);
+        const sg = getStatusGroup(e);
+        if (!personMap[ed][sg].find(x => x.id === e.id)) personMap[ed][sg].push(e);
       }
     }
   });
