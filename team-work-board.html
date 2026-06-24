@@ -3183,7 +3183,7 @@ async function saveEntry() {
 
     if (result) {
       closeEntryModal();
-      allEntries = await loadBoardEntries();
+      [allEntries, pipelineEntries] = await Promise.all([loadBoardEntries(), loadPipelineEntries()]);
       await loadSuggestions();
       renderCurrentTab();
     }
@@ -3417,7 +3417,7 @@ document.getElementById('entry-delete-btn').addEventListener('click', async () =
   if (!confirm(`"${label}" 업무를 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
   const ok = await deleteEntry(id);
   if (ok) {
-    allEntries = allEntries.filter(e => e.id !== id);
+    [allEntries, pipelineEntries] = await Promise.all([loadBoardEntries(), loadPipelineEntries()]);
     closeEntryModal();
     renderBoardTab();
     renderCurrentTab();
@@ -3491,7 +3491,7 @@ document.addEventListener('click', async e => {
     const ok = await deleteEntry(id);
     if (ok) {
       showToast('업무가 삭제되었습니다.', 'success');
-      allEntries = await loadBoardEntries();
+      [allEntries, pipelineEntries] = await Promise.all([loadBoardEntries(), loadPipelineEntries()]);
       renderCurrentTab();
     }
     return;
@@ -3526,7 +3526,7 @@ document.addEventListener('click', async e => {
     const result = await updateEntry(id, { stage: nextStage, status: statusUpdate });
     if (result) {
       showToast(`"${esc(entry.name)}" → "${esc(nextStage)}"으로 이동`, 'success');
-      allEntries = await loadBoardEntries();
+      [allEntries, pipelineEntries] = await Promise.all([loadBoardEntries(), loadPipelineEntries()]);
       renderCurrentTab();
     }
     return;
