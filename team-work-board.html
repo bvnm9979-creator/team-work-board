@@ -607,11 +607,14 @@
     .detail-cuts-table .cut-url-link { color: var(--accent); text-decoration: none; font-size: 11px; }
     .detail-cuts-table .cut-url-link:hover { text-decoration: underline; }
     /* 컷별 이미지 업로드 */
-    .cut-img-upload { margin-top: 6px; grid-column: 1 / -1; }
-    .cut-img-btn { font-size: 11px; padding: 4px 10px; border: 1px dashed var(--border); border-radius: 6px; background: var(--surface); color: var(--text-faint); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
-    .cut-img-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .cut-img-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 4px; display: none; cursor: pointer; }
-    .cut-img-remove { font-size: 10px; color: #EF4444; cursor: pointer; margin-left: 6px; display: none; }
+    .cut-img-drop { margin-top: 6px; grid-column: 1 / -1; border: 1px dashed var(--border); border-radius: 6px; background: var(--surface); padding: 8px 10px; cursor: pointer; transition: border-color .15s, background .15s; }
+    .cut-img-drop:hover, .cut-img-drop.drag-over { border-color: var(--accent); background: var(--accent-hover); }
+    .cut-img-drop-label { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 5px; pointer-events: none; }
+    .cut-img-drop.has-img .cut-img-drop-label { display: none; }
+    .cut-img-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 4px; display: none; cursor: zoom-in; }
+    .cut-img-drop.has-img .cut-img-preview { display: block; }
+    .cut-img-remove { font-size: 10px; color: #EF4444; cursor: pointer; display: none; margin-top: 4px; }
+    .cut-img-drop.has-img .cut-img-remove { display: inline; }
     .detail-cuts-table .cut-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA0AD' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
@@ -3587,40 +3590,49 @@ function addCutRow(cut = {}) {
       <input class="form-input cut-source-url" type="text" placeholder="소스 영상 링크 (https://...)" value="${esc(cut.source_url||'')}" />
       <input class="form-input cut-source-desc" type="text" placeholder="출처 / 화면 설명 (예: 박지원 JTBC 인터뷰)" value="${esc(cut.source_desc||'')}" />
       <textarea class="form-input cut-caption" placeholder="번인 자막 / 멘트">${esc(cut.caption||'')}</textarea>
-      <div class="cut-img-upload">
-        <span class="cut-img-btn">📷 사진 추가</span>
-        <span class="cut-img-remove">✕ 삭제</span>
+      <div class="cut-img-drop${cut.image_url ? ' has-img' : ''}">
+        <div class="cut-img-drop-label">📷 사진 드래그하거나 클릭해서 추가</div>
+        <img class="cut-img-preview" src="${esc(cut.image_url||'')}" alt="컷 이미지" />
+        <span class="cut-img-remove">✕ 사진 삭제</span>
         <input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
-        <img class="cut-img-preview" src="" alt="컷 이미지" />
         <input type="hidden" class="cut-img-url" value="${esc(cut.image_url||'')}" />
       </div>
     </div>
   `;
-  // 기존 이미지 있으면 미리보기 표시
+  const dropZone  = div.querySelector('.cut-img-drop');
   const imgPreview = div.querySelector('.cut-img-preview');
   const imgUrl     = div.querySelector('.cut-img-url');
   const imgRemove  = div.querySelector('.cut-img-remove');
-  if (cut.image_url) {
-    imgPreview.src = cut.image_url;
-    imgPreview.style.display = 'block';
-    imgRemove.style.display  = 'inline';
-  }
-  // 클릭 → 파일 선택
-  const fileInput = div.querySelector('input[type="file"]');
-  div.querySelector('.cut-img-btn').addEventListener('click', () => fileInput.click());
-  fileInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const fileInput  = div.querySelector('input[type="file"]');
+
+  async function applyCutImage(file) {
+    if (!file || !file.type.startsWith('image/')) return;
     const resized = await resizeImageFile(file, 1200, 1200, 0.82);
     const url = await uploadImage(resized || file);
     if (url) {
-      imgUrl.value        = url;
-      imgPreview.src      = url;
-      imgPreview.style.display = 'block';
-      imgRemove.style.display  = 'inline';
+      imgUrl.value   = url;
+      imgPreview.src = url;
+      dropZone.classList.add('has-img');
     }
     fileInput.value = '';
+  }
+
+  // 클릭 → 파일 선택 (이미지 없을 때만)
+  dropZone.addEventListener('click', (e) => {
+    if (e.target === imgRemove) return;
+    if (!dropZone.classList.contains('has-img')) fileInput.click();
   });
+  fileInput.addEventListener('change', (e) => applyCutImage(e.target.files[0]));
+
+  // 드래그 앤 드롭
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    applyCutImage(e.dataTransfer.files[0]);
+  });
+
   // 이미지 클릭 → 확대
   imgPreview.addEventListener('click', () => {
     if (imgUrl.value) {
@@ -3628,12 +3640,13 @@ function addCutRow(cut = {}) {
       document.getElementById('img-viewer-overlay').classList.add('open');
     }
   });
+
   // 삭제
-  imgRemove.addEventListener('click', () => {
-    imgUrl.value            = '';
-    imgPreview.src          = '';
-    imgPreview.style.display = 'none';
-    imgRemove.style.display  = 'none';
+  imgRemove.addEventListener('click', (e) => {
+    e.stopPropagation();
+    imgUrl.value   = '';
+    imgPreview.src = '';
+    dropZone.classList.remove('has-img');
   });
   div.querySelector('.cut-delete-btn').addEventListener('click', () => {
     div.remove();
