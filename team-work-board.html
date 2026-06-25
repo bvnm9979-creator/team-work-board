@@ -606,6 +606,13 @@
     .detail-cuts-table tr:last-child td { border-bottom: none; }
     .detail-cuts-table .cut-url-link { color: var(--accent); text-decoration: none; font-size: 11px; }
     .detail-cuts-table .cut-url-link:hover { text-decoration: underline; }
+    /* 컷별 이미지 업로드 */
+    .cut-img-upload { margin-top: 6px; grid-column: 1 / -1; }
+    .cut-img-btn { font-size: 11px; padding: 4px 10px; border: 1px dashed var(--border); border-radius: 6px; background: var(--surface); color: var(--text-faint); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .cut-img-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .cut-img-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; margin-top: 4px; display: none; cursor: pointer; }
+    .cut-img-remove { font-size: 10px; color: #EF4444; cursor: pointer; margin-left: 6px; display: none; }
+    .detail-cuts-table .cut-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA0AD' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
@@ -3580,8 +3587,54 @@ function addCutRow(cut = {}) {
       <input class="form-input cut-source-url" type="text" placeholder="소스 영상 링크 (https://...)" value="${esc(cut.source_url||'')}" />
       <input class="form-input cut-source-desc" type="text" placeholder="출처 / 화면 설명 (예: 박지원 JTBC 인터뷰)" value="${esc(cut.source_desc||'')}" />
       <textarea class="form-input cut-caption" placeholder="번인 자막 / 멘트">${esc(cut.caption||'')}</textarea>
+      <div class="cut-img-upload">
+        <span class="cut-img-btn">📷 사진 추가</span>
+        <span class="cut-img-remove">✕ 삭제</span>
+        <input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+        <img class="cut-img-preview" src="" alt="컷 이미지" />
+        <input type="hidden" class="cut-img-url" value="${esc(cut.image_url||'')}" />
+      </div>
     </div>
   `;
+  // 기존 이미지 있으면 미리보기 표시
+  const imgPreview = div.querySelector('.cut-img-preview');
+  const imgUrl     = div.querySelector('.cut-img-url');
+  const imgRemove  = div.querySelector('.cut-img-remove');
+  if (cut.image_url) {
+    imgPreview.src = cut.image_url;
+    imgPreview.style.display = 'block';
+    imgRemove.style.display  = 'inline';
+  }
+  // 클릭 → 파일 선택
+  const fileInput = div.querySelector('input[type="file"]');
+  div.querySelector('.cut-img-btn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const resized = await resizeImageFile(file, 1200, 1200, 0.82);
+    const url = await uploadImage(resized || file);
+    if (url) {
+      imgUrl.value        = url;
+      imgPreview.src      = url;
+      imgPreview.style.display = 'block';
+      imgRemove.style.display  = 'inline';
+    }
+    fileInput.value = '';
+  });
+  // 이미지 클릭 → 확대
+  imgPreview.addEventListener('click', () => {
+    if (imgUrl.value) {
+      document.getElementById('img-viewer-img').src = imgUrl.value;
+      document.getElementById('img-viewer-overlay').classList.add('open');
+    }
+  });
+  // 삭제
+  imgRemove.addEventListener('click', () => {
+    imgUrl.value            = '';
+    imgPreview.src          = '';
+    imgPreview.style.display = 'none';
+    imgRemove.style.display  = 'none';
+  });
   div.querySelector('.cut-delete-btn').addEventListener('click', () => {
     div.remove();
     document.querySelectorAll('#cuts-list .cut-row').forEach((r, i) => {
@@ -3597,7 +3650,8 @@ function getCutsFromForm() {
     source_url:  row.querySelector('.cut-source-url').value.trim(),
     source_desc: row.querySelector('.cut-source-desc').value.trim(),
     caption:     row.querySelector('.cut-caption').value.trim(),
-  })).filter(c => c.section || c.source_url || c.source_desc || c.caption);
+    image_url:   row.querySelector('.cut-img-url').value.trim(),
+  })).filter(c => c.section || c.source_url || c.source_desc || c.caption || c.image_url);
 }
 
 function setCutsToForm(cuts) {
@@ -3896,7 +3950,7 @@ function openPipeDetail(entry) {
       <div>
         <span style="color:var(--text-faint);font-size:11px;">컷 구성 (${cuts.length}컷)</span>
         <div class="detail-cuts-wrapper"><table class="detail-cuts-table" style="margin-top:6px">
-          <thead><tr><th>컷</th><th>구간</th><th>소스</th><th>화면</th><th>자막/멘트</th></tr></thead>
+          <thead><tr><th>컷</th><th>구간</th><th>소스</th><th>화면</th><th>자막/멘트</th><th>사진</th></tr></thead>
           <tbody>
             ${cuts.map((c, i) => `<tr>
               <td style="white-space:nowrap;font-weight:600;color:var(--accent);">${i+1}</td>
@@ -3904,6 +3958,7 @@ function openPipeDetail(entry) {
               <td>${c.source_url ? `<a class="cut-url-link" href="${esc(c.source_url)}" target="_blank" rel="noopener">링크↗</a>` : ''}</td>
               <td>${esc(c.source_desc||'')}</td>
               <td style="white-space:pre-wrap;">${esc(c.caption||'')}</td>
+              <td>${c.image_url ? `<img class="cut-thumb" src="${esc(c.image_url)}" alt="컷${i+1}사진" data-imgurl="${esc(c.image_url)}" />` : ''}</td>
             </tr>`).join('')}
           </tbody>
         </table></div>
@@ -4054,7 +4109,7 @@ document.addEventListener('click', async e => {
   }
 
   // 이미지 썸네일 클릭 → 뷰어
-  const imgThumb = e.target.closest('.entry-img-thumb');
+  const imgThumb = e.target.closest('.entry-img-thumb, .cut-thumb');
   if (imgThumb && imgThumb.dataset.imgurl) {
     document.getElementById('img-viewer-img').src = imgThumb.dataset.imgurl;
     document.getElementById('img-viewer-overlay').classList.add('open');
