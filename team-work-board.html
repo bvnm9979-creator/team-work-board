@@ -2940,6 +2940,15 @@ function renderTypeKanban(tabId) {
     const s = e.stage && grouped[e.stage] !== undefined ? e.stage : stages[0];
     grouped[s].push(e);
   });
+  // D-day 가까운 순 정렬 (due_date 없으면 맨 뒤)
+  stages.forEach(s => {
+    grouped[s].sort((a, b) => {
+      if (!a.due_date && !b.due_date) return 0;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+    });
+  });
 
   boardEl.innerHTML = stages.map((stage, idx) => {
     const cards = grouped[stage];
@@ -3391,6 +3400,15 @@ function renderPipelineTab() {
   entries.forEach(e => {
     const stage = e.stage || '기획';
     if (grouped[stage]) grouped[stage].push(e);
+  });
+  // D-day 가까운 순 정렬 (due_date 없으면 맨 뒤)
+  STAGES.forEach(s => {
+    grouped[s].sort((a, b) => {
+      if (!a.due_date && !b.due_date) return 0;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+    });
   });
 
   board.innerHTML = STAGES.map(stage => {
