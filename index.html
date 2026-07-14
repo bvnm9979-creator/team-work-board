@@ -606,6 +606,16 @@
     .detail-cuts-table tr:last-child td { border-bottom: none; }
     .detail-cuts-table .cut-url-link { color: var(--accent); text-decoration: none; font-size: 11px; }
     .detail-cuts-table .cut-url-link:hover { text-decoration: underline; }
+    /* 컷별 이미지 업로드 */
+    .cut-img-drop { margin-top: 6px; grid-column: 1 / -1; border: 1px dashed var(--border); border-radius: 6px; background: var(--surface); padding: 8px 10px; cursor: pointer; transition: border-color .15s, background .15s; }
+    .cut-img-drop:hover, .cut-img-drop.drag-over { border-color: var(--accent); background: var(--accent-hover); }
+    .cut-img-drop-label { font-size: 11px; color: var(--text-faint); display: flex; align-items: center; gap: 5px; pointer-events: none; }
+    .cut-img-drop.has-img .cut-img-drop-label { display: none; }
+    .cut-img-preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 4px; display: none; cursor: zoom-in; }
+    .cut-img-drop.has-img .cut-img-preview { display: block; }
+    .cut-img-remove { font-size: 10px; color: #EF4444; cursor: pointer; display: none; margin-top: 4px; }
+    .cut-img-drop.has-img .cut-img-remove { display: inline; }
+    .detail-cuts-table .cut-thumb { width: 60px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA0AD' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
@@ -779,6 +789,34 @@
       transition: background var(--transition);
     }
     .sns-save-btn:hover { background: var(--accent-dark); }
+
+    /* ============================================================
+       SNS 보고서 탭
+    ============================================================ */
+    .report-meta-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
+    .report-ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .report-ch-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--rc-color, var(--accent)); border-radius: var(--radius); padding: 14px; }
+    .report-ch-card .report-ch-name { font-size: 14px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .report-ch-card .report-ch-name .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rc-color, var(--accent)); flex: none; }
+    .report-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .report-field-row label { font-size: 11px; color: var(--text-faint); display: block; margin-bottom: 3px; }
+    .report-field-row input { width: 100%; padding: 5px 7px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+    .report-sent-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 10px 0; }
+    .report-sent-row label { font-size: 10px; color: var(--text-faint); display: block; margin-bottom: 3px; }
+    .report-sent-row input { width: 100%; padding: 4px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+    .report-top3-label { font-size: 11px; font-weight: 600; color: var(--text-soft); margin: 10px 0 4px; }
+    .report-top3-row { display: grid; grid-template-columns: 1fr 90px; gap: 6px; margin-bottom: 5px; }
+    .report-top3-row input { padding: 5px 7px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+    .report-thumb-row { margin-top: 4px; }
+    .report-thumb-row input { width: 100%; padding: 5px 7px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+    .report-dyn-row { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 8px; display: flex; gap: 8px; align-items: flex-start; flex-wrap: wrap; }
+    .report-dyn-row input, .report-dyn-row select, .report-dyn-row textarea { padding: 5px 7px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+    .report-dyn-row textarea { flex: 1 1 260px; min-height: 40px; resize: vertical; }
+    .report-dyn-remove { flex: none; background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: 16px; padding: 0 4px; }
+    .report-dyn-remove:hover { color: #DC2626; }
+    .report-add-btn { font-size: 12px; padding: 5px 10px; }
+    .report-section-box { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; }
+    .report-section-box h4 { font-size: 13px; font-weight: 700; margin: 0 0 10px; color: var(--text); }
 
     /* ============================================================
        파이프라인 탭
@@ -1371,6 +1409,7 @@
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="cardnews" id="tab-cardnews">🃏 카드뉴스</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="admin"    id="tab-admin">📌 행정</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="sns"      id="tab-sns">📊 SNS 수치</button>
+    <button class="tab-btn"        role="tab" aria-selected="false" data-tab="snsreport" id="tab-snsreport">📰 SNS 보고서</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="report"   id="tab-report">📋 현황</button>
     <button class="tab-btn"        role="tab" aria-selected="false" data-tab="monitor"  id="tab-monitor">🔍 모니터링</button>
   </nav>
@@ -1429,6 +1468,18 @@
       </div>
       <div id="sns-print-table"><!-- JS로 채워짐 --></div>
       <div class="sns-grid" id="sns-grid"></div>
+    </section>
+
+    <!-- ────────── SNS 보고서 탭 ────────── -->
+    <section class="tab-panel" id="panel-snsreport" role="tabpanel" aria-labelledby="tab-snsreport">
+      <div class="section-header">
+        <span class="section-title">SNS 종합 보고서</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn btn-secondary btn-sm" id="report-save-btn">저장</button>
+          <button class="btn btn-primary btn-sm" id="report-preview-btn">보고서 미리보기 / 인쇄</button>
+        </div>
+      </div>
+      <div id="report-form-wrap"></div>
     </section>
 
     <!-- ────────── 현황 탭 ────────── -->
@@ -2261,6 +2312,64 @@ async function upsertSnsEntry(platformKey, metricDate, count) {
 }
 
 // ================================================================
+// 6b. Supabase CRUD — sns_reports
+// ================================================================
+async function loadSnsReport(targetDate) {
+  try {
+    const { data, error } = await supabase
+      .from('sns_reports')
+      .select('*')
+      .eq('target_date', targetDate)
+      .maybeSingle();
+    if (error) throw error;
+    return data || null;
+  } catch (err) {
+    console.error('[TWB] loadSnsReport error:', err);
+    return null;
+  }
+}
+
+async function loadRecentSnsReports(beforeOrEqualDate, limit) {
+  try {
+    const { data, error } = await supabase
+      .from('sns_reports')
+      .select('target_date, channels_json')
+      .lte('target_date', beforeOrEqualDate)
+      .order('target_date', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data || []).reverse();
+  } catch (err) {
+    console.error('[TWB] loadRecentSnsReports error:', err);
+    return [];
+  }
+}
+
+async function upsertSnsReport(payload) {
+  try {
+    const { data, error } = await supabase
+      .from('sns_reports')
+      .upsert({
+        target_date: payload.targetDate,
+        report_date: payload.reportDate,
+        author: payload.author,
+        channels_json: JSON.stringify(payload.channels),
+        comments_json: JSON.stringify(payload.notableComments),
+        notes_json: JSON.stringify(payload.notes),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'target_date' })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    console.error('[TWB] upsertSnsReport error:', err);
+    showToast(parseSupabaseError(err), 'error');
+    return null;
+  }
+}
+
+// ================================================================
 // 7. 자동완성 — DISTINCT 쿼리
 // ================================================================
 async function loadSuggestions() {
@@ -2881,12 +2990,12 @@ function renderTypeKanban(tabId) {
   const countBar = document.getElementById(`count-bar-${tabId}`);
   if (!boardEl) return;
 
-  // 데이터 필터
+  // 데이터 필터 (파이프라인 전체 데이터 사용 — status 제한 없음)
   let allTabEntries;
   if (tabId === 'admin') {
-    allTabEntries = allEntries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
+    allTabEntries = pipelineEntries.filter(e => !e.task_type || e.task_type === '행정' || e.task_type === '기타' || e.task_type === '모니터링');
   } else {
-    allTabEntries = allEntries.filter(e => e.task_type === taskType);
+    allTabEntries = pipelineEntries.filter(e => e.task_type === taskType);
   }
 
   // 담당자 필터 칩 렌더
@@ -2929,6 +3038,15 @@ function renderTypeKanban(tabId) {
   entries.forEach(e => {
     const s = e.stage && grouped[e.stage] !== undefined ? e.stage : stages[0];
     grouped[s].push(e);
+  });
+  // D-day 가까운 순 정렬 (due_date 없으면 맨 뒤)
+  stages.forEach(s => {
+    grouped[s].sort((a, b) => {
+      if (!a.due_date && !b.due_date) return 0;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+    });
   });
 
   boardEl.innerHTML = stages.map((stage, idx) => {
@@ -3367,6 +3485,282 @@ function renderSnsTab() {
 }
 
 // ================================================================
+// 14b. SNS 보고서 탭
+// ================================================================
+const SNS_REPORT_TEMPLATE_B64 = "PCFET0NUWVBFIGh0bWw+CjxodG1sIGxhbmc9ImtvIj4KPGhlYWQ+CjxtZXRhIGNoYXJzZXQ9IlVURi04Ij4KPG1ldGEgbmFtZT0idmlld3BvcnQiIGNvbnRlbnQ9IndpZHRoPWRldmljZS13aWR0aCwgaW5pdGlhbC1zY2FsZT0xLjAiPgo8dGl0bGU+7LSd66qF6rmA66+87ISdIFNOUyDsooXtlanrs7Tqs6DshJwgKEE0KTwvdGl0bGU+CjxsaW5rIHJlbD0ic3R5bGVzaGVldCIgaHJlZj0iaHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L2doL29yaW9uY2FjdHVzL3ByZXRlbmRhcmRAdjEuMy45L2Rpc3Qvd2ViL3N0YXRpYy9wcmV0ZW5kYXJkLmNzcyI+CjxzdHlsZT4KICA6cm9vdHsKICAgIC0tbmF2eTojMEIyRDUyOyAtLWdvbGQ6I0M5OTYyQzsgLS1yZWQ6I0MyM0IzMjsgLS1ncmVlbjojMkU4QjU3OwogICAgLS1pbms6IzFCMjQzMDsgLS1tdXRlZDojNkI3Njg2OyAtLWJvcmRlcjojREVFMkU4OyAtLWJnOiNGMUY0Rjg7CiAgICAtLWZvbnQ6J1ByZXRlbmRhcmQnLCAtYXBwbGUtc3lzdGVtLCBCbGlua01hY1N5c3RlbUZvbnQsIHNhbnMtc2VyaWY7CiAgICAtLW1vbm86J0lCTSBQbGV4IE1vbm8nLCAnU0ZNb25vLVJlZ3VsYXInLCBtb25vc3BhY2U7CiAgICAtLWlnOiNDMjQzN0M7IC0teXQ6I0M0MzAyQjsgLS10aWt0b2s6IzEyQTU5NDsgLS1mYnA6IzNBNUE4NTsgLS1mYmc6IzZDOEZDNzsgLS10aDojMzQzNjNBOwogIH0KICAqe2JveC1zaXppbmc6Ym9yZGVyLWJveDt9CiAgaHRtbCxib2R5e21hcmdpbjowOyBwYWRkaW5nOjA7IGJhY2tncm91bmQ6dmFyKC0tYmcpOyBmb250LWZhbWlseTp2YXIoLS1mb250KTsgY29sb3I6dmFyKC0taW5rKTt9CgogIC5wYWdlewogICAgd2lkdGg6MjEwbW07IG1pbi1oZWlnaHQ6Mjk3bW07IG1hcmdpbjoxMG1tIGF1dG87IGJhY2tncm91bmQ6I2ZmZjsKICAgIHBhZGRpbmc6OG1tIDEwbW07IHBvc2l0aW9uOnJlbGF0aXZlOyBib3gtc2hhZG93OjAgMCAwIDFweCAjZGRkOwogICAgZm9udC1zaXplOjkuNnB0OyBsaW5lLWhlaWdodDoxLjQ7CiAgfQogIEBtZWRpYSBwcmludHsKICAgIGJvZHl7YmFja2dyb3VuZDojZmZmO30KICAgIC5wYWdle21hcmdpbjowOyBib3gtc2hhZG93Om5vbmU7IHdpZHRoOmF1dG87IG1pbi1oZWlnaHQ6YXV0bzt9CiAgICAubm8tcHJpbnR7ZGlzcGxheTpub25lICFpbXBvcnRhbnQ7fQogICAgQHBhZ2V7IHNpemU6QTQ7IG1hcmdpbjoxMG1tOyB9CiAgfQoKICAuYnRuLXByaW50ewogICAgcG9zaXRpb246Zml4ZWQ7IHRvcDoxNnB4OyByaWdodDoxNnB4OyBiYWNrZ3JvdW5kOnZhcigtLW5hdnkpOyBjb2xvcjojZmZmOyBib3JkZXI6bm9uZTsKICAgIHBhZGRpbmc6OXB4IDE2cHg7IGJvcmRlci1yYWRpdXM6NnB4OyBmb250LWZhbWlseTp2YXIoLS1mb250KTsgZm9udC13ZWlnaHQ6NzAwOyBmb250LXNpemU6MTNweDsKICAgIGN1cnNvcjpwb2ludGVyOyBib3gtc2hhZG93OjAgNHB4IDEwcHggcmdiYSgxMSw0NSw4MiwuMjUpOwogIH0KCiAgLmhlYWR7ZGlzcGxheTpmbGV4OyBqdXN0aWZ5LWNvbnRlbnQ6c3BhY2UtYmV0d2VlbjsgYWxpZ24taXRlbXM6ZmxleC1lbmQ7IGJvcmRlci1ib3R0b206Mi40cHggc29saWQgdmFyKC0tbmF2eSk7IHBhZGRpbmctYm90dG9tOjMuNW1tOyBtYXJnaW4tYm90dG9tOjRtbTt9CiAgLmV5ZWJyb3d7Zm9udC1zaXplOjhwdDsgbGV0dGVyLXNwYWNpbmc6LjEyZW07IGNvbG9yOnZhcigtLWdvbGQpOyBmb250LXdlaWdodDo3MDA7fQogIGgxe2ZvbnQtc2l6ZToxNi41cHQ7IGZvbnQtd2VpZ2h0OjgwMDsgbWFyZ2luOjEuNW1tIDAgMDsgbGV0dGVyLXNwYWNpbmc6LS4wMWVtOyBjb2xvcjp2YXIoLS1uYXZ5KTt9CiAgLm1ldGF7dGV4dC1hbGlnbjpyaWdodDsgZm9udC1zaXplOjguNHB0OyBjb2xvcjp2YXIoLS1tdXRlZCk7IGxpbmUtaGVpZ2h0OjEuNTU7fQogIC5tZXRhIGJ7Y29sb3I6dmFyKC0taW5rKTt9CgogIC5zZWN0aW9uLXRpdGxlewogICAgZm9udC1zaXplOjkuNnB0OyBmb250LXdlaWdodDo4MDA7IGNvbG9yOiNmZmY7IGJhY2tncm91bmQ6dmFyKC0tbmF2eSk7CiAgICBkaXNwbGF5OmlubGluZS1ibG9jazsgcGFkZGluZzoycHggOHB4OyBib3JkZXItcmFkaXVzOjNweDsgbWFyZ2luLWJvdHRvbToybW07CiAgfQogIHRhYmxlLm1hc3Rlcnt3aWR0aDoxMDAlOyBib3JkZXItY29sbGFwc2U6Y29sbGFwc2U7IG1hcmdpbi1ib3R0b206My41bW07fQogIHRhYmxlLm1hc3RlciB0aHsKICAgIGZvbnQtc2l6ZTo3LjZwdDsgY29sb3I6dmFyKC0tbXV0ZWQpOyBmb250LXdlaWdodDo3MDA7IHRleHQtYWxpZ246cmlnaHQ7IGJvcmRlci1ib3R0b206MS4ycHggc29saWQgdmFyKC0tbmF2eSk7CiAgICBwYWRkaW5nOjIuNXB4IDRweDsKICB9CiAgdGFibGUubWFzdGVyIHRoOmZpcnN0LWNoaWxkLCB0YWJsZS5tYXN0ZXIgdGQ6Zmlyc3QtY2hpbGR7dGV4dC1hbGlnbjpsZWZ0O30KICB0YWJsZS5tYXN0ZXIgdGR7cGFkZGluZzozLjZweCA0cHg7IGJvcmRlci1ib3R0b206MXB4IHNvbGlkICNFQ0VGRjM7IGZvbnQtc2l6ZTo4LjRwdDsgdGV4dC1hbGlnbjpyaWdodDt9CiAgdGFibGUubWFzdGVyIHRkLm51bXtmb250LWZhbWlseTp2YXIoLS1tb25vKTt9CiAgLmNoLXRhZ3tkaXNwbGF5OmlubGluZS1mbGV4OyBhbGlnbi1pdGVtczpjZW50ZXI7IGdhcDo1cHg7IGZvbnQtd2VpZ2h0OjcwMDt9CiAgLmRvdHt3aWR0aDo2cHg7IGhlaWdodDo2cHg7IGJvcmRlci1yYWRpdXM6NTAlOyBkaXNwbGF5OmlubGluZS1ibG9jazsgZmxleDpub25lO30KICAuZGVsdGF7Zm9udC1mYW1pbHk6dmFyKC0tbW9ubyk7IGZvbnQtd2VpZ2h0OjcwMDt9CiAgLmRlbHRhLnVwe2NvbG9yOnZhcigtLWdyZWVuKTt9IC5kZWx0YS5kb3due2NvbG9yOnZhcigtLXJlZCk7fSAuZGVsdGEuZmxhdHtjb2xvcjp2YXIoLS1tdXRlZCk7fQogIC5zZW50LW1pbml7ZGlzcGxheTppbmxpbmUtZmxleDsgd2lkdGg6NDRweDsgaGVpZ2h0OjZweDsgYm9yZGVyLXJhZGl1czozcHg7IG92ZXJmbG93OmhpZGRlbjsgdmVydGljYWwtYWxpZ246bWlkZGxlOyBtYXJnaW4tbGVmdDo1cHg7fQogIC5zZW50LW1pbmkgc3BhbntkaXNwbGF5OmJsb2NrOyBoZWlnaHQ6MTAwJTt9CiAgLnNlbnQtbmF7Zm9udC1zaXplOjcuNHB0OyBjb2xvcjp2YXIoLS1tdXRlZCk7IGZvbnQtc3R5bGU6aXRhbGljO30KICB0ci50b3RhbCB0ZHtib3JkZXItdG9wOjEuNHB4IHNvbGlkIHZhcigtLW5hdnkpOyBmb250LXdlaWdodDo4MDA7IGJvcmRlci1ib3R0b206bm9uZTt9CgogIC5yb3cye2Rpc3BsYXk6Z3JpZDsgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjEuMTVmciAuODVmcjsgZ2FwOjRtbTsgbWFyZ2luLWJvdHRvbTozLjVtbTt9CgogIC5jaGFydGJveHtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7IGJvcmRlci1yYWRpdXM6NXB4OyBwYWRkaW5nOjNtbTt9CiAgLmNoYXJ0Ym94IGgzLCAuYm94IGgze2ZvbnQtc2l6ZTo4LjZwdDsgZm9udC13ZWlnaHQ6ODAwOyBtYXJnaW46MCAwIDIuNW1tOyBjb2xvcjp2YXIoLS1uYXZ5KTt9CiAgLmJhcnN7ZGlzcGxheTpmbGV4OyBhbGlnbi1pdGVtczpmbGV4LWVuZDsgZ2FwOjJtbTsgaGVpZ2h0OjIwbW07IGJvcmRlci1ib3R0b206MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7fQogIC5iYXItY29se2ZsZXg6MTsgZGlzcGxheTpmbGV4OyBmbGV4LWRpcmVjdGlvbjpjb2x1bW47IGFsaWduLWl0ZW1zOmNlbnRlcjsganVzdGlmeS1jb250ZW50OmZsZXgtZW5kOyBoZWlnaHQ6MTAwJTt9CiAgLmJhcnt3aWR0aDoxMDAlOyBib3JkZXItcmFkaXVzOjJweCAycHggMCAwO30KICAuYmFyLWxhYmVse2ZvbnQtc2l6ZTo2LjhwdDsgY29sb3I6dmFyKC0tbXV0ZWQpOyBtYXJnaW4tdG9wOjEuMm1tOyBmb250LWZhbWlseTp2YXIoLS1tb25vKTt9CiAgLmJhci12YWx7Zm9udC1zaXplOjYuNnB0OyBjb2xvcjp2YXIoLS1pbmspOyBmb250LWZhbWlseTp2YXIoLS1tb25vKTsgbWFyZ2luLWJvdHRvbToxbW07fQoKICAudG9wM2dyaWR7ZGlzcGxheTpncmlkOyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6cmVwZWF0KDMsMWZyKTsgZ2FwOjIuNm1tOyBtYXJnaW4tYm90dG9tOjNtbTt9CiAgLnRvcDMtY2FyZHtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7IGJvcmRlci10b3A6Mi42cHggc29saWQgdmFyKC0tY2gtY29sb3IsdmFyKC0tbmF2eSkpOyBib3JkZXItcmFkaXVzOjVweDsgcGFkZGluZzoxLjhtbSAyLjRtbTsgb3ZlcmZsb3c6aGlkZGVuO30KICAudG9wMy1jYXJkIC5jaC1uYW1le2ZvbnQtc2l6ZTo3LjRwdDsgZm9udC13ZWlnaHQ6ODAwOyBtYXJnaW4tYm90dG9tOjFtbTsgZGlzcGxheTpmbGV4OyBhbGlnbi1pdGVtczpjZW50ZXI7IGdhcDoxLjRtbTsgd2hpdGUtc3BhY2U6bm93cmFwOyBvdmVyZmxvdzpoaWRkZW47IHRleHQtb3ZlcmZsb3c6ZWxsaXBzaXM7fQogIC50b3AzLWNhcmQgb2x7bGlzdC1zdHlsZTpub25lOyBtYXJnaW46MDsgcGFkZGluZzowOyB3aWR0aDoxMDAlO30KICAudG9wMy1jYXJkIGxpe2Rpc3BsYXk6ZmxleDsgYWxpZ24taXRlbXM6Y2VudGVyOyBnYXA6MW1tOyBmb250LXNpemU6Ni44cHQ7IHBhZGRpbmc6LjdtbSAwOyBib3JkZXItYm90dG9tOjFweCBkYXNoZWQgI0VDRUZGMzsgd2lkdGg6MTAwJTsgb3ZlcmZsb3c6aGlkZGVuO30KICAudG9wMy1jYXJkIGxpOmxhc3QtY2hpbGR7Ym9yZGVyLWJvdHRvbTpub25lO30KICAudG9wMy1jYXJkIGxpLmVtcHR5e2NvbG9yOiNDM0M5RDI7IGZvbnQtc3R5bGU6aXRhbGljO30KICAubWluaS1yYW5rewogICAgZmxleDowIDAgMy40bW07IHdpZHRoOjMuNG1tOyBoZWlnaHQ6My40bW07IGJvcmRlci1yYWRpdXM6NTAlOyBiYWNrZ3JvdW5kOiNFRUYxRjU7IGNvbG9yOnZhcigtLW11dGVkKTsKICAgIGZvbnQtZmFtaWx5OnZhcigtLW1vbm8pOyBmb250LXNpemU6NS42cHQ7IGZvbnQtd2VpZ2h0OjcwMDsgZGlzcGxheTpmbGV4OyBhbGlnbi1pdGVtczpjZW50ZXI7IGp1c3RpZnktY29udGVudDpjZW50ZXI7CiAgfQogIC5taW5pLXRpdGxle2ZsZXg6MSAxIGF1dG87IG1pbi13aWR0aDowOyBvdmVyZmxvdzpoaWRkZW47IHRleHQtb3ZlcmZsb3c6ZWxsaXBzaXM7IHdoaXRlLXNwYWNlOm5vd3JhcDt9CiAgLm1pbmktdmlld3N7ZmxleDowIDAgYXV0bzsgZm9udC1mYW1pbHk6dmFyKC0tbW9ubyk7IGZvbnQtc2l6ZTo2LjRwdDsgY29sb3I6dmFyKC0tbXV0ZWQpOyB3aGl0ZS1zcGFjZTpub3dyYXA7fQoKICAuaGlnaGxpZ2h0ewogICAgYmFja2dyb3VuZDp2YXIoLS1uYXZ5KTsgY29sb3I6I2ZmZjsgYm9yZGVyLXJhZGl1czo2cHg7IHBhZGRpbmc6Mi40bW0gMy42bW07IGRpc3BsYXk6ZmxleDsgZ2FwOjNtbTsKICAgIGFsaWduLWl0ZW1zOmNlbnRlcjsgbWFyZ2luLWJvdHRvbTozLjVtbTsgcG9zaXRpb246cmVsYXRpdmU7CiAgfQogIC5oaWdobGlnaHQ6OmJlZm9yZXsKICAgIGNvbnRlbnQ6IuyYpOuKmOydmCDstZzqs6Ag7YG066a9IjsgcG9zaXRpb246YWJzb2x1dGU7IHRvcDowOyByaWdodDowOyBiYWNrZ3JvdW5kOnZhcigtLXJlZCk7IGNvbG9yOiNmZmY7CiAgICBmb250LXNpemU6Ni40cHQ7IGZvbnQtd2VpZ2h0OjgwMDsgbGV0dGVyLXNwYWNpbmc6LjA0ZW07IHBhZGRpbmc6MnB4IDhweCAycHggMTBweDsgYm9yZGVyLXJhZGl1czowIDAgMCA2cHg7CiAgfQogIC5oaWdobGlnaHQtdGh1bWJ7CiAgICBmbGV4Om5vbmU7IHdpZHRoOjEzbW07IGhlaWdodDoxM21tOyBib3JkZXItcmFkaXVzOjRweDsgb3ZlcmZsb3c6aGlkZGVuOyBiYWNrZ3JvdW5kOiMxRjNFNjM7CiAgICBkaXNwbGF5OmZsZXg7IGFsaWduLWl0ZW1zOmNlbnRlcjsganVzdGlmeS1jb250ZW50OmNlbnRlcjsKICB9CiAgLmhpZ2hsaWdodC10aHVtYiBpbWd7d2lkdGg6MTAwJTsgaGVpZ2h0OjEwMCU7IG9iamVjdC1maXQ6Y292ZXI7IGRpc3BsYXk6YmxvY2s7fQogIC5oaWdobGlnaHQtdGh1bWIgLnBoLWljb24tc217d2lkdGg6MDsgaGVpZ2h0OjA7IGJvcmRlci1zdHlsZTpzb2xpZDsgYm9yZGVyLXdpZHRoOjIuMm1tIDAgMi4ybW0gMy42bW07IGJvcmRlci1jb2xvcjp0cmFuc3BhcmVudCB0cmFuc3BhcmVudCB0cmFuc3BhcmVudCByZ2JhKDI1NSwyNTUsMjU1LC41NSk7fQogIC5oaWdobGlnaHQtYm9keXtmbGV4OjE7IG1pbi13aWR0aDowO30KICAuaGlnaGxpZ2h0LWNoe2ZvbnQtc2l6ZTo2LjhwdDsgZm9udC13ZWlnaHQ6ODAwOyBjb2xvcjp2YXIoLS1nb2xkKTsgbWFyZ2luLWJvdHRvbTouOG1tO30KICAuaGlnaGxpZ2h0LXRpdGxle2ZvbnQtc2l6ZTo4LjhwdDsgZm9udC13ZWlnaHQ6NzAwOyBsaW5lLWhlaWdodDoxLjM1OyBtYXJnaW46MCAwIDFtbTsgcGFkZGluZy1yaWdodDoyMm1tO30KICAuaGlnaGxpZ2h0LW1ldGF7Zm9udC1mYW1pbHk6dmFyKC0tbW9ubyk7IGZvbnQtc2l6ZTo3LjhwdDsgY29sb3I6dmFyKC0tZ29sZCk7IGZvbnQtd2VpZ2h0OjcwMDsgbWFyZ2luLWJvdHRvbToxbW07fQogIC5oaWdobGlnaHQtYW5hbHlzaXN7Zm9udC1zaXplOjcuNnB0OyBjb2xvcjojRDdERUU4OyBsaW5lLWhlaWdodDoxLjQyO30KCiAgLmJveHtib3JkZXI6MXB4IHNvbGlkIHZhcigtLWJvcmRlcik7IGJvcmRlci1yYWRpdXM6NXB4OyBwYWRkaW5nOjNtbTt9CiAgLmNtdHtkaXNwbGF5OmZsZXg7IGdhcDoybW07IHBhZGRpbmc6MS41bW0gMDsgYm9yZGVyLWJvdHRvbToxcHggc29saWQgI0VDRUZGMzsgZm9udC1zaXplOjhwdDsgYWxpZ24taXRlbXM6ZmxleC1zdGFydDt9CiAgLmNtdDpsYXN0LWNoaWxke2JvcmRlci1ib3R0b206bm9uZTt9CiAgLmNtdC10YWd7ZmxleDpub25lOyBmb250LXNpemU6Ni44cHQ7IGZvbnQtd2VpZ2h0OjgwMDsgcGFkZGluZzoxLjVweCA2cHg7IGJvcmRlci1yYWRpdXM6M3B4OyBiYWNrZ3JvdW5kOiNFQUYxRjg7IGNvbG9yOnZhcigtLW5hdnkpOyB3aGl0ZS1zcGFjZTpub3dyYXA7fQogIC5jbXQtdGFnLndhcm57YmFja2dyb3VuZDojRkJFQUVBOyBjb2xvcjp2YXIoLS1yZWQpO30KICAuY210LWJvZHkgYntmb250LXdlaWdodDo3MDA7fQogIC5jbXQtZW1wdHl7Zm9udC1zaXplOjhwdDsgY29sb3I6dmFyKC0tbXV0ZWQpOyBmb250LXN0eWxlOml0YWxpYzt9CgogIGZvb3Rlcntwb3NpdGlvbjphYnNvbHV0ZTsgYm90dG9tOjhtbTsgbGVmdDoxMW1tOyByaWdodDoxMW1tOyBmb250LXNpemU6Ny4ycHQ7IGNvbG9yOnZhcigtLW11dGVkKTsgYm9yZGVyLXRvcDoxcHggc29saWQgdmFyKC0tYm9yZGVyKTsgcGFkZGluZy10b3A6Mm1tOyB0ZXh0LWFsaWduOmNlbnRlcjt9CgogIC5ub3Rlc3tib3JkZXI6MXB4IGRhc2hlZCAjQzdDREQ2OyBib3JkZXItcmFkaXVzOjVweDsgcGFkZGluZzoyLjRtbSAzbW07IGJhY2tncm91bmQ6I0ZBRkJGQzt9CiAgLm5vdGVzIGgze2ZvbnQtc2l6ZTo4LjZwdDsgZm9udC13ZWlnaHQ6ODAwOyBtYXJnaW46MCAwIDEuNm1tOyBjb2xvcjp2YXIoLS1uYXZ5KTt9CiAgLm5vdGVzIHVse21hcmdpbjowOyBwYWRkaW5nLWxlZnQ6My42bW07IGZvbnQtc2l6ZTo4cHQ7IGxpbmUtaGVpZ2h0OjEuNTU7fQogIC5ub3RlcyBsaXttYXJnaW4tYm90dG9tOi44bW07fQogIC5ub3RlcyBsaS5lbXB0eXtsaXN0LXN0eWxlOm5vbmU7IG1hcmdpbi1sZWZ0Oi0zLjZtbTsgY29sb3I6I0I5QzBDQjsgZm9udC1zdHlsZTppdGFsaWM7fQo8L3N0eWxlPgo8L2hlYWQ+Cjxib2R5Pgo8YnV0dG9uIGNsYXNzPSJidG4tcHJpbnQgbm8tcHJpbnQiIG9uY2xpY2s9IndpbmRvdy5wcmludCgpIj7snbjsh4QgLyBQREYg7KCA7J6lPC9idXR0b24+Cgo8ZGl2IGNsYXNzPSJwYWdlIj4KICA8ZGl2IGNsYXNzPSJoZWFkIj4KICAgIDxkaXY+CiAgICAgIDxkaXYgY2xhc3M9ImV5ZWJyb3ciPkRBSUxZIFNOUyBCUklFRklORzwvZGl2PgogICAgICA8aDE+7LSd66qF6rmA66+87ISdIFNOUyDsooXtlanrs7Tqs6DshJw8L2gxPgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJtZXRhIj4KICAgICAg64yA7IOBIOyXheuhnOuTnOydvCA6IDxiIGlkPSJoVGFyZ2V0Ij4tPC9iPjxicj4KICAgICAg7J6R7ISx7J28IDogPGIgaWQ9ImhEYXRlIj4tPC9iPiDCtyDsnpHshLEgPGIgaWQ9ImhBdXRob3IiPi08L2I+IMK3IDxzcGFuIGlkPSJoR2VuQXQiPi08L3NwYW4+CiAgICA8L2Rpdj4KICA8L2Rpdj4KCiAgPHNwYW4gY2xhc3M9InNlY3Rpb24tdGl0bGUiPuyxhOuEkCDsiqTsvZTslrTsubTrk5wg4oCUIOq1rOuPheyekCAvIOuwmOydkSAvIOuPhOuLrDwvc3Bhbj4KICA8dGFibGUgY2xhc3M9Im1hc3RlciI+CiAgICA8dGhlYWQ+CiAgICAgIDx0cj4KICAgICAgICA8dGg+7LGE64SQPC90aD48dGg+6rWs64+F7J6QPC90aD48dGg+7Kad6rCQPC90aD48dGg+7KKL7JWE7JqUPC90aD48dGg+64yT6riAKOqwkOyEsSk8L3RoPjx0aD7thqDtg4gg7KGw7ZqM7IiYPC90aD48dGg+6rCc67OEIOy1nOqzoDwvdGg+CiAgICAgIDwvdHI+CiAgICA8L3RoZWFkPgogICAgPHRib2R5IGlkPSJtYXN0ZXJCb2R5Ij48L3Rib2R5PgogIDwvdGFibGU+CgogIDxzcGFuIGNsYXNzPSJzZWN0aW9uLXRpdGxlIj7ssYTrhJDrs4Qg7KGw7ZqM7IiYIFRPUCAzICjsoITsnbwg7JeF66Gc65OcIOqyjOyLnOusvCk8L3NwYW4+CiAgPGRpdiBjbGFzcz0idG9wM2dyaWQiIGlkPSJ0b3AzR3JpZCI+PC9kaXY+CgogIDxkaXYgY2xhc3M9ImhpZ2hsaWdodCIgaWQ9ImhpZ2hsaWdodENhcmQiPgogICAgPGRpdiBjbGFzcz0iaGlnaGxpZ2h0LXRodW1iIiBpZD0iaGlnaGxpZ2h0VGh1bWIiPjxkaXYgY2xhc3M9InBoLWljb24tc20iPjwvZGl2PjwvZGl2PgogICAgPGRpdiBjbGFzcz0iaGlnaGxpZ2h0LWJvZHkiPgogICAgICA8ZGl2IGNsYXNzPSJoaWdobGlnaHQtY2giIGlkPSJoaWdobGlnaHRDaCI+LTwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJoaWdobGlnaHQtdGl0bGUiIGlkPSJoaWdobGlnaHRUaXRsZSI+LTwvZGl2PgogICAgICA8ZGl2IGNsYXNzPSJoaWdobGlnaHQtbWV0YSIgaWQ9ImhpZ2hsaWdodFZpZXdzIj4tPC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9ImhpZ2hsaWdodC1hbmFseXNpcyIgaWQ9ImhpZ2hsaWdodEFuYWx5c2lzIj4tPC9kaXY+CiAgICA8L2Rpdj4KICA8L2Rpdj4KCiAgPGRpdiBjbGFzcz0icm93MiI+CiAgICA8ZGl2IGNsYXNzPSJjaGFydGJveCI+CiAgICAgIDxoMz7snbzqsIQg7KGw7ZqM7IiYIOy2lOydtCAo7KCEIOyxhOuEkCDtlanqs4QsIOy1nOq3vCA37J28KTwvaDM+CiAgICAgIDxkaXYgY2xhc3M9ImJhcnMiIGlkPSJkYWlseUJhcnMiPjwvZGl2PgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJub3RlcyI+CiAgICAgIDxoMz7tirnsnbTsgqztla0gLyDrqZTrqqg8L2gzPgogICAgICA8dWwgaWQ9Im5vdGVzTGlzdCI+PC91bD4KICAgIDwvZGl2PgogIDwvZGl2PgoKICA8c3BhbiBjbGFzcz0ic2VjdGlvbi10aXRsZSI+6riw7YOAIOuztOqzoCDtlYTsmpQg64yT6riAPC9zcGFuPgogIDxkaXYgY2xhc3M9ImJveCIgc3R5bGU9Im1hcmdpbi10b3A6Mi41bW07Ij4KICAgIDxkaXYgaWQ9ImNvbW1lbnRMaXN0Ij48L2Rpdj4KICA8L2Rpdj4KCjwvZGl2PgoKPHNjcmlwdD4KY29uc3QgcmVwb3J0RGF0YSA9IF9fUkVQT1JUX0RBVEFfSlNPTl9fOwoKZnVuY3Rpb24gcmVzb2x2ZUNvbG9yKHYpeyBjb25zdCB0PWRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoImRpdiIpOyB0LnN0eWxlLmNvbG9yPXY7IGRvY3VtZW50LmJvZHkuYXBwZW5kQ2hpbGQodCk7IGNvbnN0IGM9Z2V0Q29tcHV0ZWRTdHlsZSh0KS5jb2xvcjsgZG9jdW1lbnQuYm9keS5yZW1vdmVDaGlsZCh0KTsgcmV0dXJuIGM7IH0KZnVuY3Rpb24gZm10KG4peyByZXR1cm4gKG58fDApLnRvTG9jYWxlU3RyaW5nKCJrby1LUiIpOyB9Cgpkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiaERhdGUiKS50ZXh0Q29udGVudCA9IHJlcG9ydERhdGEubWV0YS5yZXBvcnREYXRlOwpkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiaFRhcmdldCIpLnRleHRDb250ZW50ID0gcmVwb3J0RGF0YS5tZXRhLnRhcmdldFVwbG9hZERhdGUgKyAiIOyXheuhnOuTnOu2hCI7CmRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJoQXV0aG9yIikudGV4dENvbnRlbnQgPSByZXBvcnREYXRhLm1ldGEuYXV0aG9yIHx8ICItIjsKZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImhHZW5BdCIpLnRleHRDb250ZW50ID0gcmVwb3J0RGF0YS5tZXRhLmdlbmVyYXRlZEF0OwoKLy8gbWFzdGVyIHRhYmxlCmNvbnN0IGJvZHkgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgibWFzdGVyQm9keSIpOwpsZXQgdG90YWxTdWI9MCwgdG90YWxMaWtlcz0wLCB0b3RhbENvbW1lbnRzPTAsIHRvdGFsVmlld3M9MDsKcmVwb3J0RGF0YS5jaGFubmVscy5mb3JFYWNoKGNoPT57CiAgdG90YWxTdWIrPWNoLnN1YnNjcmliZXJzfHwwOyB0b3RhbExpa2VzKz1jaC5saWtlc3x8MDsgdG90YWxDb21tZW50cys9Y2guY29tbWVudHN8fDA7IHRvdGFsVmlld3MrPWNoLnRvdGFsVmlld3N8fDA7CiAgY29uc3QgZGlyID0gKGNoLnN1YkRlbHRhfHwwKT4wPyJ1cCI6KGNoLnN1YkRlbHRhfHwwKTwwPyJkb3duIjoiZmxhdCI7CiAgY29uc3QgYXJyb3cgPSAoY2guc3ViRGVsdGF8fDApPjA/IuKWsiI6KGNoLnN1YkRlbHRhfHwwKTwwPyLilrwiOiLigJQiOwogIGNvbnN0IGVub3VnaCA9IChjaC5jb21tZW50c3x8MCkgPj0gMTU7CiAgY29uc3Qgc2VudCA9IGNoLnNlbnRpbWVudCB8fCB7fTsKICBjb25zdCBzZW50SHRtbCA9IGVub3VnaCAmJiAoc2VudC5wb3MhPW51bGwpCiAgICA/IGA8c3BhbiBjbGFzcz0ic2VudC1taW5pIj48c3BhbiBzdHlsZT0id2lkdGg6JHtzZW50LnBvc30lO2JhY2tncm91bmQ6dmFyKC0tZ3JlZW4pIj48L3NwYW4+PHNwYW4gc3R5bGU9IndpZHRoOiR7c2VudC5uZXV9JTtiYWNrZ3JvdW5kOiNDN0NERDYiPjwvc3Bhbj48c3BhbiBzdHlsZT0id2lkdGg6JHtzZW50Lm5lZ30lO2JhY2tncm91bmQ6dmFyKC0tcmVkKSI+PC9zcGFuPjwvc3Bhbj5gCiAgICA6IGA8c3BhbiBjbGFzcz0ic2VudC1uYSI+KO2RnOuzuOu2gOyhsSk8L3NwYW4+YDsKICBjb25zdCBtYXhWaWV3ID0gKGNoLnRvcFBvc3RzICYmIGNoLnRvcFBvc3RzWzBdKSA/IGNoLnRvcFBvc3RzWzBdLnZpZXdzIDogbnVsbDsKICBjb25zdCB0ciA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoInRyIik7CiAgdHIuaW5uZXJIVE1MID0gYAogICAgPHRkPjxzcGFuIGNsYXNzPSJjaC10YWciPjxzcGFuIGNsYXNzPSJkb3QiIHN0eWxlPSJiYWNrZ3JvdW5kOiR7Y2guY29sb3J9Ij48L3NwYW4+JHtjaC5uYW1lfTwvc3Bhbj48L3RkPgogICAgPHRkIGNsYXNzPSJudW0iPiR7Y2guc3Vic2NyaWJlcnMhPW51bGwgPyBmbXQoY2guc3Vic2NyaWJlcnMpIDogIuKAlCJ9PC90ZD4KICAgIDx0ZCBjbGFzcz0iZGVsdGEgJHtkaXJ9Ij4ke2NoLnN1YkRlbHRhIT1udWxsID8gYXJyb3crZm10KE1hdGguYWJzKGNoLnN1YkRlbHRhKSkgOiAi4oCUIn08L3RkPgogICAgPHRkIGNsYXNzPSJudW0iPiR7Y2gubGlrZXMhPW51bGwgPyBmbXQoY2gubGlrZXMpIDogIuKAlCJ9PC90ZD4KICAgIDx0ZCBjbGFzcz0ibnVtIj4ke2NoLmNvbW1lbnRzIT1udWxsID8gZm10KGNoLmNvbW1lbnRzKSA6ICLigJQifSR7c2VudEh0bWx9PC90ZD4KICAgIDx0ZCBjbGFzcz0ibnVtIj4ke2NoLnRvdGFsVmlld3MhPW51bGwgPyBmbXQoY2gudG90YWxWaWV3cykgOiAi4oCUIn08L3RkPgogICAgPHRkIGNsYXNzPSJudW0iPiR7bWF4VmlldyE9bnVsbCA/IGZtdChtYXhWaWV3KSA6ICLigJQifTwvdGQ+CiAgYDsKICBib2R5LmFwcGVuZENoaWxkKHRyKTsKfSk7CmNvbnN0IHRyVG90YWwgPSBkb2N1bWVudC5jcmVhdGVFbGVtZW50KCJ0ciIpOwp0clRvdGFsLmNsYXNzTmFtZSA9ICJ0b3RhbCI7CnRyVG90YWwuaW5uZXJIVE1MID0gYDx0ZD7soITssrQg7ZWp6rOEPC90ZD48dGQgY2xhc3M9Im51bSI+JHtmbXQodG90YWxTdWIpfTwvdGQ+PHRkPjwvdGQ+PHRkIGNsYXNzPSJudW0iPiR7Zm10KHRvdGFsTGlrZXMpfTwvdGQ+PHRkIGNsYXNzPSJudW0iPiR7Zm10KHRvdGFsQ29tbWVudHMpfTwvdGQ+PHRkIGNsYXNzPSJudW0iPiR7Zm10KHRvdGFsVmlld3MpfTwvdGQ+PHRkPjwvdGQ+YDsKYm9keS5hcHBlbmRDaGlsZCh0clRvdGFsKTsKCi8vIGRhaWx5IGJhcnMgKOy1nOq3vCDsoIDsnqXrtoQg7ZWp6rOELCDrjbDsnbTthLAg7JeG64qUIOuCoOydgCAwKQpjb25zdCBkYWlseVRvdGFscyA9IHJlcG9ydERhdGEuZGFpbHlUb3RhbHMgfHwgW107CmNvbnN0IGRheXMgPSByZXBvcnREYXRhLmRhaWx5RGF0ZXMgfHwgW107CmNvbnN0IGJhcnNFbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJkYWlseUJhcnMiKTsKY29uc3QgbWF4ViA9IE1hdGgubWF4KDEsIC4uLmRhaWx5VG90YWxzKTsKZGFpbHlUb3RhbHMuZm9yRWFjaCgodixpKT0+ewogIGNvbnN0IGggPSBNYXRoLm1heCg0LCAodi9tYXhWKSoxMDApOwogIGNvbnN0IGNvbCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoImRpdiIpOwogIGNvbC5jbGFzc05hbWUgPSAiYmFyLWNvbCI7CiAgY29sLmlubmVySFRNTCA9IGA8ZGl2IGNsYXNzPSJiYXItdmFsIj4keyh2LzEwMDApLnRvRml4ZWQoMSl9azwvZGl2PjxkaXYgY2xhc3M9ImJhciIgc3R5bGU9ImhlaWdodDoke2h9JTsgYmFja2dyb3VuZDoke3Jlc29sdmVDb2xvcigidmFyKC0tbmF2eSkiKX0iPjwvZGl2PjxkaXYgY2xhc3M9ImJhci1sYWJlbCI+JHtkYXlzW2ldfTwvZGl2PmA7CiAgYmFyc0VsLmFwcGVuZENoaWxkKGNvbCk7Cn0pOwoKLy8gY29tbWVudHMKY29uc3QgY2wgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiY29tbWVudExpc3QiKTsKaWYgKCFyZXBvcnREYXRhLm5vdGFibGVDb21tZW50cyB8fCAhcmVwb3J0RGF0YS5ub3RhYmxlQ29tbWVudHMubGVuZ3RoKSB7CiAgY2wuaW5uZXJIVE1MID0gYDxkaXYgY2xhc3M9ImNtdC1lbXB0eSI+7J6F66Cl65CcIO2KueydtCDrjJPquIDsnbQg7JeG7Iq164uI64ukLjwvZGl2PmA7Cn0gZWxzZSB7CiAgcmVwb3J0RGF0YS5ub3RhYmxlQ29tbWVudHMuZm9yRWFjaChjPT57CiAgICBjb25zdCBkID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgiZGl2Iik7CiAgICBkLmNsYXNzTmFtZSA9ICJjbXQiOwogICAgZC5pbm5lckhUTUwgPSBgPHNwYW4gY2xhc3M9ImNtdC10YWcgJHtjLndhcm4/Indhcm4iOiIifSI+JHtjLnRhZ3x8IuuplOuqqCJ9PC9zcGFuPjxzcGFuIGNsYXNzPSJjbXQtYm9keSI+PGI+JHtjLmNoYW5uZWx9PC9iPiDigJQgJHtjLnRleHR9PC9zcGFuPmA7CiAgICBjbC5hcHBlbmRDaGlsZChkKTsKICB9KTsKfQoKLy8gY2hhbm5lbC13aXNlIFRPUDMgZ3JpZApjb25zdCBncmlkRWwgPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgidG9wM0dyaWQiKTsKcmVwb3J0RGF0YS5jaGFubmVscy5mb3JFYWNoKGNoPT57CiAgY29uc3QgY2FyZCA9IGRvY3VtZW50LmNyZWF0ZUVsZW1lbnQoImRpdiIpOwogIGNhcmQuY2xhc3NOYW1lID0gInRvcDMtY2FyZCI7CiAgY2FyZC5zdHlsZS5zZXRQcm9wZXJ0eSgiLS1jaC1jb2xvciIsIGNoLmNvbG9yKTsKICBjb25zdCBwb3N0cyA9IGNoLnRvcFBvc3RzIHx8IFtdOwogIGNvbnN0IGl0ZW1zID0gWzAsMSwyXS5tYXAoaT0+ewogICAgY29uc3QgcCA9IHBvc3RzW2ldOwogICAgaWYoIXApIHJldHVybiBgPGxpIGNsYXNzPSJlbXB0eSI+PHNwYW4gY2xhc3M9Im1pbmktcmFuayI+JHtpKzF9PC9zcGFuPjxzcGFuIGNsYXNzPSJtaW5pLXRpdGxlIj4tPC9zcGFuPjwvbGk+YDsKICAgIHJldHVybiBgPGxpPjxzcGFuIGNsYXNzPSJtaW5pLXJhbmsiPiR7aSsxfTwvc3Bhbj48c3BhbiBjbGFzcz0ibWluaS10aXRsZSI+JHtwLnRpdGxlfHwiKOygnOuqqSDrr7jsnoXroKUpIn08L3NwYW4+PHNwYW4gY2xhc3M9Im1pbmktdmlld3MiPiR7Zm10KHAudmlld3Mpfe2ajDwvc3Bhbj48L2xpPmA7CiAgfSkuam9pbigiIik7CiAgY2FyZC5pbm5lckhUTUwgPSBgPGRpdiBjbGFzcz0iY2gtbmFtZSI+PHNwYW4gY2xhc3M9ImRvdCIgc3R5bGU9ImJhY2tncm91bmQ6JHtjaC5jb2xvcn0iPjwvc3Bhbj4ke2NoLm5hbWV9PC9kaXY+PG9sPiR7aXRlbXN9PC9vbD5gOwogIGdyaWRFbC5hcHBlbmRDaGlsZChjYXJkKTsKfSk7CgovLyB0b2RheSdzIHRvcCBjbGlwID0gaGlnaGVzdC12aWV3IHBvc3QgYWNyb3NzIGFsbCBjaGFubmVscycgdG9wUG9zdHMKbGV0IGJlc3QgPSBudWxsLCBiZXN0Q2ggPSBudWxsOwpyZXBvcnREYXRhLmNoYW5uZWxzLmZvckVhY2goY2g9PnsKICAoY2gudG9wUG9zdHN8fFtdKS5mb3JFYWNoKHA9PnsKICAgIGlmKHAudmlld3MhPW51bGwgJiYgKCFiZXN0IHx8IHAudmlld3MgPiBiZXN0LnZpZXdzKSl7IGJlc3QgPSBwOyBiZXN0Q2ggPSBjaC5uYW1lOyB9CiAgfSk7Cn0pOwppZihiZXN0KXsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiaGlnaGxpZ2h0Q2giKS50ZXh0Q29udGVudCA9IGJlc3RDaCArICIgwrcg6rCc67OEIOy1nOqzoCDsobDtmowg6rKM7Iuc66y8IjsKICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgiaGlnaGxpZ2h0VGl0bGUiKS50ZXh0Q29udGVudCA9IGJlc3QudGl0bGUgfHwgIijsoJzrqqkg66+47J6F66ClKSI7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImhpZ2hsaWdodFZpZXdzIikudGV4dENvbnRlbnQgPSBmbXQoYmVzdC52aWV3cykgKyAiIO2ajCI7CiAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImhpZ2hsaWdodEFuYWx5c2lzIikudGV4dENvbnRlbnQgPSBiZXN0LmFuYWx5c2lzIHx8ICLrtoTshJ0g7L2U66mY7Yq466W8IO2KueydtOyCrO2VrSDrqZTrqqjsl5Ag7LaU6rCA7ZW07KO87IS47JqULiI7CiAgaWYoYmVzdC50aHVtYm5haWwpewogICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoImhpZ2hsaWdodFRodW1iIikuaW5uZXJIVE1MID0gYDxpbWcgc3JjPSIke2Jlc3QudGh1bWJuYWlsfSIgYWx0PSJ0b3AgY2xpcCB0aHVtYm5haWwiPmA7CiAgfQp9IGVsc2UgewogIGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJoaWdobGlnaHRDYXJkIikuc3R5bGUuZGlzcGxheSA9ICJub25lIjsKfQoKLy8gbm90ZXMKY29uc3Qgbm90ZXNFbCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCJub3Rlc0xpc3QiKTsKaWYgKCFyZXBvcnREYXRhLm5vdGVzIHx8ICFyZXBvcnREYXRhLm5vdGVzLmxlbmd0aCkgewogIGNvbnN0IGxpID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgibGkiKTsKICBsaS5jbGFzc05hbWUgPSAiZW1wdHkiOwogIGxpLnRleHRDb250ZW50ID0gIuyekeyEseuQnCDrqZTrqqjqsIAg7JeG7Iq164uI64ukLiI7CiAgbm90ZXNFbC5hcHBlbmRDaGlsZChsaSk7Cn0gZWxzZSB7CiAgcmVwb3J0RGF0YS5ub3Rlcy5mb3JFYWNoKG49PnsKICAgIGNvbnN0IGxpID0gZG9jdW1lbnQuY3JlYXRlRWxlbWVudCgibGkiKTsKICAgIGxpLnRleHRDb250ZW50ID0gbjsKICAgIG5vdGVzRWwuYXBwZW5kQ2hpbGQobGkpOwogIH0pOwp9Cjwvc2NyaXB0Pgo8L2JvZHk+CjwvaHRtbD4K";
+function getSnsReportTemplateHtml() {
+  const bin = atob(SNS_REPORT_TEMPLATE_B64);
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+const REPORT_CHANNELS = [
+  { key:'ig',     name:'Instagram',       color:'var(--ig)' },
+  { key:'yt',     name:'YouTube',         color:'var(--yt)' },
+  { key:'tiktok', name:'TikTok',          color:'var(--tiktok)' },
+  { key:'fbp',    name:'Facebook 페이지', color:'var(--fbp)' },
+  { key:'fbg',    name:'Facebook 그룹',   color:'var(--fbg)' },
+  { key:'th',     name:'Threads',         color:'var(--th)' },
+];
+
+let reportRecentHistory = []; // 최근 저장된 sns_reports (그래프용, target_date 오름차순)
+
+function reportChannelCardHtml(ch, data) {
+  const d = data || {};
+  const top3 = (d.topPosts && d.topPosts.length) ? d.topPosts : [{},{},{}];
+  const top3Rows = [0,1,2].map(i => {
+    const p = top3[i] || {};
+    return `
+      <div class="report-top3-row">
+        <input type="text" class="rf-top-title" data-ch="${ch.key}" data-idx="${i}" placeholder="TOP${i+1} 게시물 제목" value="${esc(p.title||'')}">
+        <input type="number" class="rf-top-views" data-ch="${ch.key}" data-idx="${i}" placeholder="조회수" min="0" value="${p.views!=null?p.views:''}">
+      </div>`;
+  }).join('');
+  return `
+    <div class="report-ch-card" style="--rc-color:${ch.color}" data-ch="${ch.key}">
+      <div class="report-ch-name"><span class="dot"></span>${esc(ch.name)}</div>
+      <div class="report-field-row">
+        <div><label>구독자/팔로워 수</label><input type="number" class="rf-subs" data-ch="${ch.key}" min="0" value="${d.subscribers!=null?d.subscribers:''}"></div>
+        <div><label>전일 대비 증감</label><input type="number" class="rf-subdelta" data-ch="${ch.key}" value="${d.subDelta!=null?d.subDelta:''}" placeholder="예: 120 또는 -30"></div>
+      </div>
+      <div class="report-field-row">
+        <div><label>좋아요 수</label><input type="number" class="rf-likes" data-ch="${ch.key}" min="0" value="${d.likes!=null?d.likes:''}"></div>
+        <div><label>댓글 수</label><input type="number" class="rf-comments" data-ch="${ch.key}" min="0" value="${d.comments!=null?d.comments:''}"></div>
+      </div>
+      <div class="report-field-row">
+        <div style="grid-column:1/-1"><label>당일 총 조회수 (전체 게시물 합)</label><input type="number" class="rf-totalviews" data-ch="${ch.key}" min="0" value="${d.totalViews!=null?d.totalViews:''}"></div>
+      </div>
+      <div class="report-sent-row">
+        <div><label>긍정 %</label><input type="number" class="rf-sent-pos" data-ch="${ch.key}" min="0" max="100" value="${d.sentiment&&d.sentiment.pos!=null?d.sentiment.pos:''}"></div>
+        <div><label>중립 %</label><input type="number" class="rf-sent-neu" data-ch="${ch.key}" min="0" max="100" value="${d.sentiment&&d.sentiment.neu!=null?d.sentiment.neu:''}"></div>
+        <div><label>부정 %</label><input type="number" class="rf-sent-neg" data-ch="${ch.key}" min="0" max="100" value="${d.sentiment&&d.sentiment.neg!=null?d.sentiment.neg:''}"></div>
+      </div>
+      <div class="report-top3-label">조회수 TOP3 게시물 (없으면 비워두세요, 자동으로 조회수 순 정렬됩니다)</div>
+      ${top3Rows}
+      <div class="report-thumb-row"><input type="text" class="rf-thumb" data-ch="${ch.key}" placeholder="1위 게시물 썸네일 이미지 URL (선택)" value="${esc((top3[0]&&top3[0].thumbnail)||'')}"></div>
+    </div>`;
+}
+
+function reportCommentRowHtml(c) {
+  c = c || {};
+  const opts = REPORT_CHANNELS.map(ch => `<option value="${esc(ch.name)}" ${c.channel===ch.name?'selected':''}>${esc(ch.name)}</option>`).join('');
+  return `
+    <div class="report-dyn-row" data-kind="comment">
+      <select class="rf-cmt-channel">${opts}</select>
+      <input type="text" class="rf-cmt-tag" placeholder="태그 (예: 부정 다수)" style="width:140px" value="${esc(c.tag||'')}">
+      <label style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-faint)"><input type="checkbox" class="rf-cmt-warn" ${c.warn?'checked':''}> 주의 표시</label>
+      <textarea class="rf-cmt-text" placeholder="댓글 내용/요약">${esc(c.text||'')}</textarea>
+      <button type="button" class="report-dyn-remove" title="삭제">✕</button>
+    </div>`;
+}
+
+function reportNoteRowHtml(text) {
+  return `
+    <div class="report-dyn-row" data-kind="note">
+      <input type="text" class="rf-note-text" placeholder="특이사항 / 메모" style="flex:1" value="${esc(text||'')}">
+      <button type="button" class="report-dyn-remove" title="삭제">✕</button>
+    </div>`;
+}
+
+function renderSnsReportForm(prefill) {
+  const wrap = document.getElementById('report-form-wrap');
+  if (!wrap) return;
+  const p = prefill || {};
+  const targetDate = p.targetDate || addDays(getTodayStr(), -1);
+  const reportDate = p.reportDate || getTodayStr();
+  const author = p.author || '';
+  const channels = p.channels || {};
+  const notableComments = p.notableComments && p.notableComments.length ? p.notableComments : [];
+  const notes = p.notes && p.notes.length ? p.notes : [];
+
+  wrap.innerHTML = `
+    <div class="report-section-box">
+      <h4>기본 정보</h4>
+      <div class="report-meta-row">
+        <div><label class="form-label">대상 업로드일 (조회수 집계 기준일)</label><input type="date" class="form-input" id="rf-target-date" value="${targetDate}"></div>
+        <div><label class="form-label">보고서 작성일</label><input type="date" class="form-input" id="rf-report-date" value="${reportDate}"></div>
+        <div><label class="form-label">작성자</label><input type="text" class="form-input" id="rf-author" value="${esc(author)}" placeholder="이름"></div>
+      </div>
+      <div style="font-size:12px;color:var(--text-faint)">※ 해당 업로드일 보고서가 이미 저장되어 있으면 자동으로 불러옵니다. 없으면 새로 작성하는 것입니다. 값이 없는 칸은 비워둬도 됩니다.</div>
+    </div>
+
+    <div class="report-section-box">
+      <h4>채널별 수치</h4>
+      <div class="report-ch-grid" id="report-ch-grid">
+        ${REPORT_CHANNELS.map(ch => reportChannelCardHtml(ch, channels[ch.key])).join('')}
+      </div>
+    </div>
+
+    <div class="report-section-box">
+      <h4>기타 보고 필요 댓글</h4>
+      <div id="report-comments-list">${notableComments.map(reportCommentRowHtml).join('')}</div>
+      <button type="button" class="btn btn-secondary report-add-btn" id="report-add-comment">+ 댓글 추가</button>
+    </div>
+
+    <div class="report-section-box">
+      <h4>특이사항 / 메모</h4>
+      <div id="report-notes-list">${notes.map(reportNoteRowHtml).join('')}</div>
+      <button type="button" class="btn btn-secondary report-add-btn" id="report-add-note">+ 메모 추가</button>
+    </div>
+  `;
+
+  document.getElementById('rf-target-date').addEventListener('change', async e => {
+    await loadSnsReportIntoForm(e.target.value);
+  });
+  document.getElementById('report-add-comment').addEventListener('click', () => {
+    document.getElementById('report-comments-list').insertAdjacentHTML('beforeend', reportCommentRowHtml());
+  });
+  document.getElementById('report-add-note').addEventListener('click', () => {
+    document.getElementById('report-notes-list').insertAdjacentHTML('beforeend', reportNoteRowHtml());
+  });
+  wrap.addEventListener('click', e => {
+    const rm = e.target.closest('.report-dyn-remove');
+    if (rm) rm.closest('.report-dyn-row').remove();
+  });
+}
+
+function collectReportFormData() {
+  const targetDate = document.getElementById('rf-target-date').value;
+  const reportDate = document.getElementById('rf-report-date').value;
+  const author = document.getElementById('rf-author').value.trim();
+
+  const channels = {};
+  REPORT_CHANNELS.forEach(ch => {
+    const q = sel => document.querySelector(`${sel}[data-ch="${ch.key}"]`);
+    const numOrNull = el => (el && el.value !== '') ? Number(el.value) : null;
+    const topPosts = [0,1,2].map(i => {
+      const title = document.querySelector(`.rf-top-title[data-ch="${ch.key}"][data-idx="${i}"]`)?.value.trim() || '';
+      const views = document.querySelector(`.rf-top-views[data-ch="${ch.key}"][data-idx="${i}"]`)?.value;
+      return { title, views: views !== '' && views != null ? Number(views) : null };
+    }).filter(p => p.title || p.views != null)
+      .sort((a,b) => (b.views||0) - (a.views||0));
+    const thumb = q('.rf-thumb')?.value.trim() || '';
+    if (topPosts[0] && thumb) topPosts[0].thumbnail = thumb;
+
+    channels[ch.key] = {
+      subscribers: numOrNull(q('.rf-subs')),
+      subDelta: numOrNull(q('.rf-subdelta')),
+      likes: numOrNull(q('.rf-likes')),
+      comments: numOrNull(q('.rf-comments')),
+      totalViews: numOrNull(q('.rf-totalviews')),
+      sentiment: {
+        pos: numOrNull(q('.rf-sent-pos')),
+        neu: numOrNull(q('.rf-sent-neu')),
+        neg: numOrNull(q('.rf-sent-neg')),
+      },
+      topPosts,
+    };
+  });
+
+  const notableComments = Array.from(document.querySelectorAll('#report-comments-list .report-dyn-row')).map(row => ({
+    channel: row.querySelector('.rf-cmt-channel').value,
+    tag: row.querySelector('.rf-cmt-tag').value.trim(),
+    text: row.querySelector('.rf-cmt-text').value.trim(),
+    warn: row.querySelector('.rf-cmt-warn').checked,
+  })).filter(c => c.tag || c.text);
+
+  const notes = Array.from(document.querySelectorAll('#report-notes-list .report-dyn-row')).map(row => row.querySelector('.rf-note-text').value.trim()).filter(Boolean);
+
+  return { targetDate, reportDate, author, channels, notableComments, notes };
+}
+
+async function loadSnsReportIntoForm(targetDate) {
+  const existing = await loadSnsReport(targetDate);
+  if (existing) {
+    renderSnsReportForm({
+      targetDate: existing.target_date,
+      reportDate: existing.report_date,
+      author: existing.author || '',
+      channels: safeParseJson(existing.channels_json, {}),
+      notableComments: safeParseJson(existing.comments_json, []),
+      notes: safeParseJson(existing.notes_json, []),
+    });
+    showToast(targetDate + ' 저장된 보고서를 불러왔습니다.', 'info');
+  } else {
+    renderSnsReportForm({ targetDate, reportDate: addDays(targetDate, 1) });
+  }
+}
+
+function safeParseJson(str, fallback) {
+  if (!str) return fallback;
+  try { return JSON.parse(str); } catch(e) { return fallback; }
+}
+
+async function initSnsReportTab() {
+  const wrap = document.getElementById('report-form-wrap');
+  if (wrap && wrap.dataset.loaded) return;
+  const targetDate = addDays(getTodayStr(), -1);
+  await loadSnsReportIntoForm(targetDate);
+  if (wrap) wrap.dataset.loaded = '1';
+}
+
+async function buildReportDataForPreview(formData) {
+  const history = await loadRecentSnsReports(formData.targetDate, 7);
+  const dateList = [];
+  for (let i = 6; i >= 0; i--) dateList.push(addDays(formData.targetDate, -i));
+  const histMap = {};
+  history.forEach(r => { histMap[r.target_date] = safeParseJson(r.channels_json, {}); });
+  histMap[formData.targetDate] = formData.channels; // 저장 전이어도 현재 입력값 반영
+
+  const dailyTotals = dateList.map(d => {
+    const chData = histMap[d];
+    if (!chData) return 0;
+    return REPORT_CHANNELS.reduce((s, ch) => s + ((chData[ch.key] && chData[ch.key].totalViews) || 0), 0);
+  });
+  const dailyDates = dateList.map(d => d.slice(5));
+
+  const channels = REPORT_CHANNELS.map(ch => {
+    const c = formData.channels[ch.key] || {};
+    return {
+      key: ch.key, name: ch.name, color: ch.color,
+      subscribers: c.subscribers, subDelta: c.subDelta, likes: c.likes, comments: c.comments,
+      totalViews: c.totalViews, sentiment: c.sentiment, topPosts: c.topPosts,
+    };
+  });
+
+  return {
+    meta: {
+      reportDate: formData.reportDate,
+      targetUploadDate: formData.targetDate,
+      author: formData.author,
+      generatedAt: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ' 생성',
+    },
+    channels,
+    notableComments: formData.notableComments,
+    notes: formData.notes,
+    dailyTotals,
+    dailyDates,
+  };
+}
+
+function generateSnsReportHtml(reportData) {
+  return getSnsReportTemplateHtml().replace('__REPORT_DATA_JSON__', JSON.stringify(reportData));
+}
+
+document.getElementById('report-save-btn')?.addEventListener('click', async () => {
+  const formData = collectReportFormData();
+  if (!formData.targetDate || !formData.reportDate) {
+    showToast('대상 업로드일과 보고서 작성일을 입력해주세요.', 'error');
+    return;
+  }
+  const result = await upsertSnsReport(formData);
+  if (result) showToast(formData.targetDate + ' 보고서가 저장되었습니다.', 'success');
+});
+
+document.getElementById('report-preview-btn')?.addEventListener('click', async () => {
+  const formData = collectReportFormData();
+  if (!formData.targetDate || !formData.reportDate) {
+    showToast('대상 업로드일과 보고서 작성일을 입력해주세요.', 'error');
+    return;
+  }
+  const reportData = await buildReportDataForPreview(formData);
+  const html = generateSnsReportHtml(reportData);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+});
+
+// ================================================================
 // 15. 파이프라인 탭 렌더링
 // ================================================================
 const STAGES = ['예정','기획','진행 중','제작완료','검수','게시'];
@@ -3381,6 +3775,15 @@ function renderPipelineTab() {
   entries.forEach(e => {
     const stage = e.stage || '기획';
     if (grouped[stage]) grouped[stage].push(e);
+  });
+  // D-day 가까운 순 정렬 (due_date 없으면 맨 뒤)
+  STAGES.forEach(s => {
+    grouped[s].sort((a, b) => {
+      if (!a.due_date && !b.due_date) return 0;
+      if (!a.due_date) return 1;
+      if (!b.due_date) return -1;
+      return a.due_date < b.due_date ? -1 : a.due_date > b.due_date ? 1 : 0;
+    });
   });
 
   board.innerHTML = STAGES.map(stage => {
@@ -3580,8 +3983,64 @@ function addCutRow(cut = {}) {
       <input class="form-input cut-source-url" type="text" placeholder="소스 영상 링크 (https://...)" value="${esc(cut.source_url||'')}" />
       <input class="form-input cut-source-desc" type="text" placeholder="출처 / 화면 설명 (예: 박지원 JTBC 인터뷰)" value="${esc(cut.source_desc||'')}" />
       <textarea class="form-input cut-caption" placeholder="번인 자막 / 멘트">${esc(cut.caption||'')}</textarea>
+      <div class="cut-img-drop${cut.image_url ? ' has-img' : ''}">
+        <div class="cut-img-drop-label">📷 사진 드래그하거나 클릭해서 추가</div>
+        <img class="cut-img-preview" src="${esc(cut.image_url||'')}" alt="컷 이미지" />
+        <span class="cut-img-remove">✕ 사진 삭제</span>
+        <input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" />
+        <input type="hidden" class="cut-img-url" value="${esc(cut.image_url||'')}" />
+      </div>
     </div>
   `;
+  const dropZone  = div.querySelector('.cut-img-drop');
+  const imgPreview = div.querySelector('.cut-img-preview');
+  const imgUrl     = div.querySelector('.cut-img-url');
+  const imgRemove  = div.querySelector('.cut-img-remove');
+  const fileInput  = div.querySelector('input[type="file"]');
+
+  async function applyCutImage(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    const resized = await resizeImageFile(file, 1200, 1200, 0.82);
+    const url = await uploadImage(resized || file);
+    if (url) {
+      imgUrl.value   = url;
+      imgPreview.src = url;
+      dropZone.classList.add('has-img');
+    }
+    fileInput.value = '';
+  }
+
+  // 클릭 → 파일 선택 (이미지 없을 때만)
+  dropZone.addEventListener('click', (e) => {
+    if (e.target === imgRemove) return;
+    if (!dropZone.classList.contains('has-img')) fileInput.click();
+  });
+  fileInput.addEventListener('change', (e) => applyCutImage(e.target.files[0]));
+
+  // 드래그 앤 드롭
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    applyCutImage(e.dataTransfer.files[0]);
+  });
+
+  // 이미지 클릭 → 확대
+  imgPreview.addEventListener('click', () => {
+    if (imgUrl.value) {
+      document.getElementById('img-viewer-img').src = imgUrl.value;
+      document.getElementById('img-viewer-overlay').classList.add('open');
+    }
+  });
+
+  // 삭제
+  imgRemove.addEventListener('click', (e) => {
+    e.stopPropagation();
+    imgUrl.value   = '';
+    imgPreview.src = '';
+    dropZone.classList.remove('has-img');
+  });
   div.querySelector('.cut-delete-btn').addEventListener('click', () => {
     div.remove();
     document.querySelectorAll('#cuts-list .cut-row').forEach((r, i) => {
@@ -3597,7 +4056,8 @@ function getCutsFromForm() {
     source_url:  row.querySelector('.cut-source-url').value.trim(),
     source_desc: row.querySelector('.cut-source-desc').value.trim(),
     caption:     row.querySelector('.cut-caption').value.trim(),
-  })).filter(c => c.section || c.source_url || c.source_desc || c.caption);
+    image_url:   row.querySelector('.cut-img-url').value.trim(),
+  })).filter(c => c.section || c.source_url || c.source_desc || c.caption || c.image_url);
 }
 
 function setCutsToForm(cuts) {
@@ -3801,6 +4261,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const tab = btn.dataset.tab;
     if (TAB_TYPE[tab]) renderTypeKanban(tab);
     if (tab === 'sns')    renderSnsTab();
+    if (tab === 'snsreport') initSnsReportTab();
     if (tab === 'report') renderDashboard();
   });
 });
@@ -3896,7 +4357,7 @@ function openPipeDetail(entry) {
       <div>
         <span style="color:var(--text-faint);font-size:11px;">컷 구성 (${cuts.length}컷)</span>
         <div class="detail-cuts-wrapper"><table class="detail-cuts-table" style="margin-top:6px">
-          <thead><tr><th>컷</th><th>구간</th><th>소스</th><th>화면</th><th>자막/멘트</th></tr></thead>
+          <thead><tr><th>컷</th><th>구간</th><th>소스</th><th>화면</th><th>자막/멘트</th><th>사진</th></tr></thead>
           <tbody>
             ${cuts.map((c, i) => `<tr>
               <td style="white-space:nowrap;font-weight:600;color:var(--accent);">${i+1}</td>
@@ -3904,6 +4365,7 @@ function openPipeDetail(entry) {
               <td>${c.source_url ? `<a class="cut-url-link" href="${esc(c.source_url)}" target="_blank" rel="noopener">링크↗</a>` : ''}</td>
               <td>${esc(c.source_desc||'')}</td>
               <td style="white-space:pre-wrap;">${esc(c.caption||'')}</td>
+              <td>${c.image_url ? `<img class="cut-thumb" src="${esc(c.image_url)}" alt="컷${i+1}사진" data-imgurl="${esc(c.image_url)}" />` : ''}</td>
             </tr>`).join('')}
           </tbody>
         </table></div>
@@ -3968,7 +4430,7 @@ document.getElementById('entry-cancel-btn').addEventListener('click', closeEntry
 document.getElementById('entry-delete-btn').addEventListener('click', async () => {
   const id = document.getElementById('entry-id').value;
   if (!id) return;
-  const entry = allEntries.find(e => e.id === id);
+  const entry = pipelineEntries.find(e => e.id === id);
   const label = entry ? entry.task.slice(0, 30) : '이 업무';
   if (!confirm(`"${label}" 업무를 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
   const ok = await deleteEntry(id);
@@ -4032,7 +4494,7 @@ document.addEventListener('click', async e => {
   const editBtn = e.target.closest('.edit-btn');
   if (editBtn) {
     const id = editBtn.dataset.id;
-    const entry = allEntries.find(e => e.id === id);
+    const entry = pipelineEntries.find(e => e.id === id);
     if (entry) openEntryModal(entry);
     return;
   }
@@ -4041,7 +4503,7 @@ document.addEventListener('click', async e => {
   const deleteBtn = e.target.closest('.delete-btn');
   if (deleteBtn) {
     const id = deleteBtn.dataset.id;
-    const entry = allEntries.find(e => e.id === id);
+    const entry = pipelineEntries.find(e => e.id === id);
     if (!entry) return;
     if (!confirm(`"${entry.task.slice(0,30)}" 업무를 삭제할까요? 이 작업은 되돌릴 수 없습니다.`)) return;
     const ok = await deleteEntry(id);
@@ -4054,7 +4516,7 @@ document.addEventListener('click', async e => {
   }
 
   // 이미지 썸네일 클릭 → 뷰어
-  const imgThumb = e.target.closest('.entry-img-thumb');
+  const imgThumb = e.target.closest('.entry-img-thumb, .cut-thumb');
   if (imgThumb && imgThumb.dataset.imgurl) {
     document.getElementById('img-viewer-img').src = imgThumb.dataset.imgurl;
     document.getElementById('img-viewer-overlay').classList.add('open');
@@ -4065,7 +4527,7 @@ document.addEventListener('click', async e => {
   const pipeCard = e.target.closest('.pipeline-card');
   if (pipeCard && !e.target.closest('.pipeline-move-btn')) {
     const id = pipeCard.dataset.id;
-    const entry = allEntries.find(en => en.id === id);
+    const entry = pipelineEntries.find(en => en.id === id);
     if (entry) openPipeDetail(entry);
     return;
   }
@@ -4074,7 +4536,7 @@ document.addEventListener('click', async e => {
   const copyBtn = e.target.closest('.pipeline-copy-btn');
   if (copyBtn) {
     e.stopPropagation();
-    const src = allEntries.find(en => en.id === copyBtn.dataset.id);
+    const src = pipelineEntries.find(en => en.id === copyBtn.dataset.id);
     if (!src) return;
     openEntryModal(null, src.task_type);
     document.getElementById('entry-name').value  = src.name || '';
@@ -4108,7 +4570,7 @@ document.addEventListener('click', async e => {
   if (moveBtn) {
     const id = moveBtn.dataset.id;
     const nextStage = moveBtn.dataset.nextStage;
-    const entry = allEntries.find(en => en.id === id);
+    const entry = pipelineEntries.find(en => en.id === id);
     if (!entry) return;
     const lastStages = ['업로드됨', '게시', '완료'];
     const statusUpdate = lastStages.includes(nextStage) ? '완료' : nextStage === '예정' ? '예정' : '진행중';
