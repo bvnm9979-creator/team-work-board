@@ -174,3 +174,52 @@ CREATE POLICY "anon_delete_work_images"
 -- 완료! 이제 index.html 상단의 SUPABASE_URL과 SUPABASE_ANON_KEY를
 -- 본인 프로젝트 값으로 교체하면 됩니다.
 -- ================================================================
+
+
+-- ================================================================
+-- 추가: SNS 종합 보고서 테이블 (sns_reports) — 2026-07-14
+-- ================================================================
+-- ⚠️ 이 섹션만 단독으로 실행하세요. 위 전체 스크립트를 다시 실행하면
+--    work_entries / sns_metrics 데이터가 DROP CASCADE로 삭제됩니다.
+-- ────────────────────────────────────────────────────────────────
+-- 9. SNS 종합 보고서 테이블 (sns_reports)
+-- ────────────────────────────────────────────────────────────────
+DROP TABLE IF EXISTS sns_reports CASCADE;
+
+CREATE TABLE sns_reports (
+  id            BIGSERIAL   PRIMARY KEY,
+  target_date   DATE        NOT NULL UNIQUE,   -- 조회수 집계 대상 업로드일
+  report_date   DATE        NOT NULL,          -- 보고서 작성일
+  author        TEXT        CHECK (char_length(author) <= 100),
+  channels_json TEXT,                          -- 채널별 수치/TOP3 JSON
+  comments_json TEXT,                          -- 기타 보고 필요 댓글 JSON
+  notes_json    TEXT,                          -- 특이사항/메모 JSON
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_sns_reports_target_date ON sns_reports(target_date DESC);
+
+CREATE TRIGGER sns_reports_updated_at
+  BEFORE UPDATE ON sns_reports
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+ALTER TABLE sns_reports ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "anon_select_sns_reports"
+  ON sns_reports FOR SELECT
+  TO anon USING (true);
+
+CREATE POLICY "anon_insert_sns_reports"
+  ON sns_reports FOR INSERT
+  TO anon WITH CHECK (true);
+
+CREATE POLICY "anon_update_sns_reports"
+  ON sns_reports FOR UPDATE
+  TO anon USING (true) WITH CHECK (true);
+
+CREATE POLICY "anon_delete_sns_reports"
+  ON sns_reports FOR DELETE
+  TO anon USING (true);
+
+ALTER PUBLICATION supabase_realtime ADD TABLE sns_reports;
