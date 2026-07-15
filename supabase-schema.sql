@@ -194,6 +194,7 @@ CREATE TABLE sns_reports (
   channels_json TEXT,                          -- 채널별 수치/TOP3 JSON
   comments_json TEXT,                          -- 기타 보고 필요 댓글 JSON
   notes_json    TEXT,                          -- 특이사항/메모 JSON
+  surge_posts_json TEXT,                       -- 조회수 폭등 게시물 목록 JSON
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -221,5 +222,12 @@ CREATE POLICY "anon_update_sns_reports"
 CREATE POLICY "anon_delete_sns_reports"
   ON sns_reports FOR DELETE
   TO anon USING (true);
+
+-- ────────────────────────────────────────────────────────────────
+-- 이미 sns_reports 테이블이 존재하는 환경(운영 DB)이라면 위 CREATE TABLE을
+-- 다시 실행하지 말고, 아래 한 줄만 Supabase SQL Editor에서 실행하세요.
+-- (조회수 폭등 게시물 기능 추가 — 2026-07-15)
+-- ────────────────────────────────────────────────────────────────
+-- ALTER TABLE sns_reports ADD COLUMN IF NOT EXISTS surge_posts_json TEXT;
 
 ALTER PUBLICATION supabase_realtime ADD TABLE sns_reports;
