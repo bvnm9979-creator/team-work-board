@@ -5070,7 +5070,8 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('change', async e => {
   if (e.target.matches('.rf-link, .rf-surge-link, .rf-thumb, .rf-surge-thumb')) {
     const val = e.target.value.trim();
-    if (!val || !val.startsWith('http')) return;
+    if (!val) return;
+    if (!val.startsWith('http')) e.target.value = 'https://' + val;
     
     const row = e.target.closest('.report-thumb-row, .report-dyn-row');
     if (!row) return;
@@ -5101,10 +5102,12 @@ document.addEventListener('change', async e => {
     if (!videoUrl) return;
 
     // 1. YouTube 빠른 변환
-    const ytMatch = videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/);
-    if (ytMatch) {
-      thumbInput.value = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
-      return;
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+      const match = videoUrl.match(/(?:v=|shorts\/|youtu\.be\/|embed\/)([^"&?\/\s]{11})/);
+      if (match) {
+        thumbInput.value = `https://img.youtube.com/vi/${match[1]}/hqdefault.jpg`;
+        return;
+      }
     }
     
     // 2. 틱톡, 인스타그램 등 그 외 플랫폼 메타데이터 파싱 (Microlink API 활용)
