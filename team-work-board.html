@@ -3537,7 +3537,7 @@ function reportChannelCardHtml(ch, data, prevData) {
         <input type="number" class="rf-top-views" data-ch="${ch.key}" data-idx="0" placeholder="조회수" min="0" value="${top.views!=null?top.views:''}">
       </div>
       <textarea class="rf-top-summary" data-ch="${ch.key}" data-idx="0" placeholder="주요내용 (게시물이 무슨 내용인지 간단히)" style="width:100%;margin-top:6px;min-height:44px">${esc(top.summary||'')}</textarea>
-      <div class="report-thumb-row"><input type="text" class="rf-thumb" data-ch="${ch.key}" placeholder="게시물 썸네일 이미지 URL (선택)" value="${esc(top.thumbnail||'')}"></div>
+      <div class="report-thumb-row"><input type="text" class="rf-thumb" data-ch="${ch.key}" placeholder="썸네일 URL 또는 유튜브 링크 입력" value="${esc(top.thumbnail||'')}"></div>
     </div>`;
 }
 
@@ -3550,7 +3550,7 @@ function reportSurgeRowHtml(s) {
       <input type="text" class="rf-surge-title" placeholder="게시물 제목" style="flex:1 1 220px" value="${esc(s.title||'')}">
       <input type="number" class="rf-surge-views" placeholder="조회수" style="width:110px" min="0" value="${s.views!=null?s.views:''}">
       <input type="text" class="rf-surge-note" placeholder="폭등 사유 / 메모" style="flex:1 1 220px" value="${esc(s.note||'')}">
-      <input type="text" class="rf-surge-thumb" placeholder="썸네일 이미지 URL (선택)" style="flex:1 1 220px" value="${esc(s.thumbnail||'')}">
+      <input type="text" class="rf-surge-thumb" placeholder="썸네일 URL 또는 유튜브 링크 입력" style="flex:1 1 220px" value="${esc(s.thumbnail||'')}">
       <button type="button" class="report-dyn-remove" title="삭제">✕</button>
     </div>`;
 }
@@ -5056,6 +5056,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 초기 렌더
   renderMonitorTab();
+});
+
+
+// 썸네일 링크 자동 변환 (유튜브)
+document.addEventListener('input', e => {
+  if (e.target.matches('.rf-thumb, .rf-surge-thumb')) {
+    const val = e.target.value.trim();
+    const ytMatch = val.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/);
+    if (ytMatch) {
+      e.target.value = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
+    }
+  }
 });
 
 </script>
