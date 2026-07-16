@@ -3537,7 +3537,10 @@ function reportChannelCardHtml(ch, data, prevData) {
         <input type="number" class="rf-top-views" data-ch="${ch.key}" data-idx="0" placeholder="조회수" min="0" value="${top.views!=null?top.views:''}">
       </div>
       <textarea class="rf-top-summary" data-ch="${ch.key}" data-idx="0" placeholder="주요내용 (게시물이 무슨 내용인지 간단히)" style="width:100%;margin-top:6px;min-height:44px">${esc(top.summary||'')}</textarea>
-      <div class="report-thumb-row"><input type="text" class="rf-thumb" data-ch="${ch.key}" placeholder="게시물 링크 입력 (유튜브/틱톡/인스타 지원)" value="${esc(top.thumbnail||'')}"></div>
+      <div class="report-thumb-row" style="display:flex; gap:6px;">
+        <input type="url" class="rf-link" data-ch="${ch.key}" placeholder="원본 링크 (입력시 썸네일 자동추출)" style="flex:1" value="${esc(top.link||'')}">
+        <input type="text" class="rf-thumb" data-ch="${ch.key}" placeholder="썸네일 URL" style="flex:1" value="${esc(top.thumbnail||'')}">
+      </div>
     </div>`;
 }
 
@@ -3550,7 +3553,8 @@ function reportSurgeRowHtml(s) {
       <input type="text" class="rf-surge-title" placeholder="게시물 제목" style="flex:1 1 220px" value="${esc(s.title||'')}">
       <input type="number" class="rf-surge-views" placeholder="조회수" style="width:110px" min="0" value="${s.views!=null?s.views:''}">
       <input type="text" class="rf-surge-note" placeholder="폭등 사유 / 메모" style="flex:1 1 220px" value="${esc(s.note||'')}">
-      <input type="text" class="rf-surge-thumb" placeholder="게시물 링크 입력 (유튜브/틱톡/인스타 지원)" style="flex:1 1 220px" value="${esc(s.thumbnail||'')}">
+      <input type="url" class="rf-surge-link" placeholder="원본 링크" style="flex:1 1 150px" value="${esc(s.link||'')}">
+      <input type="text" class="rf-surge-thumb" placeholder="썸네일 URL" style="flex:1 1 150px" value="${esc(s.thumbnail||'')}">
       <button type="button" class="report-dyn-remove" title="삭제">✕</button>
     </div>`;
 }
@@ -5062,18 +5066,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// 썸네일 링크 자동 변환 (유튜브, 틱톡, 인스타 등 통합 지원)
+// 썸네일 링크 자동 변환 및 입력 실수 보정
 document.addEventListener('change', async e => {
-  if (e.target.matches('.rf-link, .rf-surge-link')) {
+  if (e.target.matches('.rf-link, .rf-surge-link, .rf-thumb, .rf-surge-thumb')) {
     const val = e.target.value.trim();
     if (!val || !val.startsWith('http')) return;
     
     const row = e.target.closest('.report-thumb-row, .report-dyn-row');
-    const thumbInput = row ? row.querySelector('.rf-thumb, .rf-surge-thumb') : null;
-    if (!thumbInput) return;
+    if (!row) return;
+    const linkInput = row.querySelector('.rf-link, .rf-surge-link');
+    const thumbInput = row.querySelector('.rf-thumb, .rf-surge-thumb');
+    if (!thumbInput || !linkInput) return;
+
+    const isImage = /\.(jpe?g|png|webp|gif)$/i.test(val) || val.includes('img.youtube.com') || val.includes('api.microlink.io');
+
+    // 사용자가 썸네일 칸에 영상 주소를 잘못 넣은 경우 보정
+    if (e.target.matches('.rf-thumb, .rf-surge-thumb')) {
+       if (!isImage) {
+          if (!linkInput.value) linkInput.value = val;
+       } else {
+          return; // 정상적인 이미지 주소면 패스
+       }
+    } else {
+       // 원본 링크 칸에 이미지 주소를 잘못 넣은 경우 보정
+       if (isImage) {
+          thumbInput.value = val;
+          e.target.value = '';
+          return;
+       }
+    }
+
+    // 영상 주소(val)를 기반으로 썸네일 자동 추출
+    const videoUrl = linkInput.value.trim();
+    if (!videoUrl) return;
 
     // 1. YouTube 빠른 변환
-    const ytMatch = val.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/);
+    const ytMatch = videoUrl.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/|youtube\.com\/shorts\/)([^"&?\/\s]{11})/);
     if (ytMatch) {
       thumbInput.value = `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`;
       return;
@@ -5082,7 +5110,7 @@ document.addEventListener('change', async e => {
     // 2. 틱톡, 인스타그램 등 그 외 플랫폼 메타데이터 파싱 (Microlink API 활용)
     try {
       thumbInput.style.opacity = '0.5';
-      const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(val)}`);
+      const res = await fetch(`https://api.microlink.io?url=${encodeURIComponent(videoUrl)}`);
       const data = await res.json();
       if (data.status === 'success' && data.data.image && data.data.image.url) {
         thumbInput.value = data.data.image.url;
