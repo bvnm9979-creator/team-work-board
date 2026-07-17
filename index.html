@@ -3500,7 +3500,6 @@ const REPORT_CHANNELS = [
     subLabel:'그룹원(참여자) 수', hasTop1:false },
   { key:'yt',      name:'YouTube',         color:'var(--yt)' },
   { key:'tiktok',  name:'TikTok',          color:'var(--tiktok)' },
-  { key:'twitter', name:'Twitter',         color:'var(--twitter)' },
   { key:'th',      name:'Threads',         color:'var(--th)', hasTop1:false },
   { key:'ig',      name:'Instagram',       color:'var(--ig)', hasTop1:false },
 ];
@@ -3518,7 +3517,7 @@ function reportChannelCardHtml(ch, data, prevData) {
 
   const top = (d.topPosts && d.topPosts[0]) ? d.topPosts[0] : {};
   const top1Html = hasTop1 ? `
-      <div class="report-top3-label">채널별 조회수 TOP 1 게시물 분석</div>
+      <div class="report-top3-label">채널별 조회수 TOP 1 게시물</div>
       <div class="report-top3-row">
         <input type="text" class="rf-top-title" data-ch="${ch.key}" data-idx="0" placeholder="게시물 제목" value="${esc(top.title||'')}">
         <input type="number" class="rf-top-views" data-ch="${ch.key}" data-idx="0" placeholder="조회수" min="0" value="${top.views!=null?top.views:''}">
