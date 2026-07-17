@@ -3514,6 +3514,15 @@ function reportChannelCardHtml(ch, data, prevData) {
   const prevSubs = pd.subscribers != null ? pd.subscribers : null;
   const autoSubDelta = (d.subscribers != null && prevSubs != null) ? (d.subscribers - prevSubs) : null;
   const subDeltaVal = d.subDelta != null ? d.subDelta : autoSubDelta;
+  
+  const prevTotalViews = pd.totalViews != null ? pd.totalViews : null;
+  const autoTotalViewsDelta = (d.totalViews != null && prevTotalViews != null) ? (d.totalViews - prevTotalViews) : null;
+  const totalViewsDeltaVal = d.totalViewsDelta != null ? d.totalViewsDelta : autoTotalViewsDelta;
+
+  const prevCumViews = pd.cumulativeViews != null ? pd.cumulativeViews : null;
+  const autoCumViewsDelta = (d.cumulativeViews != null && prevCumViews != null) ? (d.cumulativeViews - prevCumViews) : null;
+  const cumViewsDeltaVal = d.cumulativeViewsDelta != null ? d.cumulativeViewsDelta : autoCumViewsDelta;
+
   const top = (d.topPosts && d.topPosts[0]) ? d.topPosts[0] : {};
   return `
     <div class="report-ch-card" style="--rc-color:${ch.color}" data-ch="${ch.key}">
@@ -3524,11 +3533,11 @@ function reportChannelCardHtml(ch, data, prevData) {
       </div>
       <div class="report-field-row">
         <div><label>일 조회수 (당일 총 조회수)</label><input type="number" class="rf-totalviews" data-ch="${ch.key}" min="0" value="${d.totalViews!=null?d.totalViews:''}"></div>
-        <div><label>일 조회수 전일 대비</label><input type="number" class="rf-totalviewsdelta" data-ch="${ch.key}" value="${d.totalViewsDelta!=null?d.totalViewsDelta:''}" placeholder="예: 2000(▲40) → 40 입력"></div>
+        <div><label>일 조회수 전일 대비${prevTotalViews!=null?' (자동계산)':''}</label><input type="number" class="rf-totalviewsdelta" data-ch="${ch.key}" value="${totalViewsDeltaVal!=null?totalViewsDeltaVal:''}" placeholder="${prevTotalViews!=null?'전일 기록 기반 자동 계산됨 (수정 가능)':'예: 2000(▲40) → 40 입력'}"></div>
       </div>
       <div class="report-field-row">
         <div><label>누적 조회수 (플랫폼 개설첫날 기준)</label><input type="number" class="rf-cumviews" data-ch="${ch.key}" min="0" value="${d.cumulativeViews!=null?d.cumulativeViews:''}"></div>
-        <div><label>누적 전일 대비</label><input type="number" class="rf-cumviewsdelta" data-ch="${ch.key}" value="${d.cumulativeViewsDelta!=null?d.cumulativeViewsDelta:''}" placeholder="예: 3000(▼24) → -24 입력"></div>
+        <div><label>누적 전일 대비${prevCumViews!=null?' (자동계산)':''}</label><input type="number" class="rf-cumviewsdelta" data-ch="${ch.key}" value="${cumViewsDeltaVal!=null?cumViewsDeltaVal:''}" placeholder="${prevCumViews!=null?'전일 기록 기반 자동 계산됨 (수정 가능)':'예: 3000(▼24) → -24 입력'}"></div>
       </div>
       <div style="font-size:11px;color:var(--text-faint);margin-bottom:8px">※ 누적 조회수는 플랫폼 개설 첫날부터 합산한 값입니다. 데이터 확보는 서호진 보좌관님께 협조를 구해주세요.</div>
       ${!['ig', 'th'].includes(ch.key) ? `
