@@ -5054,7 +5054,9 @@ document.addEventListener('change', async e => {
     const thumbInput = row.querySelector('.rf-thumb, .rf-surge-thumb');
     if (!thumbInput || !linkInput) return;
 
-    const isImage = /\.(jpe?g|png|webp|gif)$/i.test(val) || val.includes('img.youtube.com') || val.includes('api.microlink.io');
+    const urlNoQuery = val.split(/[?#]/)[0];
+    const isPostLink = /(?:youtube\.com|youtu\.be|tiktok\.com|instagram\.com|facebook\.com|threads\.net|twitter\.com|x\.com)/i.test(val);
+    const isImage = /\.(jpe?g|png|webp|gif)$/i.test(urlNoQuery) || val.includes('img.youtube.com') || val.includes('api.microlink.io') || !isPostLink;
 
     // 사용자가 썸네일 칸에 영상 주소를 잘못 넣은 경우 보정
     if (e.target.matches('.rf-thumb, .rf-surge-thumb')) {
