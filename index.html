@@ -3382,8 +3382,12 @@ function renderSnsTab() {
     const sorted = [...rows].sort((a,b) => a.metric_date.localeCompare(b.metric_date));
     const values = sorted.map(r => r.count);
     const todayRow = rows.find(r => r.metric_date === today);
-    const todayCount = todayRow ? todayRow.count : null;
-    const prevRow = sorted.length >= 2 ? sorted[sorted.length - 2] : null;
+    const latestRow = sorted.length ? sorted[sorted.length - 1] : null;
+    const displayRow = todayRow || latestRow;
+    const todayCount = displayRow ? displayRow.count : null;
+    const isStale = !!(displayRow && !todayRow);
+    const displayIdx = displayRow ? sorted.findIndex(r => r === displayRow) : -1;
+    const prevRow = displayIdx > 0 ? sorted[displayIdx - 1] : null;
     const prevCount = prevRow ? prevRow.count : null;
 
     let deltaHtml = '';
@@ -3409,6 +3413,7 @@ function renderSnsTab() {
         </div>
         <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">
           <span class="sns-platform-count">${todayCount !== null ? todayCount.toLocaleString() + '명' : '—'}</span>
+          ${isStale ? `<span class="sns-platform-delta" style="color:var(--text-faint)">(${esc(displayRow.metric_date.slice(5))} 기준)</span>` : ''}
           ${deltaHtml}
         </div>
         <div class="sns-canvas-wrap">
@@ -3653,12 +3658,24 @@ function collectReportFormData() {
   return { targetDate, reportDate, author, channels, surgePosts };
 }
 
+async function findRecentSnsReport(fromDate, maxLookback) {
+  for (let i = 1; i <= (maxLookback || 14); i++) {
+    const d = addDays(fromDate, -i);
+    const r = await loadSnsReport(d);
+    if (r) return r;
+  }
+  return null;
+}
+
 async function loadSnsReportIntoForm(targetDate) {
   const [existing, prevReport] = await Promise.all([
     loadSnsReport(targetDate),
-    loadSnsReport(addDays(targetDate, -1)),
+    findRecentSnsReport(targetDate),
   ]);
   const prevChannels = prevReport ? safeParseJson(prevReport.channels_json, {}) : {};
+  if (prevReport && prevReport.target_date !== addDays(targetDate, -1)) {
+    showToast(`전일 보고서가 없어 ${prevReport.target_date} 데이터를 비교 기준으로 불러왔습니다.`, 'info');
+  }
   if (existing) {
     renderSnsReportForm({
       targetDate: existing.target_date,
